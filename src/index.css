@@ -1,0 +1,52 @@
+/* ═══════════════════════════════════════════════════
+   LitePOS M3 Expressive — Global Styles
+   ═══════════════════════════════════════════════════ */
+
+@import url('https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;600;700&display=swap');
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+:root {
+  font-family: 'Google Sans', 'Roboto', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  margin: 0;
+  background: #E8E8E8;
+  min-height: 100vh;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+}
+
+#root {
+  width: 100%;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+}
+
+/* Scrollbar styling for the device frame */
+::-webkit-scrollbar {
+  width: 3px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(0,0,0,0.15);
+  border-radius: 3px;
+}
+
+/* Remove tap highlight on mobile */
+button, a {
+  -webkit-tap-highlight-color: transparent;
+}
