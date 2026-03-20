@@ -87,7 +87,7 @@ export default function HomeScreen({ navigate, basket, setBasket, products = [] 
             display: "flex", alignItems: "center", justifyContent: "center",
           }}
         >
-          <Icon name="settings" size={24} color={tokens.color.fg.white} />
+          <Icon name="store" size={24} color={tokens.color.fg.white} />
         </button>
       </div>
 

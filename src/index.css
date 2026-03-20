@@ -34,16 +34,13 @@ body {
   justify-content: center;
 }
 
-/* Scrollbar styling for the device frame */
-::-webkit-scrollbar {
-  width: 3px;
+/* Hide scrollbars — matches Android behaviour */
+* {
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE/Edge */
 }
-::-webkit-scrollbar-track {
-  background: transparent;
-}
-::-webkit-scrollbar-thumb {
-  background: rgba(0,0,0,0.15);
-  border-radius: 3px;
+*::-webkit-scrollbar {
+  display: none; /* Chrome/Safari */
 }
 
 /* Remove tap highlight on mobile */
