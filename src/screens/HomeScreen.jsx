@@ -47,14 +47,17 @@ export default function HomeScreen({ navigate, basket, setBasket, products = [] 
     setSearchQuery("");
   };
 
-  // Filter logic — filter applies to category view
+  // Filter logic — search always spans ALL items; category filter only when search is closed
   let filtered = products;
-  if (searchQuery.trim()) {
-    // Search always applies across ALL items
-    const q = searchQuery.toLowerCase();
-    filtered = products.filter(
-      (p) => p.name.toLowerCase().includes(q) || p.price.includes(q)
-    );
+  if (searchActive) {
+    // When search is open, always work against full product list
+    if (searchQuery.trim()) {
+      const q = searchQuery.toLowerCase();
+      filtered = products.filter(
+        (p) => p.name.toLowerCase().includes(q) || p.price.includes(q)
+      );
+    }
+    // else: search open but empty query → show all items
   } else if (activeFilter === "Favourites") {
     filtered = filtered.filter((p) => p.fav);
   } else if (activeFilter !== "All Items") {
