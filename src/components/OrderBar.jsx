@@ -12,7 +12,7 @@ import Icon from "./Icon";
  * giving one predictable bar at the bottom — no floating elements competing
  * with the product grid.
  */
-export default function OrderBar({ itemCount = 0, total = 0, onCharge, onKeypad }) {
+export default function OrderBar({ itemCount = 0, total = 0, onCharge }) {
   const hasItems = itemCount > 0;
 
   // ── Active state: basket with items ──────────────────────────────
@@ -98,70 +98,27 @@ export default function OrderBar({ itemCount = 0, total = 0, onCharge, onKeypad 
     );
   }
 
-  // ── Idle state: keypad shortcut + terminal info ─────────────────
+  // ── Idle state: terminal info strip ─────────────────────────────
   return (
-    <div style={{ display: "flex", flexDirection: "column" }}>
-      {/* Keypad shortcut — compact pill, right-aligned */}
-      {onKeypad && (
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "flex-end",
-            padding: "8px 16px",
-            background: tokens.color.bg.page,
-          }}
-        >
-          <button
-            onClick={onKeypad}
-            style={{
-              height: 36,
-              borderRadius: tokens.shape.full,
-              border: `1.5px solid ${tokens.color.fg.brand}`,
-              background: "transparent",
-              cursor: "pointer",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              gap: 6,
-              padding: "0 14px 0 10px",
-              transition: `all ${tokens.motion.duration.short4} ${tokens.motion.easing.standard}`,
-            }}
-          >
-            <Icon name="keypad" size={18} color={tokens.color.fg.brand} />
-            <span
-              style={{
-                fontSize: tokens.type.labelMedium.size,
-                fontWeight: tokens.type.labelMedium.weight,
-                color: tokens.color.fg.brand,
-                fontFamily: "inherit",
-              }}
-            >
-              Manual Entry
-            </span>
-          </button>
-        </div>
-      )}
-      {/* Terminal info strip */}
-      <div
-        style={{
-          height: 40,
-          background: tokens.color.bg.statusbar,
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-          padding: "0 16px",
-          fontSize: tokens.type.labelSmall.size,
-          color: tokens.color.fg.white,
-          fontWeight: 500,
-          transition: `all ${tokens.motion.duration.medium2} ${tokens.motion.easing.standard}`,
-        }}
-      >
-        <div style={{ display: "flex", gap: 16 }}>
-          <span>STANDALONE</span>
-          <span>Front counter</span>
-        </div>
-        <span style={{ fontSize: tokens.type.labelSmall.size }}>Powered by mx51</span>
+    <div
+      style={{
+        height: 40,
+        background: tokens.color.bg.statusbar,
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "space-between",
+        padding: "0 16px",
+        fontSize: tokens.type.labelSmall.size,
+        color: tokens.color.fg.white,
+        fontWeight: 500,
+        transition: `all ${tokens.motion.duration.medium2} ${tokens.motion.easing.standard}`,
+      }}
+    >
+      <div style={{ display: "flex", gap: 16 }}>
+        <span>STANDALONE</span>
+        <span>Front counter</span>
       </div>
+      <span style={{ fontSize: tokens.type.labelSmall.size }}>Powered by mx51</span>
     </div>
   );
 }

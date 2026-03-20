@@ -1,7 +1,6 @@
 import { useState, useRef } from "react";
 import tokens from "../theme/tokens";
 import OrderBar from "../components/OrderBar";
-import Chip from "../components/Chip";
 import ProductCard from "../components/ProductCard";
 import Icon from "../components/Icon";
 
@@ -10,17 +9,27 @@ const products = [
   { name: "Cappuccino", price: "4.80", fav: true, cat: "Drinks" },
   { name: "Long Black", price: "4.00", fav: false, cat: "Drinks" },
   { name: "Chai Latte", price: "5.20", fav: false, cat: "Drinks" },
+  { name: "Lemon Squash", price: "3.50", fav: false, cat: "Drinks" },
   { name: "Blueberry Muffin", price: "5.50", fav: true, cat: "Food" },
   { name: "Banana Bread", price: "6.00", fav: false, cat: "Food" },
   { name: "Croissant", price: "4.50", fav: false, cat: "Food" },
   { name: "Avo Toast", price: "14.00", fav: false, cat: "Food" },
+  { name: "Eggs Benny", price: "16.50", fav: true, cat: "Food" },
 ];
 
-const categories = ["All", "Favourites", "Drinks", "Food"];
+// Derive unique categories from product data
+const categoryList = [...new Set(products.map((p) => p.cat))];
+
+// Category tile colours (Square-style)
+const catColors = {
+  Drinks: { bg: "#E0F2F1", fg: "#00695C", icon: "store" },
+  Food: { bg: "#FFF3E0", fg: "#E65100", icon: "store" },
+  Favourites: { bg: "#FCE4EC", fg: "#C62828", icon: "favorite" },
+};
 
 
 export default function HomeScreen({ navigate, basket, setBasket }) {
-  const [activeFilter, setActiveFilter] = useState("All");
+  const [activeFilter, setActiveFilter] = useState(null); // null = show category tiles
   const [searchQuery, setSearchQuery] = useState("");
   const [searchFocused, setSearchFocused] = useState(false);
   const [showSearch, setShowSearch] = useState(false);
@@ -28,7 +37,6 @@ export default function HomeScreen({ navigate, basket, setBasket }) {
   const searchRef = useRef(null);
 
   const handleScan = () => {
-    // Mock: simulate a 1s camera scan, then "find" a random product
     setScanResult("scanning");
     setTimeout(() => {
       const found = products[Math.floor(Math.random() * products.length)];
@@ -47,18 +55,18 @@ export default function HomeScreen({ navigate, basket, setBasket }) {
     }
   };
 
-  // Filter products
+  // Determine what to display
   let filtered = products;
   if (activeFilter === "Favourites") {
     filtered = filtered.filter((p) => p.fav);
-  } else if (activeFilter !== "All") {
+  } else if (activeFilter) {
     filtered = filtered.filter((p) => p.cat === activeFilter);
   }
 
-  // Search
+  // Search overrides category filter
   if (searchQuery.trim()) {
     const q = searchQuery.toLowerCase();
-    filtered = filtered.filter(
+    filtered = products.filter(
       (p) => p.name.toLowerCase().includes(q) || p.price.includes(q)
     );
   }
@@ -66,10 +74,13 @@ export default function HomeScreen({ navigate, basket, setBasket }) {
   const total = basket.reduce((s, b) => s + b.price * b.qty, 0);
   const itemCount = basket.reduce((s, b) => s + b.qty, 0);
 
+  // Are we showing the category "home" view or a drilled-in product list?
+  const showCategoryHome = !activeFilter && !searchQuery.trim();
+
   return (
     <div style={{ flex: 1, display: "flex", flexDirection: "column", minHeight: 0, position: "relative" }}>
 
-      {/* ── Layer 1: Top bar — icon-only navigation ──────────── */}
+      {/* ── Top bar: menu | (title) | keypad search settings ── */}
       <div
         style={{
           background: tokens.color.bg.brand,
@@ -80,7 +91,6 @@ export default function HomeScreen({ navigate, basket, setBasket }) {
           flexShrink: 0,
         }}
       >
-        {/* Left: Menu */}
         <button
           onClick={() => navigate("menu")}
           style={{
@@ -92,8 +102,29 @@ export default function HomeScreen({ navigate, basket, setBasket }) {
           <Icon name="menu" size={24} color={tokens.color.fg.white} />
         </button>
 
-        {/* Right group: Search toggle + Settings */}
-        <div style={{ display: "flex", alignItems: "center", gap: 0 }}>
+        {/* Show current category as title when drilled in */}
+        {activeFilter && !showSearch && (
+          <span style={{
+            fontSize: tokens.type.titleMedium.size,
+            fontWeight: tokens.type.titleMedium.weight,
+            color: tokens.color.fg.white,
+            letterSpacing: tokens.type.titleMedium.tracking,
+          }}>
+            {activeFilter}
+          </span>
+        )}
+
+        <div style={{ display: "flex", alignItems: "center" }}>
+          <button
+            onClick={() => navigate("keypad")}
+            style={{
+              width: 48, height: 48, borderRadius: tokens.shape.full,
+              border: "none", background: "transparent", cursor: "pointer",
+              display: "flex", alignItems: "center", justifyContent: "center",
+            }}
+          >
+            <Icon name="keypad" size={24} color={tokens.color.fg.white} />
+          </button>
           <button
             onClick={() => {
               setShowSearch(!showSearch);
@@ -121,7 +152,7 @@ export default function HomeScreen({ navigate, basket, setBasket }) {
         </div>
       </div>
 
-      {/* ── Layer 2: Collapsible M3 Search bar ────────────── */}
+      {/* ── Collapsible search bar ────────────────────────── */}
       <div
         style={{
           maxHeight: showSearch ? 72 : 0,
@@ -155,30 +186,19 @@ export default function HomeScreen({ navigate, basket, setBasket }) {
               onBlur={() => setSearchFocused(false)}
               placeholder="Search products..."
               style={{
-                flex: 1,
-                border: "none",
-                outline: "none",
-                background: "transparent",
-                fontSize: tokens.type.bodyLarge.size,
-                lineHeight: tokens.type.bodyLarge.lineHeight,
-                letterSpacing: tokens.type.bodyLarge.tracking,
-                color: tokens.color.fg.emphasis,
-                fontFamily: "inherit",
-                padding: 0,
-                height: "100%",
+                flex: 1, border: "none", outline: "none", background: "transparent",
+                fontSize: tokens.type.bodyLarge.size, lineHeight: tokens.type.bodyLarge.lineHeight,
+                letterSpacing: tokens.type.bodyLarge.tracking, color: tokens.color.fg.emphasis,
+                fontFamily: "inherit", padding: 0, height: "100%",
               }}
             />
             {searchQuery ? (
               <button
                 onClick={() => { setSearchQuery(""); searchRef.current?.focus(); }}
                 style={{
-                  width: 40, height: 40,
-                  borderRadius: tokens.shape.full,
-                  border: "none",
-                  background: "transparent",
-                  cursor: "pointer",
-                  display: "flex", alignItems: "center", justifyContent: "center",
-                  flexShrink: 0,
+                  width: 40, height: 40, borderRadius: tokens.shape.full, border: "none",
+                  background: "transparent", cursor: "pointer",
+                  display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0,
                 }}
               >
                 <Icon name="close" size={20} color={tokens.color.fg.subtle} />
@@ -188,13 +208,9 @@ export default function HomeScreen({ navigate, basket, setBasket }) {
                 onClick={handleScan}
                 disabled={scanResult === "scanning"}
                 style={{
-                  width: 40, height: 40,
-                  borderRadius: tokens.shape.full,
-                  border: "none",
-                  background: "transparent",
-                  cursor: scanResult === "scanning" ? "wait" : "pointer",
-                  display: "flex", alignItems: "center", justifyContent: "center",
-                  flexShrink: 0,
+                  width: 40, height: 40, borderRadius: tokens.shape.full, border: "none",
+                  background: "transparent", cursor: scanResult === "scanning" ? "wait" : "pointer",
+                  display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0,
                 }}
               >
                 <Icon name="scan" size={20} color={scanResult === "scanning" ? tokens.color.fg.brand : tokens.color.fg.subtle} />
@@ -204,19 +220,7 @@ export default function HomeScreen({ navigate, basket, setBasket }) {
         </div>
       </div>
 
-      {/* ── Layer 3: Filter chips ───────────────────────────── */}
-      <div style={{ display: "flex", gap: 8, padding: "4px 16px 8px", overflow: "auto", flexShrink: 0, background: tokens.color.bg.page }}>
-        {categories.map((cat) => (
-          <Chip
-            key={cat}
-            label={cat}
-            selected={activeFilter === cat}
-            onClick={() => setActiveFilter(cat)}
-          />
-        ))}
-      </div>
-
-      {/* ── Layer 4: Product grid ───────────────────────────── */}
+      {/* ── Grid area: full-height scrollable ─────────────── */}
       <div
         style={{
           flex: 1,
@@ -225,20 +229,99 @@ export default function HomeScreen({ navigate, basket, setBasket }) {
           background: tokens.color.bg.page,
         }}
       >
-        {filtered.length > 0 ? (
+        {showCategoryHome ? (
+          /* ── Category home: tiles for each category ────── */
           <div
             style={{
               display: "grid",
               gridTemplateColumns: "1fr 1fr",
               gap: 10,
-              padding: "4px 16px 16px",
+              padding: "12px 16px 16px",
             }}
           >
-            {filtered.map((p, i) => (
-              <ProductCard key={i} name={p.name} price={p.price} isFav={p.fav} onClick={() => handleAdd(p)} />
+            {/* Favourites tile */}
+            <CategoryTile
+              label="Favourites"
+              count={products.filter((p) => p.fav).length}
+              color={catColors.Favourites}
+              onClick={() => setActiveFilter("Favourites")}
+            />
+            {/* Category tiles */}
+            {categoryList.map((cat) => (
+              <CategoryTile
+                key={cat}
+                label={cat}
+                count={products.filter((p) => p.cat === cat).length}
+                color={catColors[cat] || { bg: "#E8EAF6", fg: "#283593", icon: "store" }}
+                onClick={() => setActiveFilter(cat)}
+              />
             ))}
+            {/* All items tile */}
+            <CategoryTile
+              label="All Items"
+              count={products.length}
+              color={{ bg: tokens.color.bg.surface, fg: tokens.color.fg.emphasis, icon: "store" }}
+              onClick={() => setActiveFilter("All")}
+            />
+            {/* Quick-access: recent/popular products below categories */}
+            <div
+              style={{
+                gridColumn: "1 / -1",
+                padding: "8px 0 4px",
+                fontSize: tokens.type.labelLarge.size,
+                fontWeight: tokens.type.labelLarge.weight,
+                color: tokens.color.fg.subtle,
+                letterSpacing: tokens.type.labelLarge.tracking,
+              }}
+            >
+              Popular
+            </div>
+            {products
+              .filter((p) => p.fav)
+              .map((p, i) => (
+                <ProductCard key={i} name={p.name} price={p.price} isFav={p.fav} onClick={() => handleAdd(p)} />
+              ))}
+          </div>
+        ) : filtered.length > 0 ? (
+          /* ── Drilled-in product grid ───────────────────── */
+          <div>
+            {/* Back to categories bar */}
+            {activeFilter && !searchQuery.trim() && (
+              <button
+                onClick={() => setActiveFilter(null)}
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 6,
+                  padding: "10px 16px",
+                  background: "transparent",
+                  border: "none",
+                  cursor: "pointer",
+                  fontSize: tokens.type.labelLarge.size,
+                  fontWeight: tokens.type.labelLarge.weight,
+                  color: tokens.color.fg.brand,
+                  width: "100%",
+                }}
+              >
+                <Icon name="back" size={18} color={tokens.color.fg.brand} />
+                All Categories
+              </button>
+            )}
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "1fr 1fr",
+                gap: 10,
+                padding: "4px 16px 16px",
+              }}
+            >
+              {filtered.map((p, i) => (
+                <ProductCard key={i} name={p.name} price={p.price} isFav={p.fav} onClick={() => handleAdd(p)} />
+              ))}
+            </div>
           </div>
         ) : (
+          /* ── Empty state ──────────────────────────────── */
           <div
             style={{
               display: "flex",
@@ -259,7 +342,7 @@ export default function HomeScreen({ navigate, basket, setBasket }) {
         )}
       </div>
 
-      {/* ── Scan feedback toast ──────────────────────────────── */}
+      {/* ── Scan feedback toast ────────────────────────────── */}
       {scanResult && (
         <div
           style={{
@@ -275,7 +358,6 @@ export default function HomeScreen({ navigate, basket, setBasket }) {
             gap: 10,
             zIndex: 10,
             boxShadow: tokens.elevation.level3,
-            transition: `all ${tokens.motion.duration.medium1} ${tokens.motion.easing.emphasizedDecelerate}`,
           }}
         >
           <Icon
@@ -291,15 +373,59 @@ export default function HomeScreen({ navigate, basket, setBasket }) {
         </div>
       )}
 
-      {/* ── Layer 5: Order bar (with keypad shortcut in idle state) ── */}
+      {/* ── Order bar ──────────────────────────────────────── */}
       <div style={{ flexShrink: 0 }}>
         <OrderBar
           itemCount={itemCount}
           total={total}
           onCharge={() => navigate("basket")}
-          onKeypad={() => navigate("keypad")}
         />
       </div>
     </div>
+  );
+}
+
+
+/**
+ * CategoryTile — Square/Clover-style coloured category tile in the grid.
+ */
+function CategoryTile({ label, count, color, onClick }) {
+  return (
+    <button
+      onClick={onClick}
+      style={{
+        height: 88,
+        borderRadius: tokens.shape.large,
+        background: color.bg,
+        border: "none",
+        cursor: "pointer",
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "flex-start",
+        justifyContent: "flex-end",
+        padding: "12px 14px",
+        gap: 4,
+        transition: `transform ${tokens.motion.duration.short4} ${tokens.motion.easing.standard}`,
+      }}
+    >
+      <span
+        style={{
+          fontSize: tokens.type.titleSmall.size,
+          fontWeight: 600,
+          color: color.fg,
+        }}
+      >
+        {label}
+      </span>
+      <span
+        style={{
+          fontSize: tokens.type.bodySmall.size,
+          color: color.fg,
+          opacity: 0.7,
+        }}
+      >
+        {count} {count === 1 ? "item" : "items"}
+      </span>
+    </button>
   );
 }
