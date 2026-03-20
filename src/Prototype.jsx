@@ -56,7 +56,7 @@ export default function Prototype() {
         borderRadius: 4,
         overflow: "hidden",
         background: tokens.color.bg.page,
-        fontFamily: "'Google Sans', 'Roboto', -apple-system, sans-serif",
+        fontFamily: "'Figtree', -apple-system, sans-serif",
         display: "flex",
         flexDirection: "column",
         boxShadow:

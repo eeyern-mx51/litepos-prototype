@@ -18,39 +18,6 @@ const products = [
 
 const categories = ["All", "Favourites", "Drinks", "Food"];
 
-/**
- * NavPill — pill-shaped nav button matching existing mx51 app pattern.
- */
-function NavPill({ icon, label, onClick }) {
-  return (
-    <button
-      onClick={onClick}
-      style={{
-        height: 40,
-        borderRadius: tokens.shape.full,
-        border: "none",
-        background: tokens.color.fg.white,
-        cursor: "pointer",
-        display: "flex",
-        alignItems: "center",
-        gap: 6,
-        padding: "0 16px",
-        transition: `all ${tokens.motion.duration.short4} ${tokens.motion.easing.standard}`,
-      }}
-    >
-      {icon && <Icon name={icon} size={18} color={tokens.color.fg.emphasis} />}
-      <span
-        style={{
-          fontSize: tokens.type.labelLarge.size,
-          fontWeight: 600,
-          color: tokens.color.fg.emphasis,
-        }}
-      >
-        {label}
-      </span>
-    </button>
-  );
-}
 
 export default function HomeScreen({ navigate, basket, setBasket }) {
   const [activeFilter, setActiveFilter] = useState("All");
@@ -100,8 +67,23 @@ export default function HomeScreen({ navigate, basket, setBasket }) {
           flexShrink: 0,
         }}
       >
-        {/* Left: Menu pill */}
-        <NavPill icon="menu" label="Menu" onClick={() => navigate("menu")} />
+        {/* Left: Menu icon */}
+        <button
+          onClick={() => navigate("menu")}
+          style={{
+            width: 40,
+            height: 40,
+            borderRadius: tokens.shape.full,
+            border: "none",
+            background: "rgba(255,255,255,0.15)",
+            cursor: "pointer",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
+          <Icon name="menu" size={20} color={tokens.color.fg.white} />
+        </button>
 
         {/* Right: Settings shortcut */}
         <button

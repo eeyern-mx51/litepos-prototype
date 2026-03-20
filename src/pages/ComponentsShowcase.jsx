@@ -95,7 +95,7 @@ export default function ComponentsShowcase() {
       style={{
         minHeight: "100vh",
         background: tokens.color.bg.page,
-        fontFamily: "'Google Sans', 'Roboto', -apple-system, sans-serif",
+        fontFamily: "'Figtree', -apple-system, sans-serif",
       }}
     >
       {/* Top bar */}
@@ -211,7 +211,7 @@ export default function ComponentsShowcase() {
         {/* ── Typography ────────────────────────────────────────── */}
         <Section
           title="Typography Scale"
-          description="M3 type scale mapped to GKO text styles. Google Sans primary, Roboto fallback."
+          description="M3 type scale mapped to GKO text styles. Figtree primary, system fallback."
         >
           <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
             {[

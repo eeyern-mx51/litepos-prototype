@@ -146,7 +146,7 @@ export default function DocumentationPage() {
       style={{
         minHeight: "100vh",
         background: tokens.color.bg.page,
-        fontFamily: "'Google Sans', 'Roboto', -apple-system, sans-serif",
+        fontFamily: "'Figtree', -apple-system, sans-serif",
       }}
     >
       {/* Top bar */}

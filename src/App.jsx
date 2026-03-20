@@ -27,7 +27,7 @@ export default function App() {
       style={{
         minHeight: "100vh",
         background: `linear-gradient(135deg, ${tokens.color.bg.brand} 0%, #1a2340 100%)`,
-        fontFamily: "'Google Sans', 'Roboto', -apple-system, sans-serif",
+        fontFamily: "'Figtree', -apple-system, sans-serif",
         display: "flex",
         flexDirection: "column",
         alignItems: "center",
