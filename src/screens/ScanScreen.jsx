@@ -3,11 +3,27 @@ import tokens from "../theme/tokens";
 import Icon from "../components/Icon";
 import OrderBar from "../components/OrderBar";
 
-export default function ScanScreen({ navigate, basket, setBasket, products = [] }) {
+// Products that simulate being imported from Connect Express
+const importSamples = [
+  { name: "Soy Cappuccino", price: "5.20", cat: "Drinks", description: "Soy milk cappuccino", sku: "DRK-041", upc: "9310012345601" },
+  { name: "Smashed Avo Wrap", price: "13.50", cat: "Food", description: "Smashed avocado in a spinach wrap with feta", sku: "FOD-089", upc: "9310012345618" },
+  { name: "Berry Smoothie", price: "8.00", cat: "Drinks", description: "Mixed berry smoothie with yoghurt", sku: "DRK-055", upc: "9310012345625" },
+];
+
+let importIndex = 0;
+
+/**
+ * ScanScreen
+ *
+ * mode="pos"    — Default. Scans barcode, matches existing products, adds to basket.
+ * mode="import" — Scans barcode from Connect Express receipt, opens add-product form pre-filled.
+ */
+export default function ScanScreen({ navigate, basket, setBasket, products = [], mode = "pos", goBack }) {
   const [phase, setPhase] = useState("scanning"); // scanning | found | error
   const [matchedProduct, setMatchedProduct] = useState(null);
   const [scanLine, setScanLine] = useState(0);
   const timerRef = useRef(null);
+  const isImport = mode === "import";
 
   const total = basket.reduce((s, b) => s + b.price * b.qty, 0);
   const itemCount = basket.reduce((s, b) => s + b.qty, 0);
@@ -29,7 +45,39 @@ export default function ScanScreen({ navigate, basket, setBasket, products = [] 
   }, []);
 
   const simulateScan = () => {
-    // 75% chance of match, 25% no match
+    if (isImport) {
+      // Import mode: 80% success, cycle through import samples
+      const success = Math.random() < 0.8;
+      if (success) {
+        const product = importSamples[importIndex % importSamples.length];
+        importIndex++;
+        setMatchedProduct(product);
+        setPhase("found");
+        // Navigate to add-product form pre-filled after showing success
+        setTimeout(() => {
+          navigate("edit-product", {
+            name: product.name,
+            price: product.price,
+            cat: product.cat,
+            description: product.description,
+            sku: product.sku,
+            upc: product.upc,
+            fav: false,
+            imported: true,
+          });
+        }, 1600);
+      } else {
+        setPhase("error");
+        setMatchedProduct(null);
+        setTimeout(() => {
+          setPhase("scanning");
+          timerRef.current = setTimeout(() => simulateScan(), 2200);
+        }, 2500);
+      }
+      return;
+    }
+
+    // POS mode: match against existing products
     const matched = Math.random() < 0.75 && products.length > 0;
 
     if (matched) {
@@ -54,7 +102,6 @@ export default function ScanScreen({ navigate, basket, setBasket, products = [] 
       // Reset to scanning after showing error
       setTimeout(() => {
         setPhase("scanning");
-        // Schedule another scan attempt
         timerRef.current = setTimeout(() => simulateScan(), 2200);
       }, 2500);
     }
@@ -64,6 +111,11 @@ export default function ScanScreen({ navigate, basket, setBasket, products = [] 
     if (phase !== "scanning") return;
     clearTimeout(timerRef.current);
     simulateScan();
+  };
+
+  const handleBack = () => {
+    if (goBack) goBack();
+    else navigate("home");
   };
 
   return (
@@ -82,7 +134,7 @@ export default function ScanScreen({ navigate, basket, setBasket, products = [] 
         }}
       >
         <button
-          onClick={() => navigate("home")}
+          onClick={handleBack}
           style={{
             width: 48, height: 48, borderRadius: tokens.shape.full,
             border: "none", background: "transparent", cursor: "pointer",
@@ -96,10 +148,10 @@ export default function ScanScreen({ navigate, basket, setBasket, products = [] 
           fontWeight: tokens.type.titleMedium.weight,
           color: "#fff",
         }}>
-          Scan Barcode
+          {isImport ? "Import Product" : "Scan Barcode"}
         </span>
         <button
-          onClick={() => navigate("home")}
+          onClick={handleBack}
           style={{
             width: 48, height: 48, borderRadius: tokens.shape.full,
             border: "none", background: "transparent", cursor: "pointer",
@@ -220,9 +272,9 @@ export default function ScanScreen({ navigate, basket, setBasket, products = [] 
             color: "rgba(255,255,255,0.7)",
             fontWeight: 500,
           }}>
-            {phase === "scanning" && "Point camera at barcode"}
-            {phase === "found" && "Barcode matched!"}
-            {phase === "error" && "Barcode not recognised"}
+            {phase === "scanning" && (isImport ? "Scan barcode from Connect Express receipt" : "Point camera at barcode")}
+            {phase === "found" && (isImport ? "Product found!" : "Barcode matched!")}
+            {phase === "error" && (isImport ? "Barcode not recognised" : "Barcode not recognised")}
           </div>
           {phase === "scanning" && (
             <div style={{
@@ -266,20 +318,26 @@ export default function ScanScreen({ navigate, basket, setBasket, products = [] 
             flex: 1,
           }}>
             {phase === "found"
-              ? `Added ${matchedProduct?.name} — $${matchedProduct?.price}`
-              : "Product not found — barcode doesn\u2019t match any items"}
+              ? (isImport
+                ? `Found ${matchedProduct?.name} — $${matchedProduct?.price}`
+                : `Added ${matchedProduct?.name} — $${matchedProduct?.price}`)
+              : (isImport
+                ? "Barcode not found on Connect Express — try again"
+                : "Product not found — barcode doesn\u2019t match any items")}
           </span>
         </div>
       )}
 
-      {/* ── Order bar ───────────────────────────────── */}
-      <div style={{ flexShrink: 0, position: "relative", zIndex: 5 }}>
-        <OrderBar
-          itemCount={itemCount}
-          total={total}
-          onCharge={() => navigate("basket")}
-        />
-      </div>
+      {/* ── Order bar (POS mode only) ────────────────── */}
+      {!isImport && (
+        <div style={{ flexShrink: 0, position: "relative", zIndex: 5 }}>
+          <OrderBar
+            itemCount={itemCount}
+            total={total}
+            onCharge={() => navigate("basket")}
+          />
+        </div>
+      )}
     </div>
   );
 }
