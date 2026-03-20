@@ -1,10 +1,8 @@
 import tokens from "../theme/tokens";
 import TopAppBar from "../components/TopAppBar";
-import TerminalInfoBar from "../components/TerminalInfoBar";
+import OrderBar from "../components/OrderBar";
 import Chip from "../components/Chip";
 import ProductCard from "../components/ProductCard";
-import BasketBanner from "../components/BasketBanner";
-import FAB from "../components/FAB";
 
 const products = [
   { name: "Flat White", price: "4.50", fav: true },
@@ -31,7 +29,7 @@ export default function HomeScreen({ navigate, basket, setBasket }) {
   const itemCount = basket.reduce((s, b) => s + b.qty, 0);
 
   return (
-    <div style={{ flex: 1, display: "flex", flexDirection: "column", position: "relative" }}>
+    <div style={{ flex: 1, display: "flex", flexDirection: "column" }}>
       <TopAppBar
         title="LitePOS"
         variant="small"
@@ -39,6 +37,7 @@ export default function HomeScreen({ navigate, basket, setBasket }) {
         actions={[
           { icon: "search", onPress: () => {} },
           { icon: "scan", onPress: () => {} },
+          { icon: "keypad", onPress: () => navigate("keypad") },
         ]}
       />
 
@@ -50,7 +49,7 @@ export default function HomeScreen({ navigate, basket, setBasket }) {
         <Chip label="Food" />
       </div>
 
-      {/* Product grid */}
+      {/* Product grid — full scrollable area, nothing floating over it */}
       <div
         style={{
           flex: 1,
@@ -68,14 +67,12 @@ export default function HomeScreen({ navigate, basket, setBasket }) {
         ))}
       </div>
 
-      {/* Basket banner */}
-      <BasketBanner itemCount={itemCount} total={total} onClick={() => navigate("basket")} />
-
-      {/* Keypad FAB */}
-      <FAB icon="keypad" onClick={() => navigate("keypad")} variant="primary" />
-
-      {/* Terminal info bar */}
-      <TerminalInfoBar />
+      {/* Fixed bottom order bar — idle shows terminal info, active shows basket */}
+      <OrderBar
+        itemCount={itemCount}
+        total={total}
+        onCharge={() => navigate("basket")}
+      />
     </div>
   );
 }

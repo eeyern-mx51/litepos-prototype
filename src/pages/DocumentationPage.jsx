@@ -328,13 +328,13 @@ export default function DocumentationPage() {
           <FlowStep
             number={2}
             title="Add to Basket"
-            description="Tap a product card to add it to the basket. The BasketBanner appears at the bottom showing item count and running total."
-            screens={["Home", "BasketBanner"]}
+            description="Tap a product card to add it to the basket. The fixed OrderBar at the bottom transitions from terminal info to a teal basket bar showing item count and running total."
+            screens={["Home", "OrderBar"]}
           />
           <FlowStep
             number={3}
             title="Review Basket"
-            description="Tap the BasketBanner to open the Basket screen. Review items, adjust quantities, remove items, or add more."
+            description="Tap the OrderBar to open the Basket screen. Review items, adjust quantities, remove items, or add more."
             screens={["Basket"]}
           />
           <FlowStep
@@ -350,7 +350,7 @@ export default function DocumentationPage() {
           <FlowStep
             number={1}
             title="Open Keypad"
-            description="Tap the teal Keypad FAB on the Home screen (or if Home mode is set to Keypad, it's the default view)."
+            description="Tap the keypad icon in the top app bar (or if Home mode is set to Keypad, it's the default view). Keypad is treated as an input mode — like Square and Clover — not a floating action."
             screens={["Home", "Keypad"]}
           />
           <FlowStep
@@ -468,13 +468,16 @@ export default function DocumentationPage() {
               <strong style={{ color: tokens.color.fg.brand }}>Consolidated Settings</strong> — All LitePOS configuration lives under Settings → LitePOS. The original spec had settings scattered across multiple navigation paths, which created a disjointed experience. Consolidating gives merchants a single place to configure everything.
             </div>
             <div>
-              <strong style={{ color: tokens.color.fg.brand }}>Product-First Home</strong> — The default home mode shows the product grid rather than the keypad. This encourages catalogue usage and reduces manual entry errors. The keypad is always accessible via a FAB.
+              <strong style={{ color: tokens.color.fg.brand }}>Product-First Home</strong> — The default home mode shows the product grid rather than the keypad. This encourages catalogue usage and reduces manual entry errors. The keypad is always accessible via an icon in the top app bar — treated as an input mode, not a floating action.
+            </div>
+            <div>
+              <strong style={{ color: tokens.color.fg.brand }}>Fixed Bottom OrderBar</strong> — Inspired by Square Handheld and Toast Go, the bottom of the Home screen has a single fixed bar that transitions between two states: idle (terminal info) and active (basket summary with Charge action). This replaces the previous floating BasketBanner + keypad FAB pattern, eliminating competing floating elements and giving the product grid full scrollable space. Every major handheld POS uses this fixed-bar pattern for checkout — it's the most discoverable, predictable placement for the primary action.
             </div>
             <div>
               <strong style={{ color: tokens.color.fg.brand }}>Two Visual Zones</strong> — The app uses two distinct visual patterns: a navy background with white NavCard cards for primary navigation (Menu, History), and a light background with flat lists for settings and detail screens. This matches the existing app patterns merchants are familiar with.
             </div>
             <div>
-              <strong style={{ color: tokens.color.fg.brand }}>M3 Expressive for POS</strong> — New POS-specific components (ProductCard, BasketBanner, TerminalInfoBar) use M3 Expressive design language: expressive rounded shapes, spring-based motion, and vibrant teal accents. This creates a modern, approachable POS experience while maintaining the GKO design system foundation.
+              <strong style={{ color: tokens.color.fg.brand }}>M3 Expressive for POS</strong> — New POS-specific components (ProductCard, OrderBar) use M3 Expressive design language: expressive rounded shapes, spring-based motion, and vibrant teal accents. This creates a modern, approachable POS experience while maintaining the GKO design system foundation.
             </div>
             <div>
               <strong style={{ color: tokens.color.fg.brand }}>GKO Semantic Tokens</strong> — All colours use the Gecko semantic token system (bg/, fg/, border/) rather than M3's raw primary/secondary naming. This ensures the prototype maps directly to the Figma token structure and can be themed per bank brand (Gecko → CBA → etc.).

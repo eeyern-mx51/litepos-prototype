@@ -10,12 +10,11 @@ import FAB from "../components/FAB";
 import Icon from "../components/Icon";
 import ListItem from "../components/ListItem";
 import NavCard from "../components/NavCard";
+import OrderBar from "../components/OrderBar";
 import ProductCard from "../components/ProductCard";
 import SectionHeader from "../components/SectionHeader";
 import StatusBar from "../components/StatusBar";
 import Switch from "../components/Switch";
-import BasketBanner from "../components/BasketBanner";
-import TerminalInfoBar from "../components/TerminalInfoBar";
 
 // ── Showcase wrapper ──────────────────────────────────────────────────
 function Section({ title, description, children }) {
@@ -517,43 +516,20 @@ export default function ComponentsShowcase() {
           </div>
         </Section>
 
-        {/* ── BasketBanner ──────────────────────────────────────── */}
+        {/* ── OrderBar ──────────────────────────────────────────── */}
         <Section
-          title="BasketBanner"
-          description="Floating teal pill that appears when items are added to the basket. Shows count and total, with cart icon."
+          title="OrderBar"
+          description="Fixed bottom bar inspired by Square Handheld and Toast Go. Two states: idle (terminal info) and active (basket summary with Charge action). Replaces the old floating BasketBanner + TerminalInfoBar — one bar, two states, no competing floating elements."
         >
-          <div style={{ position: "relative", height: 80, width: 393 }}>
-            <div style={{
-              position: "absolute", bottom: 8, left: 16, right: 16,
-              height: 48, borderRadius: tokens.shape.full,
-              background: tokens.color.bg.action.primary.default,
-              color: tokens.color.fg.onAction,
-              display: "flex", alignItems: "center", justifyContent: "space-between",
-              padding: "0 8px 0 20px",
-              boxShadow: tokens.elevation.level3,
-            }}>
-              <span style={{ fontSize: tokens.type.labelLarge.size, fontWeight: 600 }}>3 items in basket</span>
-              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                <span style={{ fontSize: tokens.type.titleMedium.size, fontWeight: 700 }}>$16.00</span>
-                <div style={{
-                  width: 32, height: 32, borderRadius: tokens.shape.full,
-                  background: tokens.color.fg.onAction + "22",
-                  display: "flex", alignItems: "center", justifyContent: "center",
-                }}>
-                  <Icon name="cart" size={18} color={tokens.color.fg.onAction} />
-                </div>
-              </div>
+          <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+            <div style={{ fontSize: tokens.type.labelMedium.size, fontWeight: 600, color: tokens.color.fg.subtle, marginBottom: 4 }}>Idle state — no items in basket (shows terminal info)</div>
+            <div style={{ width: 393, borderRadius: 12, overflow: "hidden", border: `1px solid ${tokens.color.border.onpage}` }}>
+              <OrderBar itemCount={0} total={0} onCharge={() => {}} />
             </div>
-          </div>
-        </Section>
-
-        {/* ── TerminalInfoBar ───────────────────────────────────── */}
-        <Section
-          title="TerminalInfoBar"
-          description="Navy bottom bar showing terminal mode (STANDALONE), terminal name, and 'Powered by mx51' branding. Sits above bottom navigation."
-        >
-          <div style={{ width: 393, borderRadius: 12, overflow: "hidden", border: `1px solid ${tokens.color.border.onpage}` }}>
-            <TerminalInfoBar />
+            <div style={{ fontSize: tokens.type.labelMedium.size, fontWeight: 600, color: tokens.color.fg.subtle, marginBottom: 4 }}>Active state — items in basket</div>
+            <div style={{ width: 393, borderRadius: 12, overflow: "hidden", border: `1px solid ${tokens.color.border.onpage}` }}>
+              <OrderBar itemCount={3} total={16.00} onCharge={() => {}} />
+            </div>
           </div>
         </Section>
 
@@ -625,11 +601,10 @@ export default function ComponentsShowcase() {
             <div><strong style={{ color: tokens.color.fg.brand }}>TopAppBar</strong> — maps to <code style={{ background: tokens.color.bg.surface, padding: "2px 6px", borderRadius: 4 }}>MediumTopAppBar</code> / <code style={{ background: tokens.color.bg.surface, padding: "2px 6px", borderRadius: 4 }}>SmallTopAppBar</code> with custom <code style={{ background: tokens.color.bg.surface, padding: "2px 6px", borderRadius: 4 }}>TopAppBarColors</code></div>
             <div><strong style={{ color: tokens.color.fg.brand }}>NavCard</strong> — custom Composable using <code style={{ background: tokens.color.bg.surface, padding: "2px 6px", borderRadius: 4 }}>ElevatedCard</code> + <code style={{ background: tokens.color.bg.surface, padding: "2px 6px", borderRadius: 4 }}>OutlinedIconButton</code></div>
             <div><strong style={{ color: tokens.color.fg.brand }}>ProductCard</strong> — custom Composable using <code style={{ background: tokens.color.bg.surface, padding: "2px 6px", borderRadius: 4 }}>Card</code> with <code style={{ background: tokens.color.bg.surface, padding: "2px 6px", borderRadius: 4 }}>ShapeDefaults.ExtraLarge</code></div>
-            <div><strong style={{ color: tokens.color.fg.brand }}>BasketBanner</strong> — <code style={{ background: tokens.color.bg.surface, padding: "2px 6px", borderRadius: 4 }}>Surface</code> with <code style={{ background: tokens.color.bg.surface, padding: "2px 6px", borderRadius: 4 }}>CircleShape</code> + <code style={{ background: tokens.color.bg.surface, padding: "2px 6px", borderRadius: 4 }}>animateFloatAsState</code> spring</div>
+            <div><strong style={{ color: tokens.color.fg.brand }}>OrderBar</strong> — custom Composable using <code style={{ background: tokens.color.bg.surface, padding: "2px 6px", borderRadius: 4 }}>Surface</code> + <code style={{ background: tokens.color.bg.surface, padding: "2px 6px", borderRadius: 4 }}>AnimatedContent</code> to crossfade between idle (terminal info) and active (basket) states. Inspired by Square Handheld's fixed bottom bar pattern.</div>
             <div><strong style={{ color: tokens.color.fg.brand }}>BottomNavBar</strong> — maps to <code style={{ background: tokens.color.bg.surface, padding: "2px 6px", borderRadius: 4 }}>NavigationBar</code> with custom indicator shape</div>
             <div><strong style={{ color: tokens.color.fg.brand }}>Switch</strong> — maps to <code style={{ background: tokens.color.bg.surface, padding: "2px 6px", borderRadius: 4 }}>Switch</code> with <code style={{ background: tokens.color.bg.surface, padding: "2px 6px", borderRadius: 4 }}>SwitchColors</code> using GKO tokens</div>
-            <div><strong style={{ color: tokens.color.fg.brand }}>FAB</strong> — maps to <code style={{ background: tokens.color.bg.surface, padding: "2px 6px", borderRadius: 4 }}>FloatingActionButton</code> / <code style={{ background: tokens.color.bg.surface, padding: "2px 6px", borderRadius: 4 }}>ExtendedFloatingActionButton</code></div>
-            <div><strong style={{ color: tokens.color.fg.brand }}>TerminalInfoBar</strong> — custom Composable, no direct M3 equivalent</div>
+            <div><strong style={{ color: tokens.color.fg.brand }}>FAB</strong> — maps to <code style={{ background: tokens.color.bg.surface, padding: "2px 6px", borderRadius: 4 }}>FloatingActionButton</code> / <code style={{ background: tokens.color.bg.surface, padding: "2px 6px", borderRadius: 4 }}>ExtendedFloatingActionButton</code> (used in Product Catalog for adding products — a legitimate primary creation action)</div>
           </div>
         </Section>
       </div>
