@@ -172,7 +172,7 @@ export default function ImportProductsScreen({ navigate, goBack }) {
         {/* ── Start import button ─────────────────────── */}
         <div style={{ padding: "32px 20px 0" }}>
           <button
-            onClick={() => navigate("scan")}
+            onClick={() => navigate("import-scan")}
             style={{
               width: "100%",
               height: 52,

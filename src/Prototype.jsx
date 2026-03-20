@@ -96,7 +96,8 @@ export default function Prototype() {
     "add-product": <AddEditProductScreen navigate={navigate} goBack={goBack} editProduct={editProduct} />,
     history: <HistoryScreen navigate={navigate} goBack={goBack} />,
     reporting: <ReportingScreen navigate={navigate} goBack={goBack} />,
-    scan: <ScanScreen navigate={navigate} basket={basket} setBasket={setBasket} products={catalogueEnabled ? products : []} />,
+    scan: <ScanScreen navigate={navigate} basket={basket} setBasket={setBasket} products={catalogueEnabled ? products : []} goBack={goBack} />,
+    "import-scan": <ScanScreen navigate={navigate} basket={basket} setBasket={setBasket} products={[]} mode="import" goBack={goBack} />,
     "import-products": <ImportProductsScreen navigate={navigate} goBack={goBack} />,
   };
 

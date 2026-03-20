@@ -144,7 +144,8 @@ function PriceField({ value, onChange }) {
 // ── Main screen ───────────────────────────────────────────────────────
 
 export default function AddEditProductScreen({ navigate, goBack, editProduct }) {
-  const isEdit = !!editProduct;
+  const isEdit = !!editProduct && !editProduct?.imported;
+  const isImport = !!editProduct?.imported;
   const [name, setName] = useState(editProduct?.name || "");
   const [price, setPrice] = useState(editProduct?.price || "");
   const [description, setDescription] = useState(editProduct?.description || "");
@@ -154,11 +155,13 @@ export default function AddEditProductScreen({ navigate, goBack, editProduct }) 
   const [imageMethod, setImageMethod] = useState(null); // null | "camera" | "gallery" | "url"
 
   const canSave = name.trim() && price.trim();
+  const title = isImport ? "Review Import" : isEdit ? "Edit Product" : "Add Product";
+  const saveLabel = isImport ? "Import Product" : isEdit ? "Save Changes" : "Add Product";
 
   return (
     <div style={{ flex: 1, display: "flex", flexDirection: "column", background: tokens.color.bg.surface, minHeight: 0 }}>
       <TopAppBar
-        title={isEdit ? "Edit Product" : "Add Product"}
+        title={title}
         onBack={goBack}
         theme="light"
         actions={isEdit ? [{ icon: "delete", onPress: () => navigate("product-catalog") }] : []}
@@ -421,7 +424,7 @@ export default function AddEditProductScreen({ navigate, goBack, editProduct }) 
         }}
       >
         <button
-          onClick={() => navigate("product-catalog")}
+          onClick={() => navigate(isImport ? "import-scan" : "product-catalog")}
           disabled={!canSave}
           style={{
             width: "100%",
@@ -442,7 +445,7 @@ export default function AddEditProductScreen({ navigate, goBack, editProduct }) 
             transition: `all ${tokens.motion.duration.medium2} ${tokens.motion.easing.expressive}`,
           }}
         >
-          {isEdit ? "Save Changes" : "Add Product"}
+          {saveLabel}
         </button>
       </div>
     </div>
