@@ -180,8 +180,8 @@ export default function AddEditProductScreen({ navigate, goBack, editProduct }) 
   };
 
   const canSave = name.trim() && price.trim();
-  const title = isImport ? "Review Import" : isEdit ? "Edit Product" : "Add Product";
-  const saveLabel = isImport ? "Import Product" : isEdit ? "Save Changes" : "Add Product";
+  const title = isImport ? "Review Import" : isEdit ? "Edit Product" : "New Product";
+  const saveLabel = isImport ? "Import Product" : isEdit ? "Save Changes" : "Save Product";
 
   return (
     <div style={{ flex: 1, display: "flex", flexDirection: "column", background: tokens.color.bg.surface, minHeight: 0 }}>

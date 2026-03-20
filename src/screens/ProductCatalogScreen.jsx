@@ -185,7 +185,7 @@ export default function ProductCatalogScreen({ navigate, goBack, products = [] }
         )}
       </div>
 
-      <FAB icon="add" label="Add Product" onClick={() => navigate("add-product")} variant="primary" />
+      <FAB icon="add" label="New Product" onClick={() => navigate("add-product")} variant="primary" />
     </div>
   );
 }
