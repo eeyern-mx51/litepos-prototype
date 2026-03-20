@@ -4,9 +4,9 @@ import Icon from "./Icon";
 export default function FAB({ icon, label, onClick, variant = "primary" }) {
   const isExtended = !!label;
   const colors = {
-    primary:   { bg: tokens.color.primaryContainer,   fg: tokens.color.onPrimaryContainer },
-    secondary: { bg: tokens.color.secondaryContainer,  fg: tokens.color.onSecondaryContainer },
-    tertiary:  { bg: tokens.color.tertiaryContainer,   fg: tokens.color.onTertiaryContainer },
+    primary:   { bg: tokens.color.bg.action.primary.default,   fg: tokens.color.fg.onAction },
+    secondary: { bg: tokens.color.bg.action.secondary.default,  fg: tokens.color.fg.emphasis },
+    tertiary:  { bg: tokens.color.bg.action.primary.default,    fg: tokens.color.fg.onAction },
   };
   const c = colors[variant];
 

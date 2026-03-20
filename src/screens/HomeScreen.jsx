@@ -1,5 +1,6 @@
 import tokens from "../theme/tokens";
 import TopAppBar from "../components/TopAppBar";
+import TerminalInfoBar from "../components/TerminalInfoBar";
 import Chip from "../components/Chip";
 import ProductCard from "../components/ProductCard";
 import BasketBanner from "../components/BasketBanner";
@@ -32,8 +33,9 @@ export default function HomeScreen({ navigate, basket, setBasket }) {
   return (
     <div style={{ flex: 1, display: "flex", flexDirection: "column", position: "relative" }}>
       <TopAppBar
-        title="Gecko Bank"
+        title="LitePOS"
         variant="small"
+        theme="light"
         actions={[
           { icon: "search", onPress: () => {} },
           { icon: "scan", onPress: () => {} },
@@ -41,7 +43,7 @@ export default function HomeScreen({ navigate, basket, setBasket }) {
       />
 
       {/* Filter chips */}
-      <div style={{ display: "flex", gap: 8, padding: "8px 16px", overflow: "auto" }}>
+      <div style={{ display: "flex", gap: 8, padding: "8px 16px", overflow: "auto", background: tokens.color.bg.page }}>
         <Chip label="All" selected />
         <Chip label="Favourites" />
         <Chip label="Drinks" />
@@ -58,6 +60,7 @@ export default function HomeScreen({ navigate, basket, setBasket }) {
           gridTemplateColumns: "1fr 1fr",
           gap: 10,
           alignContent: "start",
+          background: tokens.color.bg.page,
         }}
       >
         {products.map((p, i) => (
@@ -69,7 +72,10 @@ export default function HomeScreen({ navigate, basket, setBasket }) {
       <BasketBanner itemCount={itemCount} total={total} onClick={() => navigate("basket")} />
 
       {/* Keypad FAB */}
-      <FAB icon="keypad" onClick={() => navigate("keypad")} variant="tertiary" />
+      <FAB icon="keypad" onClick={() => navigate("keypad")} variant="primary" />
+
+      {/* Terminal info bar */}
+      <TerminalInfoBar />
     </div>
   );
 }

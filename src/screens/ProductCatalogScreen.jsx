@@ -17,22 +17,24 @@ const products = [
 
 export default function ProductCatalogScreen({ navigate }) {
   return (
-    <div style={{ flex: 1, display: "flex", flexDirection: "column", position: "relative" }}>
+    <div style={{ flex: 1, display: "flex", flexDirection: "column", position: "relative", background: tokens.color.bg.page }}>
       <TopAppBar
         title="Products"
         onBack={() => navigate("litepos-settings")}
+        theme="light"
         actions={[{ icon: "search", onPress: () => {} }]}
       />
       <div
         style={{
           padding: "4px 16px 8px",
           fontSize: tokens.type.bodySmall.size,
-          color: tokens.color.onSurfaceVariant,
+          color: tokens.color.fg.subtle,
+          background: tokens.color.bg.page,
         }}
       >
         {products.length} products · Sorted alphabetically
       </div>
-      <div style={{ flex: 1, overflow: "auto" }}>
+      <div style={{ flex: 1, overflow: "auto", background: tokens.color.bg.page }}>
         {products.map((p, i) => (
           <ListItem
             key={i}
@@ -42,21 +44,21 @@ export default function ProductCatalogScreen({ navigate }) {
                   width: 48,
                   height: 48,
                   borderRadius: tokens.shape.medium,
-                  background: tokens.color.surfaceContainerHighest,
+                  background: tokens.color.bg.surface,
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
                 }}
               >
-                <Icon name="image" size={20} color={tokens.color.outlineVariant} />
+                <Icon name="image" size={20} color={tokens.color.border.onpage} />
               </div>
             }
             headline={p.name}
             supporting={`$${p.price}`}
             trailing={
               <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                {p.fav && <Icon name="favorite" size={18} color={tokens.color.error} />}
-                <Icon name="chevron" color={tokens.color.onSurfaceVariant} />
+                {p.fav && <Icon name="favorite" size={18} color={tokens.color.fg.error.icon} />}
+                <Icon name="chevron" color={tokens.color.fg.subtle} />
               </div>
             }
             divider={i < products.length - 1}

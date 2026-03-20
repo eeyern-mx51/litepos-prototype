@@ -7,9 +7,9 @@ export default function Chip({ label, selected, onClick }) {
       style={{
         height: 32,
         borderRadius: tokens.shape.small,
-        border: selected ? "none" : `1px solid ${tokens.color.outline}`,
-        background: selected ? tokens.color.secondaryContainer : "transparent",
-        color: selected ? tokens.color.onSecondaryContainer : tokens.color.onSurfaceVariant,
+        border: selected ? "none" : `1px solid ${tokens.color.border.onpage}`,
+        background: selected ? `${tokens.color.bg.action.primary.default}22` : "transparent",
+        color: selected ? tokens.color.fg.brand : tokens.color.fg.subtle,
         fontSize: tokens.type.labelLarge.size,
         fontWeight: tokens.type.labelLarge.weight,
         padding: "0 16px",

@@ -7,13 +7,14 @@ export default function BasketScreen({ navigate, basket, setBasket }) {
   const total = basket.reduce((s, b) => s + b.price * b.qty, 0);
 
   return (
-    <div style={{ flex: 1, display: "flex", flexDirection: "column" }}>
+    <div style={{ flex: 1, display: "flex", flexDirection: "column", background: tokens.color.bg.page }}>
       <TopAppBar
         title="Basket"
         onBack={() => navigate("home")}
+        theme="light"
         actions={[{ icon: "delete", onPress: () => setBasket([]) }]}
       />
-      <div style={{ flex: 1, overflow: "auto" }}>
+      <div style={{ flex: 1, overflow: "auto", background: tokens.color.bg.page }}>
         {basket.length === 0 ? (
           <div
             style={{
@@ -22,11 +23,11 @@ export default function BasketScreen({ navigate, basket, setBasket }) {
               alignItems: "center",
               justifyContent: "center",
               height: "100%",
-              color: tokens.color.onSurfaceVariant,
+              color: tokens.color.fg.subtle,
               gap: 8,
             }}
           >
-            <Icon name="cart" size={48} color={tokens.color.outlineVariant} />
+            <Icon name="cart" size={48} color={tokens.color.border.onpage} />
             <span style={{ fontSize: tokens.type.bodyLarge.size }}>Basket is empty</span>
           </div>
         ) : (
@@ -40,7 +41,7 @@ export default function BasketScreen({ navigate, basket, setBasket }) {
                   style={{
                     fontSize: tokens.type.titleMedium.size,
                     fontWeight: 600,
-                    color: tokens.color.primary,
+                    color: tokens.color.fg.brand,
                   }}
                 >
                   ${(item.price * item.qty).toFixed(2)}
@@ -51,7 +52,7 @@ export default function BasketScreen({ navigate, basket, setBasket }) {
         )}
       </div>
       {basket.length > 0 && (
-        <div style={{ padding: 16, borderTop: `1px solid ${tokens.color.outlineVariant}` }}>
+        <div style={{ padding: 16, borderTop: `1px solid ${tokens.color.border.action.default}`, background: tokens.color.bg.page }}>
           <div
             style={{
               display: "flex",
@@ -61,16 +62,16 @@ export default function BasketScreen({ navigate, basket, setBasket }) {
               fontWeight: 600,
             }}
           >
-            <span>Total</span>
-            <span style={{ color: tokens.color.primary }}>${total.toFixed(2)}</span>
+            <span style={{ color: tokens.color.fg.emphasis }}>Total</span>
+            <span style={{ color: tokens.color.fg.brand }}>${total.toFixed(2)}</span>
           </div>
           <button
             style={{
               width: "100%",
               height: 56,
               borderRadius: tokens.shape.full,
-              background: tokens.color.primary,
-              color: tokens.color.onPrimary,
+              background: tokens.color.bg.action.primary.default,
+              color: tokens.color.fg.onAction,
               border: "none",
               fontSize: tokens.type.labelLarge.size,
               fontWeight: 600,

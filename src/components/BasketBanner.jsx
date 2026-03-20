@@ -14,8 +14,8 @@ export default function BasketBanner({ itemCount, total, onClick }) {
         right: 16,
         height: 48,
         borderRadius: tokens.shape.full,
-        background: tokens.color.primary,
-        color: tokens.color.onPrimary,
+        background: tokens.color.bg.action.primary.default,
+        color: tokens.color.fg.onAction,
         display: "flex",
         alignItems: "center",
         justifyContent: "space-between",
@@ -38,13 +38,13 @@ export default function BasketBanner({ itemCount, total, onClick }) {
             width: 32,
             height: 32,
             borderRadius: tokens.shape.full,
-            background: tokens.color.onPrimary + "22",
+            background: tokens.color.fg.onAction + "22",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
           }}
         >
-          <Icon name="cart" size={18} color={tokens.color.onPrimary} />
+          <Icon name="cart" size={18} color={tokens.color.fg.onAction} />
         </div>
       </div>
     </div>

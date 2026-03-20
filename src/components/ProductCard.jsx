@@ -7,7 +7,7 @@ export default function ProductCard({ name, price, isFav, onClick }) {
       onClick={onClick}
       style={{
         borderRadius: tokens.shape.expressiveLarge,
-        background: tokens.color.surfaceContainerHigh,
+        background: tokens.color.bg.surface,
         overflow: "hidden",
         cursor: "pointer",
         transition: `all ${tokens.motion.duration.short4} ${tokens.motion.easing.standard}`,
@@ -16,17 +16,17 @@ export default function ProductCard({ name, price, isFav, onClick }) {
       <div
         style={{
           height: 96,
-          background: tokens.color.surfaceContainerHighest,
+          background: tokens.color.bg.page,
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
           position: "relative",
         }}
       >
-        <Icon name="image" size={32} color={tokens.color.outlineVariant} />
+        <Icon name="image" size={32} color={tokens.color.border.onpage} />
         {isFav && (
           <div style={{ position: "absolute", top: 8, right: 8 }}>
-            <Icon name="favorite" size={16} color={tokens.color.error} />
+            <Icon name="favorite" size={16} color={tokens.color.fg.error.icon} />
           </div>
         )}
       </div>
@@ -35,7 +35,7 @@ export default function ProductCard({ name, price, isFav, onClick }) {
           style={{
             fontSize: tokens.type.bodyMedium.size,
             fontWeight: 500,
-            color: tokens.color.onSurface,
+            color: tokens.color.fg.emphasis,
             whiteSpace: "nowrap",
             overflow: "hidden",
             textOverflow: "ellipsis",
@@ -46,7 +46,7 @@ export default function ProductCard({ name, price, isFav, onClick }) {
         <div
           style={{
             fontSize: tokens.type.labelMedium.size,
-            color: tokens.color.primary,
+            color: tokens.color.fg.brand,
             fontWeight: 600,
             marginTop: 2,
           }}

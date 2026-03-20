@@ -1,13 +1,19 @@
 import tokens from "../theme/tokens";
 import Icon from "./Icon";
 
-export default function TopAppBar({ title, subtitle, onBack, actions = [], variant = "small" }) {
+export default function TopAppBar({ title, subtitle, onBack, actions = [], variant = "small", theme = "light" }) {
   const isLarge = variant === "large";
+  const isDark = theme === "dark";
+
+  const bgColor = isDark ? tokens.color.bg.brand : tokens.color.bg.page;
+  const textColor = isDark ? tokens.color.fg.white : tokens.color.fg.emphasis;
+  const subtleColor = isDark ? tokens.color.fg.white : tokens.color.fg.subtle;
+  const backColor = isDark ? tokens.color.fg.white : tokens.color.fg.brand;
 
   return (
     <div
       style={{
-        background: tokens.color.surface,
+        background: bgColor,
         padding: isLarge ? "8px 8px 20px" : "8px",
         minHeight: isLarge ? 120 : 56,
         display: "flex",
@@ -33,7 +39,7 @@ export default function TopAppBar({ title, subtitle, onBack, actions = [], varia
                 padding: 0,
               }}
             >
-              <Icon name="back" color={tokens.color.onSurface} />
+              <Icon name="back" color={backColor} />
             </button>
           )}
           {!isLarge && (
@@ -41,7 +47,7 @@ export default function TopAppBar({ title, subtitle, onBack, actions = [], varia
               style={{
                 fontSize: tokens.type.titleLarge.size,
                 fontWeight: tokens.type.titleLarge.weight,
-                color: tokens.color.onSurface,
+                color: textColor,
                 letterSpacing: tokens.type.titleLarge.tracking,
               }}
             >
@@ -67,7 +73,7 @@ export default function TopAppBar({ title, subtitle, onBack, actions = [], varia
                 padding: 0,
               }}
             >
-              <Icon name={action.icon} color={tokens.color.onSurfaceVariant} />
+              <Icon name={action.icon} color={subtleColor} />
             </button>
           ))}
         </div>
@@ -78,7 +84,7 @@ export default function TopAppBar({ title, subtitle, onBack, actions = [], varia
             style={{
               fontSize: tokens.type.headlineMedium.size,
               fontWeight: tokens.type.headlineMedium.weight,
-              color: tokens.color.onSurface,
+              color: textColor,
             }}
           >
             {title}
@@ -87,7 +93,7 @@ export default function TopAppBar({ title, subtitle, onBack, actions = [], varia
             <div
               style={{
                 fontSize: tokens.type.bodyMedium.size,
-                color: tokens.color.onSurfaceVariant,
+                color: subtleColor,
                 marginTop: 2,
               }}
             >

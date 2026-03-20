@@ -1,11 +1,12 @@
 import tokens from "../theme/tokens";
 import TopAppBar from "../components/TopAppBar";
 import Card from "../components/Card";
+import Icon from "../components/Icon";
 
 export default function KeypadScreen({ navigate }) {
   return (
-    <div style={{ flex: 1, display: "flex", flexDirection: "column" }}>
-      <TopAppBar title="Manual Entry" onBack={() => navigate("home")} />
+    <div style={{ flex: 1, display: "flex", flexDirection: "column", background: tokens.color.bg.page }}>
+      <TopAppBar title="Manual Entry" onBack={() => navigate("home")} theme="light" />
       <div
         style={{
           flex: 1,
@@ -15,13 +16,14 @@ export default function KeypadScreen({ navigate }) {
           justifyContent: "center",
           gap: 24,
           padding: 24,
+          background: tokens.color.bg.page,
         }}
       >
         <div
           style={{
             fontSize: tokens.type.displayLarge.size,
             fontWeight: 300,
-            color: tokens.color.onSurface,
+            color: tokens.color.fg.emphasis,
           }}
         >
           $0.00
@@ -34,11 +36,11 @@ export default function KeypadScreen({ navigate }) {
             maxWidth: 280,
             height: 48,
             borderRadius: tokens.shape.extraLarge,
-            border: `1px solid ${tokens.color.outline}`,
+            border: `1px solid ${tokens.color.border.onpage}`,
             padding: "0 16px",
             fontSize: tokens.type.bodyLarge.size,
-            background: tokens.color.surfaceContainerLow,
-            color: tokens.color.onSurface,
+            background: tokens.color.bg.surface,
+            color: tokens.color.fg.emphasis,
             textAlign: "center",
             outline: "none",
           }}
@@ -62,14 +64,17 @@ export default function KeypadScreen({ navigate }) {
                 height: 52,
                 borderRadius: tokens.shape.full,
                 border: "none",
-                background: tokens.color.surfaceContainerLow,
+                background: tokens.color.bg.button.default,
                 fontSize: tokens.type.titleLarge.size,
                 fontWeight: 500,
-                color: tokens.color.onSurface,
+                color: k === "⌫" ? tokens.color.fg.brand : tokens.color.fg.emphasis,
                 cursor: "pointer",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
               }}
             >
-              {k}
+              {k === "⌫" ? <Icon name="delete" size={20} color={tokens.color.fg.brand} /> : k}
             </button>
           ))}
         </Card>
@@ -80,15 +85,15 @@ export default function KeypadScreen({ navigate }) {
             maxWidth: 280,
             height: 56,
             borderRadius: tokens.shape.full,
-            background: tokens.color.primary,
-            color: tokens.color.onPrimary,
+            background: tokens.color.bg.action.primary.default,
+            color: tokens.color.fg.onAction,
             border: "none",
             fontSize: tokens.type.labelLarge.size,
             fontWeight: 600,
             cursor: "pointer",
           }}
         >
-          Add to Basket
+          Next →
         </button>
       </div>
     </div>

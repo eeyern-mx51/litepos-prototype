@@ -19,7 +19,7 @@ export default function ListItem({ leading, headline, supporting, trailing, onCl
           <div
             style={{
               fontSize: tokens.type.bodyLarge.size,
-              color: tokens.color.onSurface,
+              color: tokens.color.fg.emphasis,
               fontWeight: 400,
             }}
           >
@@ -29,7 +29,7 @@ export default function ListItem({ leading, headline, supporting, trailing, onCl
             <div
               style={{
                 fontSize: tokens.type.bodyMedium.size,
-                color: tokens.color.onSurfaceVariant,
+                color: tokens.color.fg.subtle,
                 marginTop: 2,
               }}
             >
@@ -43,9 +43,10 @@ export default function ListItem({ leading, headline, supporting, trailing, onCl
         <div
           style={{
             height: 1,
-            background: tokens.color.outlineVariant,
+            background: tokens.color.border.action.default,
             marginLeft: leading ? 72 : 16,
             marginRight: 16,
+            opacity: 0.5,
           }}
         />
       )}

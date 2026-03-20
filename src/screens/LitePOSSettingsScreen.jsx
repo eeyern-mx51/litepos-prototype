@@ -14,14 +14,14 @@ export default function LitePOSSettingsScreen({ navigate }) {
   const [customerReceipt, setCustomerReceipt] = useState(true);
 
   return (
-    <div style={{ flex: 1, display: "flex", flexDirection: "column" }}>
-      <TopAppBar title="LitePOS" onBack={() => navigate("settings")} />
-      <div style={{ flex: 1, overflow: "auto", paddingBottom: 24 }}>
+    <div style={{ flex: 1, display: "flex", flexDirection: "column", background: tokens.color.bg.page }}>
+      <TopAppBar title="LitePOS" onBack={() => navigate("settings")} theme="light" />
+      <div style={{ flex: 1, overflow: "auto", paddingBottom: 24, background: tokens.color.bg.page }}>
         {/* Enable/Disable */}
         <SectionHeader title="General" />
         <ListItem
           leading={
-            <Icon name="toggle" color={enabled ? tokens.color.primary : tokens.color.onSurfaceVariant} />
+            <Icon name="toggle" color={enabled ? tokens.color.fg.brand : tokens.color.fg.subtle} />
           }
           headline="Enable LitePOS"
           supporting={
@@ -49,10 +49,10 @@ export default function LitePOSSettingsScreen({ navigate }) {
                   borderRadius: tokens.shape.large,
                   border:
                     homeMode === opt.key
-                      ? `2px solid ${tokens.color.primary}`
-                      : `1px solid ${tokens.color.outlineVariant}`,
+                      ? `2px solid ${tokens.color.fg.brand}`
+                      : `1px solid ${tokens.color.border.onpage}`,
                   background:
-                    homeMode === opt.key ? tokens.color.primaryContainer + "44" : "transparent",
+                    homeMode === opt.key ? `${tokens.color.fg.brand}22` : "transparent",
                   cursor: "pointer",
                   display: "flex",
                   flexDirection: "column",
@@ -67,8 +67,8 @@ export default function LitePOSSettingsScreen({ navigate }) {
                   size={24}
                   color={
                     homeMode === opt.key
-                      ? tokens.color.primary
-                      : tokens.color.onSurfaceVariant
+                      ? tokens.color.fg.brand
+                      : tokens.color.fg.subtle
                   }
                 />
                 <span
@@ -77,8 +77,8 @@ export default function LitePOSSettingsScreen({ navigate }) {
                     fontWeight: homeMode === opt.key ? 700 : 500,
                     color:
                       homeMode === opt.key
-                        ? tokens.color.primary
-                        : tokens.color.onSurfaceVariant,
+                        ? tokens.color.fg.brand
+                        : tokens.color.fg.subtle,
                   }}
                 >
                   {opt.label}
@@ -91,38 +91,53 @@ export default function LitePOSSettingsScreen({ navigate }) {
         {/* Receipt Configuration */}
         <SectionHeader title="Receipts" />
         <ListItem
-          leading={<Icon name="print" color={tokens.color.onSurfaceVariant} />}
+          leading={<Icon name="print" color={tokens.color.fg.brand} />}
           headline="Merchant copy — print items"
           supporting="Include basket items on merchant receipt"
           trailing={<Switch checked={merchantReceipt} onChange={setMerchantReceipt} />}
         />
         <ListItem
-          leading={<Icon name="receipt" color={tokens.color.onSurfaceVariant} />}
+          leading={<Icon name="receipt" color={tokens.color.fg.brand} />}
           headline="Customer copy — print items"
           supporting="Include basket items on customer receipt"
           trailing={<Switch checked={customerReceipt} onChange={setCustomerReceipt} />}
         />
 
+        {/* Admin Notice */}
+        <Card variant="filled" style={{ margin: "16px 16px", background: `${tokens.color.bg.info.default}22`, border: `1px solid ${tokens.color.border.info}` }}>
+          <div style={{ display: "flex", gap: 12 }}>
+            <Icon name="info" size={20} color={tokens.color.fg.info.icon} />
+            <div style={{ flex: 1 }}>
+              <div style={{ fontSize: tokens.type.labelMedium.size, fontWeight: 600, color: tokens.color.fg.emphasis }}>
+                Admin Override
+              </div>
+              <div style={{ fontSize: tokens.type.bodySmall.size, color: tokens.color.fg.subtle, marginTop: 4 }}>
+                Remote admin can configure settings if enabled
+              </div>
+            </div>
+          </div>
+        </Card>
+
         {/* Product Catalogue */}
         <SectionHeader title="Product Catalogue" />
         <ListItem
-          leading={<Icon name="store" color={tokens.color.onSurfaceVariant} />}
+          leading={<Icon name="store" color={tokens.color.fg.brand} />}
           headline="Manage Products"
           supporting="Add, edit and organise your catalogue"
-          trailing={<Icon name="chevron" color={tokens.color.onSurfaceVariant} />}
+          trailing={<Icon name="chevron" color={tokens.color.fg.subtle} />}
           onClick={() => navigate("product-catalog")}
         />
         <ListItem
-          leading={<Icon name="qr" color={tokens.color.onSurfaceVariant} />}
+          leading={<Icon name="qr" color={tokens.color.fg.brand} />}
           headline="Import Products"
           supporting="Bulk import via QR from Connect Express"
-          trailing={<Icon name="chevron" color={tokens.color.onSurfaceVariant} />}
+          trailing={<Icon name="chevron" color={tokens.color.fg.subtle} />}
         />
         <ListItem
-          leading={<Icon name="scan" color={tokens.color.onSurfaceVariant} />}
+          leading={<Icon name="scan" color={tokens.color.fg.brand} />}
           headline="Barcode Settings"
           supporting="UPC-A, UPC-E, EAN-13, EAN-8"
-          trailing={<Icon name="chevron" color={tokens.color.onSurfaceVariant} />}
+          trailing={<Icon name="chevron" color={tokens.color.fg.subtle} />}
           divider={false}
         />
       </div>

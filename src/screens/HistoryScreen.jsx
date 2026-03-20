@@ -1,7 +1,7 @@
 import tokens from "../theme/tokens";
 import TopAppBar from "../components/TopAppBar";
-import ListItem from "../components/ListItem";
 import Icon from "../components/Icon";
+import NavCard from "../components/NavCard";
 
 const transactions = [
   { id: "TXN-001", time: "2:34 PM", amount: "$23.30", items: 4, status: "Approved" },
@@ -11,63 +11,31 @@ const transactions = [
 
 export default function HistoryScreen({ navigate }) {
   return (
-    <div style={{ flex: 1, display: "flex", flexDirection: "column" }}>
-      <TopAppBar title="Transaction History" onBack={() => navigate("menu")} />
+    <div
+      style={{
+        flex: 1,
+        display: "flex",
+        flexDirection: "column",
+        background: tokens.color.bg.brand,
+      }}
+    >
+      <TopAppBar title="Transaction History" onBack={() => navigate("menu")} theme="dark" />
       <div
         style={{
-          padding: "4px 16px 12px",
-          fontSize: tokens.type.bodySmall.size,
-          color: tokens.color.onSurfaceVariant,
+          flex: 1,
+          overflow: "auto",
+          padding: 16,
+          display: "flex",
+          flexDirection: "column",
+          gap: 12,
+          alignContent: "start",
         }}
       >
-        Today — March 20, 2026
-      </div>
-      <div style={{ flex: 1, overflow: "auto" }}>
-        {transactions.map((t, i) => (
-          <ListItem
-            key={i}
-            leading={
-              <div
-                style={{
-                  width: 40,
-                  height: 40,
-                  borderRadius: tokens.shape.full,
-                  background:
-                    t.status === "Approved"
-                      ? tokens.color.primaryContainer
-                      : tokens.color.errorContainer,
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                }}
-              >
-                <Icon
-                  name="receipt"
-                  size={20}
-                  color={
-                    t.status === "Approved"
-                      ? tokens.color.onPrimaryContainer
-                      : tokens.color.onErrorContainer
-                  }
-                />
-              </div>
-            }
-            headline={`${t.id} · ${t.items} items`}
-            supporting={`${t.time} · ${t.status}`}
-            trailing={
-              <span
-                style={{
-                  fontSize: tokens.type.titleMedium.size,
-                  fontWeight: 600,
-                  color: t.status === "Approved" ? tokens.color.onSurface : tokens.color.error,
-                }}
-              >
-                {t.amount}
-              </span>
-            }
-            divider={i < transactions.length - 1}
-          />
-        ))}
+        <NavCard icon="receipt" label="Last Transaction" onClick={() => {}} />
+        <NavCard icon="search" label="Search by RRN" onClick={() => {}} />
+        <NavCard icon="search" label="Search by Card No" onClick={() => {}} />
+        <NavCard icon="search" label="Search by Date" onClick={() => {}} />
+        <NavCard icon="history" label="Browse All Transactions" onClick={() => {}} />
       </div>
     </div>
   );

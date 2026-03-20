@@ -2,9 +2,10 @@ import tokens from "../theme/tokens";
 
 export default function Card({ children, onClick, variant = "filled", style = {} }) {
   const styles = {
-    filled:   { background: tokens.color.surfaceContainerHighest, border: "none" },
-    outlined: { background: tokens.color.surface, border: `1px solid ${tokens.color.outlineVariant}` },
-    elevated: { background: tokens.color.surfaceContainerLow, border: "none", boxShadow: tokens.elevation.level1 },
+    filled:   { background: tokens.color.bg.surface, border: "none" },
+    outlined: { background: tokens.color.bg.page, border: `1px solid ${tokens.color.border.onpage}` },
+    elevated: { background: tokens.color.bg.page, border: "none", boxShadow: tokens.elevation.level1 },
+    nav:      { background: tokens.color.fg.white, border: "none", boxShadow: tokens.elevation.level1 },
   };
   const s = styles[variant];
 

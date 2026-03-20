@@ -6,11 +6,11 @@ export default function BottomNavBar({ items, activeIndex, onSelect }) {
     <div
       style={{
         height: 80,
-        background: tokens.color.surfaceContainerLow,
+        background: tokens.color.bg.page,
         display: "flex",
         alignItems: "center",
         justifyContent: "space-around",
-        borderTop: `1px solid ${tokens.color.outlineVariant}`,
+        borderTop: `1px solid ${tokens.color.border.onpage}`,
         paddingBottom: 8,
       }}
     >
@@ -38,7 +38,7 @@ export default function BottomNavBar({ items, activeIndex, onSelect }) {
                 width: active ? 64 : 24,
                 height: 32,
                 borderRadius: tokens.shape.full,
-                background: active ? tokens.color.primaryContainer : "transparent",
+                background: active ? `${tokens.color.fg.brand}22` : "transparent",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
@@ -48,14 +48,14 @@ export default function BottomNavBar({ items, activeIndex, onSelect }) {
               <Icon
                 name={item.icon}
                 size={24}
-                color={active ? tokens.color.onPrimaryContainer : tokens.color.onSurfaceVariant}
+                color={active ? tokens.color.fg.brand : tokens.color.fg.subtle}
               />
             </div>
             <span
               style={{
                 fontSize: tokens.type.labelMedium.size,
                 fontWeight: active ? 600 : 500,
-                color: active ? tokens.color.onSurface : tokens.color.onSurfaceVariant,
+                color: active ? tokens.color.fg.emphasis : tokens.color.fg.subtle,
                 letterSpacing: tokens.type.labelMedium.tracking,
               }}
             >

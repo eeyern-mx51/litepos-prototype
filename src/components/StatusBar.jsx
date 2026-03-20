@@ -5,24 +5,24 @@ export default function StatusBar() {
     <div
       style={{
         height: 24,
-        background: tokens.color.surfaceContainerLow,
+        background: tokens.color.bg.statusbar,
         display: "flex",
         alignItems: "center",
         justifyContent: "space-between",
         padding: "0 16px",
         fontSize: 12,
-        color: tokens.color.onSurfaceVariant,
+        color: tokens.color.fg.white,
         fontWeight: 500,
       }}
     >
-      <span>9:41</span>
+      <span>12:30</span>
       <div style={{ display: "flex", gap: 4, alignItems: "center" }}>
-        <span style={{ fontSize: 10 }}>5G</span>
+        <span style={{ fontSize: 10 }}>WiFi</span>
         <div
           style={{
             width: 18,
             height: 10,
-            border: `1.5px solid ${tokens.color.onSurfaceVariant}`,
+            border: `1.5px solid ${tokens.color.fg.white}`,
             borderRadius: 2,
             position: "relative",
           }}
@@ -34,7 +34,7 @@ export default function StatusBar() {
               left: 1,
               right: 3,
               bottom: 1,
-              background: tokens.color.onSurfaceVariant,
+              background: tokens.color.fg.white,
               borderRadius: 1,
             }}
           />

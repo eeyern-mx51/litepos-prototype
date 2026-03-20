@@ -7,7 +7,7 @@ export default function SectionHeader({ title }) {
         padding: "20px 16px 8px",
         fontSize: tokens.type.titleSmall.size,
         fontWeight: tokens.type.titleSmall.weight,
-        color: tokens.color.primary,
+        color: tokens.color.fg.brand,
         letterSpacing: tokens.type.titleSmall.tracking,
       }}
     >
