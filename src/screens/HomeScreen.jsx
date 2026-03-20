@@ -23,7 +23,20 @@ export default function HomeScreen({ navigate, basket, setBasket }) {
   const [activeFilter, setActiveFilter] = useState("All");
   const [searchQuery, setSearchQuery] = useState("");
   const [searchFocused, setSearchFocused] = useState(false);
+  const [showSearch, setShowSearch] = useState(false);
+  const [scanResult, setScanResult] = useState(null);
   const searchRef = useRef(null);
+
+  const handleScan = () => {
+    // Mock: simulate a 1s camera scan, then "find" a random product
+    setScanResult("scanning");
+    setTimeout(() => {
+      const found = products[Math.floor(Math.random() * products.length)];
+      setScanResult(found);
+      handleAdd(found);
+      setTimeout(() => setScanResult(null), 2000);
+    }, 1200);
+  };
 
   const handleAdd = (p) => {
     const existing = basket.find((b) => b.name === p.name);
@@ -54,7 +67,7 @@ export default function HomeScreen({ navigate, basket, setBasket }) {
   const itemCount = basket.reduce((s, b) => s + b.qty, 0);
 
   return (
-    <div style={{ flex: 1, display: "flex", flexDirection: "column", minHeight: 0 }}>
+    <div style={{ flex: 1, display: "flex", flexDirection: "column", minHeight: 0, position: "relative" }}>
 
       {/* ── Layer 1: Top bar — icon-only navigation ──────────── */}
       <div
@@ -67,117 +80,127 @@ export default function HomeScreen({ navigate, basket, setBasket }) {
           flexShrink: 0,
         }}
       >
-        {/* Left: Menu icon button (M3 standard icon button — no container) */}
+        {/* Left: Menu */}
         <button
           onClick={() => navigate("menu")}
           style={{
-            width: 48,
-            height: 48,
-            borderRadius: tokens.shape.full,
-            border: "none",
-            background: "transparent",
-            cursor: "pointer",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
+            width: 48, height: 48, borderRadius: tokens.shape.full,
+            border: "none", background: "transparent", cursor: "pointer",
+            display: "flex", alignItems: "center", justifyContent: "center",
           }}
         >
           <Icon name="menu" size={24} color={tokens.color.fg.white} />
         </button>
 
-        {/* Right: Settings icon button */}
-        <button
-          onClick={() => navigate("litepos-settings")}
-          style={{
-            width: 48,
-            height: 48,
-            borderRadius: tokens.shape.full,
-            border: "none",
-            background: "transparent",
-            cursor: "pointer",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-          }}
-        >
-          <Icon name="settings" size={24} color={tokens.color.fg.white} />
-        </button>
+        {/* Right group: Search toggle + Settings */}
+        <div style={{ display: "flex", alignItems: "center", gap: 0 }}>
+          <button
+            onClick={() => {
+              setShowSearch(!showSearch);
+              if (!showSearch) setTimeout(() => searchRef.current?.focus(), 100);
+              if (showSearch) { setSearchQuery(""); setSearchFocused(false); }
+            }}
+            style={{
+              width: 48, height: 48, borderRadius: tokens.shape.full,
+              border: "none", background: "transparent", cursor: "pointer",
+              display: "flex", alignItems: "center", justifyContent: "center",
+            }}
+          >
+            <Icon name={showSearch ? "close" : "search"} size={24} color={tokens.color.fg.white} />
+          </button>
+          <button
+            onClick={() => navigate("litepos-settings")}
+            style={{
+              width: 48, height: 48, borderRadius: tokens.shape.full,
+              border: "none", background: "transparent", cursor: "pointer",
+              display: "flex", alignItems: "center", justifyContent: "center",
+            }}
+          >
+            <Icon name="settings" size={24} color={tokens.color.fg.white} />
+          </button>
+        </div>
       </div>
 
-      {/* ── Layer 2: M3 Search bar ─────────────────────────── */}
+      {/* ── Layer 2: Collapsible M3 Search bar ────────────── */}
       <div
         style={{
-          padding: "8px 16px",
+          maxHeight: showSearch ? 72 : 0,
+          opacity: showSearch ? 1 : 0,
+          overflow: "hidden",
+          transition: `max-height ${tokens.motion.duration.medium2} ${tokens.motion.easing.emphasizedDecelerate}, opacity ${tokens.motion.duration.short4} ${tokens.motion.easing.standard}`,
           background: tokens.color.bg.page,
           flexShrink: 0,
         }}
       >
-        <div
-          style={{
-            height: 56,
-            borderRadius: tokens.shape.full,
-            background: tokens.color.bg.surface,
-            display: "flex",
-            alignItems: "center",
-            padding: "0 8px 0 16px",
-            gap: 8,
-            boxShadow: searchFocused ? tokens.elevation.level2 : tokens.elevation.level1,
-            transition: `box-shadow ${tokens.motion.duration.short4} ${tokens.motion.easing.standard}`,
-          }}
-        >
-          <Icon name="search" size={20} color={tokens.color.fg.subtle} />
-          <input
-            ref={searchRef}
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            onFocus={() => setSearchFocused(true)}
-            onBlur={() => setSearchFocused(false)}
-            placeholder="Search products..."
+        <div style={{ padding: "8px 16px" }}>
+          <div
             style={{
-              flex: 1,
-              border: "none",
-              outline: "none",
-              background: "transparent",
-              fontSize: tokens.type.bodyLarge.size,
-              lineHeight: tokens.type.bodyLarge.lineHeight,
-              letterSpacing: tokens.type.bodyLarge.tracking,
-              color: tokens.color.fg.emphasis,
-              fontFamily: "inherit",
-              padding: 0,
-              height: "100%",
+              height: 56,
+              borderRadius: tokens.shape.full,
+              background: tokens.color.bg.surface,
+              display: "flex",
+              alignItems: "center",
+              padding: "0 8px 0 16px",
+              gap: 8,
+              boxShadow: searchFocused ? tokens.elevation.level2 : tokens.elevation.level1,
+              transition: `box-shadow ${tokens.motion.duration.short4} ${tokens.motion.easing.standard}`,
             }}
-          />
-          {searchQuery ? (
-            <button
-              onClick={() => { setSearchQuery(""); searchRef.current?.focus(); }}
+          >
+            <Icon name="search" size={20} color={tokens.color.fg.subtle} />
+            <input
+              ref={searchRef}
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              onFocus={() => setSearchFocused(true)}
+              onBlur={() => setSearchFocused(false)}
+              placeholder="Search products..."
               style={{
-                width: 40, height: 40,
-                borderRadius: tokens.shape.full,
+                flex: 1,
                 border: "none",
+                outline: "none",
                 background: "transparent",
-                cursor: "pointer",
-                display: "flex", alignItems: "center", justifyContent: "center",
-                flexShrink: 0,
+                fontSize: tokens.type.bodyLarge.size,
+                lineHeight: tokens.type.bodyLarge.lineHeight,
+                letterSpacing: tokens.type.bodyLarge.tracking,
+                color: tokens.color.fg.emphasis,
+                fontFamily: "inherit",
+                padding: 0,
+                height: "100%",
               }}
-            >
-              <Icon name="close" size={20} color={tokens.color.fg.subtle} />
-            </button>
-          ) : (
-            <button
-              onClick={() => {}}
-              style={{
-                width: 40, height: 40,
-                borderRadius: tokens.shape.full,
-                border: "none",
-                background: "transparent",
-                cursor: "pointer",
-                display: "flex", alignItems: "center", justifyContent: "center",
-                flexShrink: 0,
-              }}
-            >
-              <Icon name="scan" size={20} color={tokens.color.fg.subtle} />
-            </button>
-          )}
+            />
+            {searchQuery ? (
+              <button
+                onClick={() => { setSearchQuery(""); searchRef.current?.focus(); }}
+                style={{
+                  width: 40, height: 40,
+                  borderRadius: tokens.shape.full,
+                  border: "none",
+                  background: "transparent",
+                  cursor: "pointer",
+                  display: "flex", alignItems: "center", justifyContent: "center",
+                  flexShrink: 0,
+                }}
+              >
+                <Icon name="close" size={20} color={tokens.color.fg.subtle} />
+              </button>
+            ) : (
+              <button
+                onClick={handleScan}
+                disabled={scanResult === "scanning"}
+                style={{
+                  width: 40, height: 40,
+                  borderRadius: tokens.shape.full,
+                  border: "none",
+                  background: "transparent",
+                  cursor: scanResult === "scanning" ? "wait" : "pointer",
+                  display: "flex", alignItems: "center", justifyContent: "center",
+                  flexShrink: 0,
+                }}
+              >
+                <Icon name="scan" size={20} color={scanResult === "scanning" ? tokens.color.fg.brand : tokens.color.fg.subtle} />
+              </button>
+            )}
+          </div>
         </div>
       </div>
 
@@ -236,52 +259,45 @@ export default function HomeScreen({ navigate, basket, setBasket }) {
         )}
       </div>
 
-      {/* ── Layer 5: Action zone — Keypad + Order bar ─────── */}
-      <div style={{ flexShrink: 0 }}>
-        {/* Keypad quick-entry button — above OrderBar */}
+      {/* ── Scan feedback toast ──────────────────────────────── */}
+      {scanResult && (
         <div
           style={{
+            position: "absolute",
+            bottom: 100,
+            left: 16,
+            right: 16,
+            background: scanResult === "scanning" ? tokens.color.bg.snackbar : tokens.color.bg.action.primary.default,
+            borderRadius: tokens.shape.medium,
+            padding: "12px 16px",
             display: "flex",
             alignItems: "center",
             gap: 10,
-            padding: "8px 16px",
-            background: tokens.color.bg.page,
-            borderTop: `1px solid ${tokens.color.border.onpage}`,
+            zIndex: 10,
+            boxShadow: tokens.elevation.level3,
+            transition: `all ${tokens.motion.duration.medium1} ${tokens.motion.easing.emphasizedDecelerate}`,
           }}
         >
-          <button
-            onClick={() => navigate("keypad")}
-            style={{
-              flex: 1,
-              height: 44,
-              borderRadius: tokens.shape.full,
-              border: `1.5px solid ${tokens.color.fg.brand}`,
-              background: "transparent",
-              cursor: "pointer",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              gap: 8,
-              transition: `all ${tokens.motion.duration.short4} ${tokens.motion.easing.standard}`,
-            }}
-          >
-            <Icon name="keypad" size={20} color={tokens.color.fg.brand} />
-            <span
-              style={{
-                fontSize: tokens.type.labelLarge.size,
-                fontWeight: tokens.type.labelLarge.weight,
-                color: tokens.color.fg.brand,
-                fontFamily: "inherit",
-              }}
-            >
-              Manual Entry
-            </span>
-          </button>
+          <Icon
+            name={scanResult === "scanning" ? "scan" : "check"}
+            size={20}
+            color={tokens.color.fg.white}
+          />
+          <span style={{ fontSize: tokens.type.bodyMedium.size, color: tokens.color.fg.white, fontWeight: 500 }}>
+            {scanResult === "scanning"
+              ? "Scanning barcode..."
+              : `Added ${scanResult.name} — $${scanResult.price}`}
+          </span>
         </div>
+      )}
+
+      {/* ── Layer 5: Order bar (with keypad shortcut in idle state) ── */}
+      <div style={{ flexShrink: 0 }}>
         <OrderBar
           itemCount={itemCount}
           total={total}
           onCharge={() => navigate("basket")}
+          onKeypad={() => navigate("keypad")}
         />
       </div>
     </div>
