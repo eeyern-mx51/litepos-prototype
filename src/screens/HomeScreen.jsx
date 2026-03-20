@@ -29,7 +29,7 @@ export default function HomeScreen({ navigate, basket, setBasket }) {
   const itemCount = basket.reduce((s, b) => s + b.qty, 0);
 
   return (
-    <div style={{ flex: 1, display: "flex", flexDirection: "column" }}>
+    <div style={{ flex: 1, display: "flex", flexDirection: "column", minHeight: 0 }}>
       <TopAppBar
         title="LitePOS"
         variant="small"
@@ -42,37 +42,44 @@ export default function HomeScreen({ navigate, basket, setBasket }) {
       />
 
       {/* Filter chips */}
-      <div style={{ display: "flex", gap: 8, padding: "8px 16px", overflow: "auto", background: tokens.color.bg.page }}>
+      <div style={{ display: "flex", gap: 8, padding: "8px 16px", overflow: "auto", flexShrink: 0, background: tokens.color.bg.page }}>
         <Chip label="All" selected />
         <Chip label="Favourites" />
         <Chip label="Drinks" />
         <Chip label="Food" />
       </div>
 
-      {/* Product grid — full scrollable area, nothing floating over it */}
+      {/* Product grid — scrollable, constrained by flex parent */}
       <div
         style={{
           flex: 1,
+          minHeight: 0,
           overflow: "auto",
-          padding: "8px 12px",
-          display: "grid",
-          gridTemplateColumns: "1fr 1fr",
-          gap: 10,
-          alignContent: "start",
           background: tokens.color.bg.page,
         }}
       >
-        {products.map((p, i) => (
-          <ProductCard key={i} name={p.name} price={p.price} isFav={p.fav} onClick={() => handleAdd(p)} />
-        ))}
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "1fr 1fr",
+            gap: 10,
+            padding: "8px 16px 16px",
+          }}
+        >
+          {products.map((p, i) => (
+            <ProductCard key={i} name={p.name} price={p.price} isFav={p.fav} onClick={() => handleAdd(p)} />
+          ))}
+        </div>
       </div>
 
       {/* Fixed bottom order bar — idle shows terminal info, active shows basket */}
-      <OrderBar
-        itemCount={itemCount}
-        total={total}
-        onCharge={() => navigate("basket")}
-      />
+      <div style={{ flexShrink: 0 }}>
+        <OrderBar
+          itemCount={itemCount}
+          total={total}
+          onCharge={() => navigate("basket")}
+        />
+      </div>
     </div>
   );
 }

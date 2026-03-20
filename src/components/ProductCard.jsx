@@ -7,23 +7,24 @@ export default function ProductCard({ name, price, isFav, onClick }) {
       onClick={onClick}
       style={{
         borderRadius: tokens.shape.expressiveLarge,
-        background: tokens.color.bg.surface,
+        background: tokens.color.bg.page,
         overflow: "hidden",
         cursor: "pointer",
         transition: `all ${tokens.motion.duration.short4} ${tokens.motion.easing.standard}`,
+        border: `1px solid ${tokens.color.border.onpage}`,
       }}
     >
       <div
         style={{
           height: 96,
-          background: tokens.color.bg.page,
+          background: tokens.color.bg.surface,
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
           position: "relative",
         }}
       >
-        <Icon name="image" size={32} color={tokens.color.border.onpage} />
+        <Icon name="image" size={32} color={tokens.color.border.onsurface} />
         {isFav && (
           <div style={{ position: "absolute", top: 8, right: 8 }}>
             <Icon name="favorite" size={16} color={tokens.color.fg.error.icon} />
