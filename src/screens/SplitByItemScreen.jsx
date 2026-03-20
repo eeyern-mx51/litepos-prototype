@@ -1,83 +1,85 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import tokens from "../theme/tokens";
 import TopAppBar from "../components/TopAppBar";
 import Icon from "../components/Icon";
 
 // ── Split by Item ──────────────────────────────────────────────────────
-// CBA Smart Hospitality–inspired: select items for this payment round.
-// Remaining items stay for subsequent payments.
+// Explodes basket quantities into individual selectable units.
+// e.g. "Flat White × 2" becomes two separate rows so each person
+// can pick their own Flat White alongside their main.
 export default function SplitByItemScreen({
   navigate,
   goBack,
   basket = [],
   setBasket,
 }) {
-  const [selected, setSelected] = useState({});
-  // Track payment round within this split session
-  const [paidItems, setPaidItems] = useState([]);
-  const [showPaidSnackbar, setShowPaidSnackbar] = useState(null);
-
-  // Items still unpaid
-  const remaining = basket.filter(
-    (_, i) => !paidItems.includes(i)
-  );
-
-  const toggle = (originalIndex) => {
-    setSelected((prev) => ({
-      ...prev,
-      [originalIndex]: !prev[originalIndex],
-    }));
-  };
-
-  const selectedIndices = Object.keys(selected).filter(
-    (k) => selected[k] && !paidItems.includes(Number(k))
-  );
-  const selectedTotal = selectedIndices.reduce(
-    (s, k) => s + basket[k].price * basket[k].qty,
-    0
-  );
-  const totalRemaining = remaining.reduce(
-    (s, b) => s + b.price * b.qty,
-    0
-  );
-
-  const canCharge = selectedIndices.length > 0;
-
-  // All items paid = whole bill done
-  const allPaid = remaining.length === 0;
-
-  const handleCharge = () => {
-    // Navigate to payment processing with just the selected amount
-    navigate("payment-processing", {
-      amount: selectedTotal,
-      label: `${selectedIndices.length} item${selectedIndices.length !== 1 ? "s" : ""}`,
-      onComplete: "split-by-item", // return here after payment
-      splitInfo: {
-        paidIndices: [...paidItems, ...selectedIndices.map(Number)],
-      },
+  // Explode basket into individual units
+  // { name, price, basketIndex, unitIndex }
+  const units = useMemo(() => {
+    const list = [];
+    basket.forEach((item, bi) => {
+      for (let u = 0; u < item.qty; u++) {
+        list.push({
+          name: item.name,
+          price: item.price,
+          basketIndex: bi,
+          unitIndex: u,
+          id: `${bi}-${u}`,
+        });
+      }
     });
+    return list;
+  }, [basket]);
+
+  const [selected, setSelected] = useState({});
+  const [paidIds, setPaidIds] = useState([]);
+  const [showSnackbar, setShowSnackbar] = useState(null);
+
+  const toggle = (id) => {
+    setSelected((prev) => ({ ...prev, [id]: !prev[id] }));
   };
 
-  // After simulated payment returns, mark items as paid
+  const selectedIds = Object.keys(selected).filter(
+    (id) => selected[id] && !paidIds.includes(id)
+  );
+  const selectedTotal = selectedIds.reduce(
+    (s, id) => s + units.find((u) => u.id === id).price,
+    0
+  );
+
+  const unpaidUnits = units.filter((u) => !paidIds.includes(u.id));
+  const totalRemaining = unpaidUnits.reduce((s, u) => s + u.price, 0);
+  const paidTotal = paidIds.reduce(
+    (s, id) => s + units.find((u) => u.id === id).price,
+    0
+  );
+  const grandTotal = units.reduce((s, u) => s + u.price, 0);
+
+  const canCharge = selectedIds.length > 0;
+  const allPaid = unpaidUnits.length === 0;
+
   const handlePayRound = () => {
-    const newPaid = [...paidItems, ...selectedIndices.map(Number)];
-    setPaidItems(newPaid);
+    const newPaid = [...paidIds, ...selectedIds];
+    setPaidIds(newPaid);
     setSelected({});
 
-    const paidAmount = selectedTotal;
-    setShowPaidSnackbar(paidAmount);
-    setTimeout(() => setShowPaidSnackbar(null), 2500);
-
-    // If all items now paid, go to processing success
-    if (newPaid.length >= basket.length) {
-      setTimeout(() => {
-        navigate("payment-processing", {
-          amount: 0,
-          allPaid: true,
-        });
-      }, 1200);
-    }
+    setShowSnackbar(selectedTotal);
+    setTimeout(() => setShowSnackbar(null), 2500);
   };
+
+  // Group units for display: show product name once as a header,
+  // then each unit as a selectable row underneath
+  const grouped = useMemo(() => {
+    const map = new Map();
+    units.forEach((u) => {
+      const key = u.basketIndex;
+      if (!map.has(key)) {
+        map.set(key, { name: u.name, price: u.price, units: [] });
+      }
+      map.get(key).units.push(u);
+    });
+    return [...map.values()];
+  }, [units]);
 
   return (
     <div
@@ -91,8 +93,8 @@ export default function SplitByItemScreen({
     >
       <TopAppBar title="Split by Item" onBack={goBack} theme="light" />
 
-      {/* Progress bar showing how much is paid */}
-      {paidItems.length > 0 && (
+      {/* Progress bar */}
+      {paidIds.length > 0 && (
         <div style={{ padding: "0 16px 4px" }}>
           <div
             style={{
@@ -105,14 +107,7 @@ export default function SplitByItemScreen({
             <div
               style={{
                 height: "100%",
-                width: `${
-                  (paidItems.reduce(
-                    (s, i) => s + basket[i].price * basket[i].qty,
-                    0
-                  ) /
-                    basket.reduce((s, b) => s + b.price * b.qty, 0)) *
-                  100
-                }%`,
+                width: `${(paidTotal / grandTotal) * 100}%`,
                 background: tokens.color.bg.success.default,
                 borderRadius: 3,
                 transition: `width ${tokens.motion.duration.medium2} ${tokens.motion.easing.expressive}`,
@@ -129,15 +124,15 @@ export default function SplitByItemScreen({
             }}
           >
             <span>
-              {paidItems.length} of{" "}
-              {basket.reduce((s, b) => s + b.qty, 0)} items paid
+              {paidIds.length} of {units.length} items paid
             </span>
-            <span style={{ color: tokens.color.fg.success.icon, fontWeight: 600 }}>
-              $
-              {paidItems
-                .reduce((s, i) => s + basket[i].price * basket[i].qty, 0)
-                .toFixed(2)}{" "}
-              paid
+            <span
+              style={{
+                color: tokens.color.fg.success.icon,
+                fontWeight: 600,
+              }}
+            >
+              ${paidTotal.toFixed(2)} paid
             </span>
           </div>
         </div>
@@ -157,115 +152,155 @@ export default function SplitByItemScreen({
           : "Select the items for this payment"}
       </div>
 
-      {/* Item list */}
+      {/* Item list — grouped by product with individual unit rows */}
       <div style={{ flex: 1, overflow: "auto", padding: "0 0 8px" }}>
-        {basket.map((item, i) => {
-          const isPaid = paidItems.includes(i);
-          const isSelected = selected[i] && !isPaid;
+        {grouped.map((group) => {
+          const allGroupPaid = group.units.every((u) =>
+            paidIds.includes(u.id)
+          );
+          const showMultiple = group.units.length > 1;
 
           return (
-            <button
-              key={i}
-              onClick={() => !isPaid && toggle(i)}
-              disabled={isPaid}
-              style={{
-                display: "flex",
-                alignItems: "center",
-                gap: 12,
-                width: "100%",
-                padding: "14px 16px",
-                background: isSelected
-                  ? `${tokens.color.fg.brand}08`
-                  : "transparent",
-                border: "none",
-                borderBottom: `1px solid ${tokens.color.border.onpage}`,
-                cursor: isPaid ? "default" : "pointer",
-                opacity: isPaid ? 0.4 : 1,
-                textAlign: "left",
-                fontFamily: "inherit",
-                transition: `all ${tokens.motion.duration.short2} ${tokens.motion.easing.standard}`,
-              }}
-            >
-              {/* Checkbox */}
-              <div
-                style={{
-                  width: 28,
-                  height: 28,
-                  borderRadius: tokens.shape.small,
-                  border: isPaid
-                    ? `2px solid ${tokens.color.fg.success.icon}`
-                    : isSelected
-                    ? `2px solid ${tokens.color.fg.brand}`
-                    : `2px solid ${tokens.color.border.onsurface}`,
-                  background: isPaid
-                    ? tokens.color.bg.success.default
-                    : isSelected
-                    ? tokens.color.bg.action.primary.default
-                    : "transparent",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  flexShrink: 0,
-                  transition: `all ${tokens.motion.duration.short2} ${tokens.motion.easing.expressive}`,
-                }}
-              >
-                {(isSelected || isPaid) && (
-                  <Icon
-                    name="check"
-                    size={16}
-                    color={tokens.color.fg.white}
-                  />
-                )}
-              </div>
-
-              {/* Item details */}
-              <div style={{ flex: 1, minWidth: 0 }}>
+            <div key={group.units[0].basketIndex}>
+              {/* Product header — shown when qty > 1 */}
+              {showMultiple && (
                 <div
                   style={{
-                    fontSize: tokens.type.bodyLarge.size,
-                    fontWeight: 500,
-                    color: tokens.color.fg.emphasis,
-                    textDecoration: isPaid ? "line-through" : "none",
+                    padding: "10px 16px 4px",
+                    fontSize: tokens.type.labelMedium.size,
+                    fontWeight: 600,
+                    color: allGroupPaid
+                      ? tokens.color.fg.disable
+                      : tokens.color.fg.emphasis,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
                   }}
                 >
-                  {item.name}
+                  <span>
+                    {group.name}{" "}
+                    <span style={{ color: tokens.color.fg.subtle, fontWeight: 400 }}>
+                      × {group.units.length}
+                    </span>
+                  </span>
+                  <span
+                    style={{
+                      fontSize: tokens.type.labelSmall.size,
+                      color: tokens.color.fg.subtle,
+                    }}
+                  >
+                    ${group.price.toFixed(2)} each
+                  </span>
                 </div>
-                <div
-                  style={{
-                    fontSize: tokens.type.bodySmall.size,
-                    color: tokens.color.fg.subtle,
-                  }}
-                >
-                  Qty: {item.qty}
-                  {isPaid && (
-                    <span
+              )}
+
+              {/* Individual unit rows */}
+              {group.units.map((unit, idx) => {
+                const isPaid = paidIds.includes(unit.id);
+                const isSelected = selected[unit.id] && !isPaid;
+
+                return (
+                  <button
+                    key={unit.id}
+                    onClick={() => !isPaid && toggle(unit.id)}
+                    disabled={isPaid}
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 12,
+                      width: "100%",
+                      padding: showMultiple
+                        ? "12px 16px 12px 32px"
+                        : "14px 16px",
+                      background: isSelected
+                        ? `${tokens.color.fg.brand}08`
+                        : "transparent",
+                      border: "none",
+                      borderBottom: `1px solid ${tokens.color.border.onpage}`,
+                      cursor: isPaid ? "default" : "pointer",
+                      opacity: isPaid ? 0.4 : 1,
+                      textAlign: "left",
+                      fontFamily: "inherit",
+                      transition: `all ${tokens.motion.duration.short2} ${tokens.motion.easing.standard}`,
+                    }}
+                  >
+                    {/* Checkbox */}
+                    <div
                       style={{
-                        marginLeft: 8,
-                        color: tokens.color.fg.success.icon,
-                        fontWeight: 600,
+                        width: 28,
+                        height: 28,
+                        borderRadius: tokens.shape.small,
+                        border: isPaid
+                          ? `2px solid ${tokens.color.fg.success.icon}`
+                          : isSelected
+                          ? `2px solid ${tokens.color.fg.brand}`
+                          : `2px solid ${tokens.color.border.onsurface}`,
+                        background: isPaid
+                          ? tokens.color.bg.success.default
+                          : isSelected
+                          ? tokens.color.bg.action.primary.default
+                          : "transparent",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        flexShrink: 0,
+                        transition: `all ${tokens.motion.duration.short2} ${tokens.motion.easing.expressive}`,
                       }}
                     >
-                      Paid
-                    </span>
-                  )}
-                </div>
-              </div>
+                      {(isSelected || isPaid) && (
+                        <Icon
+                          name="check"
+                          size={16}
+                          color={tokens.color.fg.white}
+                        />
+                      )}
+                    </div>
 
-              {/* Price */}
-              <div
-                style={{
-                  fontSize: tokens.type.titleMedium.size,
-                  fontWeight: 600,
-                  color: isPaid
-                    ? tokens.color.fg.subtle
-                    : isSelected
-                    ? tokens.color.fg.brand
-                    : tokens.color.fg.emphasis,
-                }}
-              >
-                ${(item.price * item.qty).toFixed(2)}
-              </div>
-            </button>
+                    {/* Item label */}
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div
+                        style={{
+                          fontSize: tokens.type.bodyLarge.size,
+                          fontWeight: 500,
+                          color: tokens.color.fg.emphasis,
+                          textDecoration: isPaid ? "line-through" : "none",
+                        }}
+                      >
+                        {showMultiple
+                          ? `${unit.name} #${idx + 1}`
+                          : unit.name}
+                      </div>
+                      {isPaid && (
+                        <div
+                          style={{
+                            fontSize: tokens.type.bodySmall.size,
+                            color: tokens.color.fg.success.icon,
+                            fontWeight: 600,
+                          }}
+                        >
+                          Paid
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Price */}
+                    <div
+                      style={{
+                        fontSize: tokens.type.titleMedium.size,
+                        fontWeight: 600,
+                        color: isPaid
+                          ? tokens.color.fg.subtle
+                          : isSelected
+                          ? tokens.color.fg.brand
+                          : tokens.color.fg.emphasis,
+                      }}
+                    >
+                      ${unit.price.toFixed(2)}
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
           );
         })}
       </div>
@@ -289,8 +324,8 @@ export default function SplitByItemScreen({
             }}
           >
             <span style={{ color: tokens.color.fg.subtle }}>
-              {selectedIndices.length} item
-              {selectedIndices.length !== 1 ? "s" : ""} selected
+              {selectedIds.length} item
+              {selectedIds.length !== 1 ? "s" : ""} selected
             </span>
             <span
               style={{
@@ -406,7 +441,7 @@ export default function SplitByItemScreen({
       )}
 
       {/* Snackbar */}
-      {showPaidSnackbar !== null && (
+      {showSnackbar !== null && (
         <div
           style={{
             position: "absolute",
@@ -427,9 +462,7 @@ export default function SplitByItemScreen({
           }}
         >
           <Icon name="check" size={20} color={tokens.color.fg.white} />
-          <span>
-            Payment of ${showPaidSnackbar.toFixed(2)} received
-          </span>
+          <span>Payment of ${showSnackbar.toFixed(2)} received</span>
         </div>
       )}
     </div>
