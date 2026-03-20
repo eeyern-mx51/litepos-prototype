@@ -56,81 +56,76 @@ export default function HomeScreen({ navigate, basket, setBasket }) {
   return (
     <div style={{ flex: 1, display: "flex", flexDirection: "column", minHeight: 0 }}>
 
-      {/* ── Layer 1: Navy top bar — navigation only ─────────── */}
+      {/* ── Layer 1: Top bar — icon-only navigation ──────────── */}
       <div
         style={{
           background: tokens.color.bg.brand,
-          padding: "10px 12px",
+          padding: "6px 4px",
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
           flexShrink: 0,
         }}
       >
-        {/* Left: Menu icon */}
+        {/* Left: Menu icon button (M3 standard icon button — no container) */}
         <button
           onClick={() => navigate("menu")}
           style={{
-            width: 40,
-            height: 40,
+            width: 48,
+            height: 48,
             borderRadius: tokens.shape.full,
             border: "none",
-            background: "rgba(255,255,255,0.15)",
+            background: "transparent",
             cursor: "pointer",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
           }}
         >
-          <Icon name="menu" size={20} color={tokens.color.fg.white} />
+          <Icon name="menu" size={24} color={tokens.color.fg.white} />
         </button>
 
-        {/* Right: Settings shortcut */}
+        {/* Right: Settings icon button */}
         <button
           onClick={() => navigate("litepos-settings")}
           style={{
-            width: 40,
-            height: 40,
+            width: 48,
+            height: 48,
             borderRadius: tokens.shape.full,
             border: "none",
-            background: "rgba(255,255,255,0.15)",
+            background: "transparent",
             cursor: "pointer",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
           }}
         >
-          <Icon name="settings" size={20} color={tokens.color.fg.white} />
+          <Icon name="settings" size={24} color={tokens.color.fg.white} />
         </button>
       </div>
 
-      {/* ── Layer 2: Search bar + Keypad — input methods ─────── */}
+      {/* ── Layer 2: M3 Search bar ─────────────────────────── */}
       <div
         style={{
-          display: "flex",
-          alignItems: "center",
-          gap: 10,
-          padding: "10px 16px",
+          padding: "8px 16px",
           background: tokens.color.bg.page,
           flexShrink: 0,
         }}
       >
-        {/* Search field with embedded scan icon */}
         <div
           style={{
-            flex: 1,
-            height: 44,
+            height: 56,
             borderRadius: tokens.shape.full,
-            border: `1.5px solid ${searchFocused ? tokens.color.border.action.default : tokens.color.border.onpage}`,
             background: tokens.color.bg.surface,
             display: "flex",
             alignItems: "center",
-            padding: "0 4px 0 14px",
+            padding: "0 8px 0 16px",
             gap: 8,
-            transition: `border-color ${tokens.motion.duration.short4} ${tokens.motion.easing.standard}`,
+            boxShadow: searchFocused ? tokens.elevation.level2 : tokens.elevation.level1,
+            transition: `box-shadow ${tokens.motion.duration.short4} ${tokens.motion.easing.standard}`,
           }}
         >
-          <Icon name="search" size={18} color={tokens.color.fg.subtle} />
+          <Icon name="search" size={20} color={tokens.color.fg.subtle} />
           <input
             ref={searchRef}
             value={searchQuery}
@@ -143,7 +138,9 @@ export default function HomeScreen({ navigate, basket, setBasket }) {
               border: "none",
               outline: "none",
               background: "transparent",
-              fontSize: tokens.type.bodyMedium.size,
+              fontSize: tokens.type.bodyLarge.size,
+              lineHeight: tokens.type.bodyLarge.lineHeight,
+              letterSpacing: tokens.type.bodyLarge.tracking,
               color: tokens.color.fg.emphasis,
               fontFamily: "inherit",
               padding: 0,
@@ -154,7 +151,7 @@ export default function HomeScreen({ navigate, basket, setBasket }) {
             <button
               onClick={() => { setSearchQuery(""); searchRef.current?.focus(); }}
               style={{
-                width: 32, height: 32,
+                width: 40, height: 40,
                 borderRadius: tokens.shape.full,
                 border: "none",
                 background: "transparent",
@@ -163,13 +160,13 @@ export default function HomeScreen({ navigate, basket, setBasket }) {
                 flexShrink: 0,
               }}
             >
-              <Icon name="close" size={16} color={tokens.color.fg.subtle} />
+              <Icon name="close" size={20} color={tokens.color.fg.subtle} />
             </button>
           ) : (
             <button
               onClick={() => {}}
               style={{
-                width: 32, height: 32,
+                width: 40, height: 40,
                 borderRadius: tokens.shape.full,
                 border: "none",
                 background: "transparent",
@@ -178,30 +175,10 @@ export default function HomeScreen({ navigate, basket, setBasket }) {
                 flexShrink: 0,
               }}
             >
-              <Icon name="scan" size={18} color={tokens.color.fg.subtle} />
+              <Icon name="scan" size={20} color={tokens.color.fg.subtle} />
             </button>
           )}
         </div>
-
-        {/* Keypad button — anchored right of search */}
-        <button
-          onClick={() => navigate("keypad")}
-          style={{
-            width: 44,
-            height: 44,
-            borderRadius: tokens.shape.full,
-            border: `2px solid ${tokens.color.fg.brand}`,
-            background: "transparent",
-            cursor: "pointer",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            flexShrink: 0,
-            transition: `all ${tokens.motion.duration.short4} ${tokens.motion.easing.standard}`,
-          }}
-        >
-          <Icon name="keypad" size={20} color={tokens.color.fg.brand} />
-        </button>
       </div>
 
       {/* ── Layer 3: Filter chips ───────────────────────────── */}
@@ -259,8 +236,48 @@ export default function HomeScreen({ navigate, basket, setBasket }) {
         )}
       </div>
 
-      {/* ── Layer 5: Order bar ──────────────────────────────── */}
+      {/* ── Layer 5: Action zone — Keypad + Order bar ─────── */}
       <div style={{ flexShrink: 0 }}>
+        {/* Keypad quick-entry button — above OrderBar */}
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: 10,
+            padding: "8px 16px",
+            background: tokens.color.bg.page,
+            borderTop: `1px solid ${tokens.color.border.onpage}`,
+          }}
+        >
+          <button
+            onClick={() => navigate("keypad")}
+            style={{
+              flex: 1,
+              height: 44,
+              borderRadius: tokens.shape.full,
+              border: `1.5px solid ${tokens.color.fg.brand}`,
+              background: "transparent",
+              cursor: "pointer",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: 8,
+              transition: `all ${tokens.motion.duration.short4} ${tokens.motion.easing.standard}`,
+            }}
+          >
+            <Icon name="keypad" size={20} color={tokens.color.fg.brand} />
+            <span
+              style={{
+                fontSize: tokens.type.labelLarge.size,
+                fontWeight: tokens.type.labelLarge.weight,
+                color: tokens.color.fg.brand,
+                fontFamily: "inherit",
+              }}
+            >
+              Manual Entry
+            </span>
+          </button>
+        </div>
         <OrderBar
           itemCount={itemCount}
           total={total}
