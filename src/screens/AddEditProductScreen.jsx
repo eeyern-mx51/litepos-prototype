@@ -152,7 +152,6 @@ export default function AddEditProductScreen({ navigate, goBack, editProduct }) 
   const [sku, setSku] = useState(editProduct?.sku || "");
   const [upc, setUpc] = useState(editProduct?.upc || "");
   const [favourite, setFavourite] = useState(editProduct?.fav || false);
-  const [imageMethod, setImageMethod] = useState(null); // null | "camera" | "gallery" | "url"
   const [imagePreview, setImagePreview] = useState(null);
   const fileInputRef = useRef(null);
 
@@ -187,7 +186,7 @@ export default function AddEditProductScreen({ navigate, goBack, editProduct }) 
         actions={isEdit ? [{ icon: "delete", onPress: () => navigate("product-catalog") }] : []}
       />
 
-      <div style={{ flex: 1, minHeight: 0, overflow: "auto", paddingBottom: 100 }}>
+      <div style={{ flex: 1, minHeight: 0, overflow: "auto", paddingBottom: isImport ? 150 : 100 }}>
 
         {/* ── Product Image ─────────────────────────────────────── */}
         <input
@@ -452,7 +451,7 @@ export default function AddEditProductScreen({ navigate, goBack, editProduct }) 
         </FieldCard>
       </div>
 
-      {/* ── Fixed bottom save button ──────────────────────────── */}
+      {/* ── Fixed bottom buttons ──────────────────────────── */}
       <div
         style={{
           position: "absolute",
@@ -462,10 +461,40 @@ export default function AddEditProductScreen({ navigate, goBack, editProduct }) 
           padding: "12px 16px",
           paddingBottom: 16,
           background: `linear-gradient(transparent, ${tokens.color.bg.surface} 20%)`,
+          display: "flex",
+          flexDirection: "column",
+          gap: 8,
         }}
       >
+        {isImport && (
+          <button
+            onClick={() => navigate("import-scan")}
+            disabled={!canSave}
+            style={{
+              width: "100%",
+              height: 48,
+              borderRadius: tokens.shape.full,
+              border: canSave
+                ? `1.5px solid ${tokens.color.fg.brand}`
+                : `1.5px solid ${tokens.color.border.onpage}`,
+              background: "transparent",
+              color: canSave ? tokens.color.fg.brand : tokens.color.fg.disable,
+              fontSize: tokens.type.titleSmall.size,
+              fontWeight: 600,
+              cursor: canSave ? "pointer" : "not-allowed",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: 8,
+              transition: `all ${tokens.motion.duration.medium2} ${tokens.motion.easing.expressive}`,
+            }}
+          >
+            <Icon name="scan" size={18} color={canSave ? tokens.color.fg.brand : tokens.color.fg.disable} />
+            Save & Scan Another
+          </button>
+        )}
         <button
-          onClick={() => navigate(isImport ? "import-scan" : "product-catalog")}
+          onClick={() => navigate(isImport ? "product-catalog" : "product-catalog")}
           disabled={!canSave}
           style={{
             width: "100%",
