@@ -15,14 +15,14 @@ import Icon from "../components/Icon";
  * Top bar: back arrow (left) · "Products" title · close ✕ (right, goes home).
  */
 
-export default function ProductCatalogScreen({ navigate, products = [] }) {
+export default function ProductCatalogScreen({ navigate, goBack, products = [] }) {
   const hasProducts = products.length > 0;
 
   return (
     <div style={{ flex: 1, display: "flex", flexDirection: "column", position: "relative", background: tokens.color.bg.surface, minHeight: 0 }}>
       <TopAppBar
         title="Products"
-        onBack={() => navigate("litepos-settings")}
+        onBack={goBack}
         theme="light"
         actions={[{ icon: "close", onPress: () => navigate("home") }]}
       />

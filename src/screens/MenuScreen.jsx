@@ -2,7 +2,7 @@ import tokens from "../theme/tokens";
 import TopAppBar from "../components/TopAppBar";
 import NavCard from "../components/NavCard";
 
-export default function MenuScreen({ navigate }) {
+export default function MenuScreen({ navigate, goBack }) {
   return (
     <div
       style={{
@@ -12,7 +12,7 @@ export default function MenuScreen({ navigate }) {
         background: tokens.color.bg.brand,
       }}
     >
-      <TopAppBar title="Menu" variant="small" theme="dark" onBack={() => navigate("home")} />
+      <TopAppBar title="Menu" variant="small" theme="dark" onBack={goBack} />
       <div
         style={{
           flex: 1,

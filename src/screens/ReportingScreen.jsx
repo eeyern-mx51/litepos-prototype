@@ -3,14 +3,14 @@ import tokens from "../theme/tokens";
 import TopAppBar from "../components/TopAppBar";
 import Card from "../components/Card";
 
-export default function ReportingScreen({ navigate }) {
+export default function ReportingScreen({ navigate, goBack }) {
   const [tab, setTab] = useState("transactions");
 
   return (
     <div style={{ flex: 1, display: "flex", flexDirection: "column", background: tokens.color.bg.page }}>
       <TopAppBar
         title="Sales Report"
-        onBack={() => navigate("menu")}
+        onBack={goBack}
         theme="light"
         actions={[{ icon: "print", onPress: () => {} }]}
       />

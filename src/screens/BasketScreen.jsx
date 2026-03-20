@@ -3,14 +3,14 @@ import TopAppBar from "../components/TopAppBar";
 import ListItem from "../components/ListItem";
 import Icon from "../components/Icon";
 
-export default function BasketScreen({ navigate, basket, setBasket }) {
+export default function BasketScreen({ navigate, goBack, basket, setBasket }) {
   const total = basket.reduce((s, b) => s + b.price * b.qty, 0);
 
   return (
     <div style={{ flex: 1, display: "flex", flexDirection: "column", background: tokens.color.bg.page }}>
       <TopAppBar
         title="Basket"
-        onBack={() => navigate("home")}
+        onBack={goBack}
         theme="light"
         actions={basket.length > 0
           ? [{ icon: "delete", onPress: () => setBasket([]) }]

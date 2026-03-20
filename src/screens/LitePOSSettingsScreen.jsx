@@ -94,15 +94,14 @@ function StatusPill({ active }) {
   );
 }
 
-export default function LitePOSSettingsScreen({ navigate }) {
+export default function LitePOSSettingsScreen({ navigate, goBack }) {
   const [enabled, setEnabled] = useState(true);
-  const [homeMode, setHomeMode] = useState("products");
   const [merchantReceipt, setMerchantReceipt] = useState(true);
   const [customerReceipt, setCustomerReceipt] = useState(true);
 
   return (
     <div style={{ flex: 1, display: "flex", flexDirection: "column", background: tokens.color.bg.surface }}>
-      <TopAppBar title="LitePOS" onBack={() => navigate("settings")} theme="light" />
+      <TopAppBar title="LitePOS" onBack={goBack} theme="light" />
       <div style={{ flex: 1, overflow: "auto", paddingBottom: 32 }}>
 
         {/* ── Hero: Feature Toggle Card ─────────────────────────── */}
@@ -158,107 +157,6 @@ export default function LitePOSSettingsScreen({ navigate }) {
           </div>
         </div>
 
-        {/* ── Home Screen Mode ──────────────────────────────────── */}
-        <SectionLabel label="Home screen" />
-        <SettingsCard>
-          <div style={{ padding: 12, display: "flex", gap: 10 }}>
-            {[
-              { key: "products", label: "Products", icon: "store", desc: "Product grid" },
-              { key: "keypad", label: "Keypad", icon: "keypad", desc: "Manual entry" },
-            ].map((opt) => {
-              const selected = homeMode === opt.key;
-              return (
-                <button
-                  key={opt.key}
-                  onClick={() => setHomeMode(opt.key)}
-                  style={{
-                    flex: 1,
-                    height: 88,
-                    borderRadius: tokens.shape.large,
-                    border: selected
-                      ? `2px solid ${tokens.color.fg.brand}`
-                      : `1.5px solid ${tokens.color.border.onpage}`,
-                    background: selected ? `${tokens.color.fg.brand}12` : "transparent",
-                    cursor: "pointer",
-                    display: "flex",
-                    flexDirection: "column",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    gap: 6,
-                    transition: `all ${tokens.motion.duration.short4} ${tokens.motion.easing.standard}`,
-                    position: "relative",
-                  }}
-                >
-                  {/* Selected check */}
-                  {selected && (
-                    <div
-                      style={{
-                        position: "absolute",
-                        top: 8,
-                        right: 8,
-                        width: 18,
-                        height: 18,
-                        borderRadius: tokens.shape.full,
-                        background: tokens.color.fg.brand,
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                      }}
-                    >
-                      <svg width={12} height={12} viewBox="0 0 24 24" fill={tokens.color.fg.white}>
-                        <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" />
-                      </svg>
-                    </div>
-                  )}
-                  <Icon
-                    name={opt.icon}
-                    size={24}
-                    color={selected ? tokens.color.fg.brand : tokens.color.fg.subtle}
-                  />
-                  <div style={{ textAlign: "center" }}>
-                    <div
-                      style={{
-                        fontSize: tokens.type.labelLarge.size,
-                        fontWeight: selected ? 700 : 500,
-                        color: selected ? tokens.color.fg.brand : tokens.color.fg.emphasis,
-                      }}
-                    >
-                      {opt.label}
-                    </div>
-                    <div
-                      style={{
-                        fontSize: tokens.type.labelSmall.size,
-                        color: tokens.color.fg.subtle,
-                        fontWeight: 400,
-                      }}
-                    >
-                      {opt.desc}
-                    </div>
-                  </div>
-                </button>
-              );
-            })}
-          </div>
-        </SettingsCard>
-
-        {/* ── Receipts ──────────────────────────────────────────── */}
-        <SectionLabel label="Receipts" />
-        <SettingsCard>
-          <ListItem
-            leading={<Icon name="print" color={tokens.color.fg.brand} />}
-            headline="Merchant copy — print items"
-            supporting="Include basket items on merchant receipt"
-            trailing={<Switch checked={merchantReceipt} onChange={setMerchantReceipt} />}
-          />
-          <ListItem
-            leading={<Icon name="receipt" color={tokens.color.fg.brand} />}
-            headline="Customer copy — print items"
-            supporting="Include basket items on customer receipt"
-            trailing={<Switch checked={customerReceipt} onChange={setCustomerReceipt} />}
-            divider={false}
-          />
-        </SettingsCard>
-
         {/* ── Product Catalogue ──────────────────────────────────── */}
         <SectionLabel label="Product catalogue" />
         <SettingsCard>
@@ -280,6 +178,24 @@ export default function LitePOSSettingsScreen({ navigate }) {
             headline="Barcode Settings"
             supporting="UPC-A, UPC-E, EAN-13, EAN-8"
             trailing={<Icon name="chevron" color={tokens.color.fg.subtle} />}
+            divider={false}
+          />
+        </SettingsCard>
+
+        {/* ── Receipts ──────────────────────────────────────────── */}
+        <SectionLabel label="Receipts" />
+        <SettingsCard>
+          <ListItem
+            leading={<Icon name="print" color={tokens.color.fg.brand} />}
+            headline="Merchant copy — print items"
+            supporting="Include basket items on merchant receipt"
+            trailing={<Switch checked={merchantReceipt} onChange={setMerchantReceipt} />}
+          />
+          <ListItem
+            leading={<Icon name="receipt" color={tokens.color.fg.brand} />}
+            headline="Customer copy — print items"
+            supporting="Include basket items on customer receipt"
+            trailing={<Switch checked={customerReceipt} onChange={setCustomerReceipt} />}
             divider={false}
           />
         </SettingsCard>

@@ -143,7 +143,7 @@ function PriceField({ value, onChange }) {
 
 // ── Main screen ───────────────────────────────────────────────────────
 
-export default function AddEditProductScreen({ navigate, editProduct }) {
+export default function AddEditProductScreen({ navigate, goBack, editProduct }) {
   const isEdit = !!editProduct;
   const [name, setName] = useState(editProduct?.name || "");
   const [price, setPrice] = useState(editProduct?.price || "");
@@ -159,7 +159,7 @@ export default function AddEditProductScreen({ navigate, editProduct }) {
     <div style={{ flex: 1, display: "flex", flexDirection: "column", background: tokens.color.bg.surface, minHeight: 0 }}>
       <TopAppBar
         title={isEdit ? "Edit Product" : "Add Product"}
-        onBack={() => navigate("product-catalog")}
+        onBack={goBack}
         theme="light"
         actions={isEdit ? [{ icon: "delete", onPress: () => navigate("product-catalog") }] : []}
       />

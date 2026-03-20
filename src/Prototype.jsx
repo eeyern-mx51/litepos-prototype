@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useRef } from "react";
 import tokens from "./theme/tokens";
 import StatusBar from "./components/StatusBar";
 
@@ -49,32 +49,47 @@ export default function Prototype() {
   // Toggle to simulate new merchant (empty catalogue) vs configured merchant
   const [catalogueEnabled, setCatalogueEnabled] = useState(true);
 
+  const historyRef = useRef(["home"]);
+
   const navigate = useCallback(
     (target, data) => {
       if (target === "edit-product") {
         setEditProduct(data || null);
+        historyRef.current.push("add-product");
         setScreen("add-product");
         return;
       }
       if (target === "add-product") {
         setEditProduct(null);
       }
+      historyRef.current.push(target);
       setScreen(target);
     },
     []
   );
 
+  const goBack = useCallback(() => {
+    const history = historyRef.current;
+    if (history.length > 1) {
+      history.pop(); // remove current
+      const prev = history[history.length - 1];
+      setScreen(prev);
+    } else {
+      setScreen("home");
+    }
+  }, []);
+
   const screens = {
     home: <HomeScreen navigate={navigate} basket={basket} setBasket={setBasket} products={catalogueEnabled ? products : []} />,
-    keypad: <KeypadScreen navigate={navigate} basket={basket} setBasket={setBasket} />,
-    basket: <BasketScreen navigate={navigate} basket={basket} setBasket={setBasket} />,
-    menu: <MenuScreen navigate={navigate} />,
-    settings: <SettingsScreen navigate={navigate} />,
-    "litepos-settings": <LitePOSSettingsScreen navigate={navigate} />,
-    "product-catalog": <ProductCatalogScreen navigate={navigate} products={catalogueEnabled ? products : []} />,
-    "add-product": <AddEditProductScreen navigate={navigate} editProduct={editProduct} />,
-    history: <HistoryScreen navigate={navigate} />,
-    reporting: <ReportingScreen navigate={navigate} />,
+    keypad: <KeypadScreen navigate={navigate} goBack={goBack} basket={basket} setBasket={setBasket} />,
+    basket: <BasketScreen navigate={navigate} goBack={goBack} basket={basket} setBasket={setBasket} />,
+    menu: <MenuScreen navigate={navigate} goBack={goBack} />,
+    settings: <SettingsScreen navigate={navigate} goBack={goBack} />,
+    "litepos-settings": <LitePOSSettingsScreen navigate={navigate} goBack={goBack} />,
+    "product-catalog": <ProductCatalogScreen navigate={navigate} goBack={goBack} products={catalogueEnabled ? products : []} />,
+    "add-product": <AddEditProductScreen navigate={navigate} goBack={goBack} editProduct={editProduct} />,
+    history: <HistoryScreen navigate={navigate} goBack={goBack} />,
+    reporting: <ReportingScreen navigate={navigate} goBack={goBack} />,
     scan: <ScanScreen navigate={navigate} basket={basket} setBasket={setBasket} products={catalogueEnabled ? products : []} />,
   };
 

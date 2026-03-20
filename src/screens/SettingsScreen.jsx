@@ -44,10 +44,10 @@ function SectionLabel({ label }) {
   );
 }
 
-export default function SettingsScreen({ navigate }) {
+export default function SettingsScreen({ navigate, goBack }) {
   return (
     <div style={{ flex: 1, display: "flex", flexDirection: "column", background: tokens.color.bg.surface }}>
-      <TopAppBar title="Settings" onBack={() => navigate("menu")} theme="light" />
+      <TopAppBar title="Settings" onBack={goBack} theme="light" />
       <div style={{ flex: 1, overflow: "auto", paddingBottom: 32 }}>
 
         {/* ── LitePOS — hero card ───────────────────────────────── */}

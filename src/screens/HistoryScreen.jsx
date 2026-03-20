@@ -9,7 +9,7 @@ const transactions = [
   { id: "TXN-003", time: "11:42 AM", amount: "$14.50", items: 3, status: "Declined" },
 ];
 
-export default function HistoryScreen({ navigate }) {
+export default function HistoryScreen({ navigate, goBack }) {
   return (
     <div
       style={{
@@ -19,7 +19,7 @@ export default function HistoryScreen({ navigate }) {
         background: tokens.color.bg.brand,
       }}
     >
-      <TopAppBar title="Transaction History" onBack={() => navigate("menu")} theme="dark" />
+      <TopAppBar title="Transaction History" onBack={goBack} theme="dark" />
       <div
         style={{
           flex: 1,

@@ -21,7 +21,7 @@ function formatAmount(cents) {
   return (cents / 100).toFixed(2);
 }
 
-export default function KeypadScreen({ navigate, basket, setBasket }) {
+export default function KeypadScreen({ navigate, goBack, basket, setBasket }) {
   const [cents, setCents] = useState(0);
   const [description, setDescription] = useState("");
 
@@ -56,7 +56,7 @@ export default function KeypadScreen({ navigate, basket, setBasket }) {
 
   return (
     <div style={{ flex: 1, display: "flex", flexDirection: "column", background: tokens.color.bg.page, minHeight: 0 }}>
-      <TopAppBar title="Manual Entry" onBack={() => navigate("home")} theme="light" />
+      <TopAppBar title="Manual Entry" onBack={goBack} theme="light" />
 
       <div
         style={{
