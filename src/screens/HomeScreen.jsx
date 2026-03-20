@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import tokens from "../theme/tokens";
 import OrderBar from "../components/OrderBar";
 import Chip from "../components/Chip";
@@ -19,11 +19,9 @@ const products = [
 const categories = ["All", "Favourites", "Drinks", "Food"];
 
 /**
- * NavPill — pill-shaped navigation button matching existing mx51 app pattern.
- * Navy bg top bar with white pill buttons for Menu / Other actions.
+ * NavPill — pill-shaped nav button matching existing mx51 app pattern.
  */
-function NavPill({ icon, label, onClick, variant = "default" }) {
-  const isPrimary = variant === "primary";
+function NavPill({ icon, label, onClick }) {
   return (
     <button
       onClick={onClick}
@@ -40,12 +38,12 @@ function NavPill({ icon, label, onClick, variant = "default" }) {
         transition: `all ${tokens.motion.duration.short4} ${tokens.motion.easing.standard}`,
       }}
     >
-      {icon && <Icon name={icon} size={18} color={isPrimary ? tokens.color.fg.brand : tokens.color.fg.emphasis} />}
+      {icon && <Icon name={icon} size={18} color={tokens.color.fg.emphasis} />}
       <span
         style={{
           fontSize: tokens.type.labelLarge.size,
           fontWeight: 600,
-          color: isPrimary ? tokens.color.fg.brand : tokens.color.fg.emphasis,
+          color: tokens.color.fg.emphasis,
         }}
       >
         {label}
@@ -56,8 +54,9 @@ function NavPill({ icon, label, onClick, variant = "default" }) {
 
 export default function HomeScreen({ navigate, basket, setBasket }) {
   const [activeFilter, setActiveFilter] = useState("All");
-  const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [searchFocused, setSearchFocused] = useState(false);
+  const searchRef = useRef(null);
 
   const handleAdd = (p) => {
     const existing = basket.find((b) => b.name === p.name);
@@ -90,99 +89,141 @@ export default function HomeScreen({ navigate, basket, setBasket }) {
   return (
     <div style={{ flex: 1, display: "flex", flexDirection: "column", minHeight: 0 }}>
 
-      {/* ── Top nav bar (matches existing mx51 app) ──────────── */}
-      {searchOpen ? (
-        <div
+      {/* ── Layer 1: Navy top bar — navigation only ─────────── */}
+      <div
+        style={{
+          background: tokens.color.bg.brand,
+          padding: "10px 12px",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          flexShrink: 0,
+        }}
+      >
+        {/* Left: Menu pill */}
+        <NavPill icon="menu" label="Menu" onClick={() => navigate("menu")} />
+
+        {/* Right: Settings shortcut */}
+        <button
+          onClick={() => navigate("litepos-settings")}
           style={{
+            width: 40,
+            height: 40,
+            borderRadius: tokens.shape.full,
+            border: "none",
+            background: "rgba(255,255,255,0.15)",
+            cursor: "pointer",
             display: "flex",
             alignItems: "center",
-            gap: 8,
-            padding: "8px 8px 8px 4px",
-            background: tokens.color.bg.brand,
-            flexShrink: 0,
+            justifyContent: "center",
           }}
         >
-          <button
-            onClick={() => { setSearchOpen(false); setSearchQuery(""); }}
-            style={{
-              width: 40, height: 40,
-              borderRadius: tokens.shape.full,
-              border: "none", background: "none",
-              cursor: "pointer",
-              display: "flex", alignItems: "center", justifyContent: "center",
-            }}
-          >
-            <Icon name="close" size={20} color={tokens.color.fg.white} />
-          </button>
+          <Icon name="settings" size={20} color={tokens.color.fg.white} />
+        </button>
+      </div>
+
+      {/* ── Layer 2: Search bar + Keypad — input methods ─────── */}
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: 10,
+          padding: "10px 16px",
+          background: tokens.color.bg.page,
+          flexShrink: 0,
+        }}
+      >
+        {/* Search field with embedded scan icon */}
+        <div
+          style={{
+            flex: 1,
+            height: 44,
+            borderRadius: tokens.shape.full,
+            border: `1.5px solid ${searchFocused ? tokens.color.border.action.default : tokens.color.border.onpage}`,
+            background: tokens.color.bg.surface,
+            display: "flex",
+            alignItems: "center",
+            padding: "0 4px 0 14px",
+            gap: 8,
+            transition: `border-color ${tokens.motion.duration.short4} ${tokens.motion.easing.standard}`,
+          }}
+        >
+          <Icon name="search" size={18} color={tokens.color.fg.subtle} />
           <input
-            autoFocus
+            ref={searchRef}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
+            onFocus={() => setSearchFocused(true)}
+            onBlur={() => setSearchFocused(false)}
             placeholder="Search products..."
             style={{
               flex: 1,
-              height: 40,
-              borderRadius: tokens.shape.full,
               border: "none",
-              padding: "0 16px",
+              outline: "none",
+              background: "transparent",
               fontSize: tokens.type.bodyMedium.size,
               color: tokens.color.fg.emphasis,
-              background: tokens.color.fg.white,
-              outline: "none",
               fontFamily: "inherit",
+              padding: 0,
+              height: "100%",
             }}
           />
-          {searchQuery && (
+          {searchQuery ? (
             <button
-              onClick={() => setSearchQuery("")}
+              onClick={() => { setSearchQuery(""); searchRef.current?.focus(); }}
               style={{
-                width: 40, height: 40,
+                width: 32, height: 32,
                 borderRadius: tokens.shape.full,
-                border: "none", background: "none",
+                border: "none",
+                background: "transparent",
                 cursor: "pointer",
                 display: "flex", alignItems: "center", justifyContent: "center",
+                flexShrink: 0,
               }}
             >
-              <Icon name="back" size={18} color={tokens.color.fg.white} />
+              <Icon name="close" size={16} color={tokens.color.fg.subtle} />
+            </button>
+          ) : (
+            <button
+              onClick={() => {}}
+              style={{
+                width: 32, height: 32,
+                borderRadius: tokens.shape.full,
+                border: "none",
+                background: "transparent",
+                cursor: "pointer",
+                display: "flex", alignItems: "center", justifyContent: "center",
+                flexShrink: 0,
+              }}
+            >
+              <Icon name="scan" size={18} color={tokens.color.fg.subtle} />
             </button>
           )}
         </div>
-      ) : (
-        <div
+
+        {/* Keypad button — anchored right of search */}
+        <button
+          onClick={() => navigate("keypad")}
           style={{
-            background: tokens.color.bg.brand,
-            padding: "10px 12px",
+            width: 44,
+            height: 44,
+            borderRadius: tokens.shape.full,
+            border: `2px solid ${tokens.color.fg.brand}`,
+            background: "transparent",
+            cursor: "pointer",
             display: "flex",
             alignItems: "center",
-            justifyContent: "space-between",
+            justifyContent: "center",
             flexShrink: 0,
+            transition: `all ${tokens.motion.duration.short4} ${tokens.motion.easing.standard}`,
           }}
         >
-          {/* Left: Menu pill */}
-          <NavPill icon="menu" label="Menu" onClick={() => navigate("menu")} />
+          <Icon name="keypad" size={20} color={tokens.color.fg.brand} />
+        </button>
+      </div>
 
-          {/* Right: search + keypad pill */}
-          <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
-            <button
-              onClick={() => setSearchOpen(true)}
-              style={{
-                width: 40, height: 40,
-                borderRadius: tokens.shape.full,
-                border: "none",
-                background: "rgba(255,255,255,0.15)",
-                cursor: "pointer",
-                display: "flex", alignItems: "center", justifyContent: "center",
-              }}
-            >
-              <Icon name="search" size={20} color={tokens.color.fg.white} />
-            </button>
-            <NavPill icon="keypad" label="Keypad" onClick={() => navigate("keypad")} variant="primary" />
-          </div>
-        </div>
-      )}
-
-      {/* Filter chips */}
-      <div style={{ display: "flex", gap: 8, padding: "8px 16px", overflow: "auto", flexShrink: 0, background: tokens.color.bg.page }}>
+      {/* ── Layer 3: Filter chips ───────────────────────────── */}
+      <div style={{ display: "flex", gap: 8, padding: "4px 16px 8px", overflow: "auto", flexShrink: 0, background: tokens.color.bg.page }}>
         {categories.map((cat) => (
           <Chip
             key={cat}
@@ -193,7 +234,7 @@ export default function HomeScreen({ navigate, basket, setBasket }) {
         ))}
       </div>
 
-      {/* Product grid — scrollable, constrained by flex parent */}
+      {/* ── Layer 4: Product grid ───────────────────────────── */}
       <div
         style={{
           flex: 1,
@@ -208,7 +249,7 @@ export default function HomeScreen({ navigate, basket, setBasket }) {
               display: "grid",
               gridTemplateColumns: "1fr 1fr",
               gap: 10,
-              padding: "8px 16px 16px",
+              padding: "4px 16px 16px",
             }}
           >
             {filtered.map((p, i) => (
@@ -222,7 +263,7 @@ export default function HomeScreen({ navigate, basket, setBasket }) {
               flexDirection: "column",
               alignItems: "center",
               justifyContent: "center",
-              padding: "64px 32px",
+              padding: "48px 32px",
               gap: 12,
             }}
           >
@@ -236,7 +277,7 @@ export default function HomeScreen({ navigate, basket, setBasket }) {
         )}
       </div>
 
-      {/* Fixed bottom order bar — idle shows terminal info, active shows basket */}
+      {/* ── Layer 5: Order bar ──────────────────────────────── */}
       <div style={{ flexShrink: 0 }}>
         <OrderBar
           itemCount={itemCount}
