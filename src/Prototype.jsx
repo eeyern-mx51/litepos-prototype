@@ -46,7 +46,7 @@ export default function Prototype() {
 
   const screens = {
     home: <HomeScreen navigate={navigate} basket={basket} setBasket={setBasket} />,
-    keypad: <KeypadScreen navigate={navigate} />,
+    keypad: <KeypadScreen navigate={navigate} basket={basket} setBasket={setBasket} />,
     basket: <BasketScreen navigate={navigate} basket={basket} setBasket={setBasket} />,
     menu: <MenuScreen navigate={navigate} />,
     settings: <SettingsScreen navigate={navigate} />,
