@@ -1,6 +1,5 @@
 import { useState } from "react";
 import tokens from "../theme/tokens";
-import TopAppBar from "../components/TopAppBar";
 import OrderBar from "../components/OrderBar";
 import Chip from "../components/Chip";
 import ProductCard from "../components/ProductCard";
@@ -18,6 +17,42 @@ const products = [
 ];
 
 const categories = ["All", "Favourites", "Drinks", "Food"];
+
+/**
+ * NavPill — pill-shaped navigation button matching existing mx51 app pattern.
+ * Navy bg top bar with white pill buttons for Menu / Other actions.
+ */
+function NavPill({ icon, label, onClick, variant = "default" }) {
+  const isPrimary = variant === "primary";
+  return (
+    <button
+      onClick={onClick}
+      style={{
+        height: 40,
+        borderRadius: tokens.shape.full,
+        border: "none",
+        background: tokens.color.fg.white,
+        cursor: "pointer",
+        display: "flex",
+        alignItems: "center",
+        gap: 6,
+        padding: "0 16px",
+        transition: `all ${tokens.motion.duration.short4} ${tokens.motion.easing.standard}`,
+      }}
+    >
+      {icon && <Icon name={icon} size={18} color={isPrimary ? tokens.color.fg.brand : tokens.color.fg.emphasis} />}
+      <span
+        style={{
+          fontSize: tokens.type.labelLarge.size,
+          fontWeight: 600,
+          color: isPrimary ? tokens.color.fg.brand : tokens.color.fg.emphasis,
+        }}
+      >
+        {label}
+      </span>
+    </button>
+  );
+}
 
 export default function HomeScreen({ navigate, basket, setBasket }) {
   const [activeFilter, setActiveFilter] = useState("All");
@@ -55,7 +90,7 @@ export default function HomeScreen({ navigate, basket, setBasket }) {
   return (
     <div style={{ flex: 1, display: "flex", flexDirection: "column", minHeight: 0 }}>
 
-      {/* ── Search mode or normal app bar ───────────────────────── */}
+      {/* ── Top nav bar (matches existing mx51 app) ──────────── */}
       {searchOpen ? (
         <div
           style={{
@@ -63,21 +98,21 @@ export default function HomeScreen({ navigate, basket, setBasket }) {
             alignItems: "center",
             gap: 8,
             padding: "8px 8px 8px 4px",
-            background: tokens.color.bg.page,
+            background: tokens.color.bg.brand,
             flexShrink: 0,
           }}
         >
           <button
             onClick={() => { setSearchOpen(false); setSearchQuery(""); }}
             style={{
-              width: 48, height: 48,
+              width: 40, height: 40,
               borderRadius: tokens.shape.full,
               border: "none", background: "none",
               cursor: "pointer",
               display: "flex", alignItems: "center", justifyContent: "center",
             }}
           >
-            <Icon name="back" color={tokens.color.fg.emphasis} />
+            <Icon name="close" size={20} color={tokens.color.fg.white} />
           </button>
           <input
             autoFocus
@@ -86,13 +121,13 @@ export default function HomeScreen({ navigate, basket, setBasket }) {
             placeholder="Search products..."
             style={{
               flex: 1,
-              height: 44,
+              height: 40,
               borderRadius: tokens.shape.full,
-              border: `1.5px solid ${tokens.color.border.action.default}`,
+              border: "none",
               padding: "0 16px",
-              fontSize: tokens.type.bodyLarge.size,
+              fontSize: tokens.type.bodyMedium.size,
               color: tokens.color.fg.emphasis,
-              background: tokens.color.bg.surface,
+              background: tokens.color.fg.white,
               outline: "none",
               fontFamily: "inherit",
             }}
@@ -108,21 +143,59 @@ export default function HomeScreen({ navigate, basket, setBasket }) {
                 display: "flex", alignItems: "center", justifyContent: "center",
               }}
             >
-              <Icon name="close" size={20} color={tokens.color.fg.subtle} />
+              <Icon name="back" size={18} color={tokens.color.fg.white} />
             </button>
           )}
         </div>
       ) : (
-        <TopAppBar
-          title="LitePOS"
-          variant="small"
-          theme="light"
-          actions={[
-            { icon: "search", onPress: () => setSearchOpen(true) },
-            { icon: "scan", onPress: () => {} },
-            { icon: "keypad", onPress: () => navigate("keypad") },
-          ]}
-        />
+        <div
+          style={{
+            background: tokens.color.bg.brand,
+            padding: "10px 12px",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            flexShrink: 0,
+          }}
+        >
+          {/* Left: Menu pill */}
+          <NavPill icon="menu" label="Menu" onClick={() => navigate("menu")} />
+
+          {/* Centre: brand mark or payment logos placeholder */}
+          <div style={{ display: "flex", gap: 4, alignItems: "center" }}>
+            <div
+              style={{
+                width: 28,
+                height: 28,
+                borderRadius: tokens.shape.full,
+                background: tokens.color.fg.brand,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              <Icon name="store" size={16} color={tokens.color.fg.white} />
+            </div>
+          </div>
+
+          {/* Right: action pills */}
+          <div style={{ display: "flex", gap: 8 }}>
+            <button
+              onClick={() => setSearchOpen(true)}
+              style={{
+                width: 40, height: 40,
+                borderRadius: tokens.shape.full,
+                border: "none",
+                background: "rgba(255,255,255,0.15)",
+                cursor: "pointer",
+                display: "flex", alignItems: "center", justifyContent: "center",
+              }}
+            >
+              <Icon name="search" size={20} color={tokens.color.fg.white} />
+            </button>
+            <NavPill icon="keypad" label="Keypad" onClick={() => navigate("keypad")} variant="primary" />
+          </div>
+        </div>
       )}
 
       {/* Filter chips */}

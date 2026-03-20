@@ -1,7 +1,6 @@
 import { useState, useCallback } from "react";
 import tokens from "./theme/tokens";
 import StatusBar from "./components/StatusBar";
-import BottomNavBar from "./components/BottomNavBar";
 
 // Screens
 import HomeScreen from "./screens/HomeScreen";
@@ -18,7 +17,6 @@ import ReportingScreen from "./screens/ReportingScreen";
 export default function Prototype() {
   const [screen, setScreen] = useState("home");
   const [basket, setBasket] = useState([]);
-  const [bottomTab, setBottomTab] = useState(0);
   const [editProduct, setEditProduct] = useState(null);
 
   const navigate = useCallback(
@@ -32,17 +30,9 @@ export default function Prototype() {
         setEditProduct(null);
       }
       setScreen(target);
-      if (target === "home") setBottomTab(0);
-      else if (target === "menu") setBottomTab(1);
     },
     []
   );
-
-  const handleBottomNav = (index) => {
-    setBottomTab(index);
-    if (index === 0) navigate("home");
-    if (index === 1) navigate("menu");
-  };
 
   const screens = {
     home: <HomeScreen navigate={navigate} basket={basket} setBasket={setBasket} />,
@@ -56,8 +46,6 @@ export default function Prototype() {
     history: <HistoryScreen navigate={navigate} />,
     reporting: <ReportingScreen navigate={navigate} />,
   };
-
-  const showBottomNav = ["home", "menu"].includes(screen);
 
   return (
     <div
@@ -91,18 +79,6 @@ export default function Prototype() {
       >
         {screens[screen] || screens.home}
       </div>
-
-      {/* Bottom Navigation */}
-      {showBottomNav && (
-        <BottomNavBar
-          items={[
-            { icon: "home", label: "Home" },
-            { icon: "menu", label: "Menu" },
-          ]}
-          activeIndex={bottomTab}
-          onSelect={handleBottomNav}
-        />
-      )}
     </div>
   );
 }
