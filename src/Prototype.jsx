@@ -14,6 +14,8 @@ import AddEditProductScreen from "./screens/AddEditProductScreen";
 import HistoryScreen from "./screens/HistoryScreen";
 import ReportingScreen from "./screens/ReportingScreen";
 import ScanScreen from "./screens/ScanScreen";
+import DefaultHomeScreen from "./screens/DefaultHomeScreen";
+import ImportProductsScreen from "./screens/ImportProductsScreen";
 
 // Sample product catalogue — empty array simulates a new merchant
 const sampleProducts = [
@@ -48,6 +50,8 @@ export default function Prototype() {
   const [products, setProducts] = useState(sampleProducts);
   // Toggle to simulate new merchant (empty catalogue) vs configured merchant
   const [catalogueEnabled, setCatalogueEnabled] = useState(true);
+  // LitePOS feature toggle — when off, show default terminal home
+  const [litePosEnabled, setLitePosEnabled] = useState(true);
 
   const historyRef = useRef(["home"]);
 
@@ -80,17 +84,20 @@ export default function Prototype() {
   }, []);
 
   const screens = {
-    home: <HomeScreen navigate={navigate} basket={basket} setBasket={setBasket} products={catalogueEnabled ? products : []} />,
+    home: litePosEnabled
+      ? <HomeScreen navigate={navigate} basket={basket} setBasket={setBasket} products={catalogueEnabled ? products : []} />
+      : <DefaultHomeScreen navigate={navigate} />,
     keypad: <KeypadScreen navigate={navigate} goBack={goBack} basket={basket} setBasket={setBasket} />,
     basket: <BasketScreen navigate={navigate} goBack={goBack} basket={basket} setBasket={setBasket} />,
     menu: <MenuScreen navigate={navigate} goBack={goBack} />,
     settings: <SettingsScreen navigate={navigate} goBack={goBack} />,
-    "litepos-settings": <LitePOSSettingsScreen navigate={navigate} goBack={goBack} />,
+    "litepos-settings": <LitePOSSettingsScreen navigate={navigate} goBack={goBack} litePosEnabled={litePosEnabled} setLitePosEnabled={setLitePosEnabled} />,
     "product-catalog": <ProductCatalogScreen navigate={navigate} goBack={goBack} products={catalogueEnabled ? products : []} />,
     "add-product": <AddEditProductScreen navigate={navigate} goBack={goBack} editProduct={editProduct} />,
     history: <HistoryScreen navigate={navigate} goBack={goBack} />,
     reporting: <ReportingScreen navigate={navigate} goBack={goBack} />,
     scan: <ScanScreen navigate={navigate} basket={basket} setBasket={setBasket} products={catalogueEnabled ? products : []} />,
+    "import-products": <ImportProductsScreen navigate={navigate} goBack={goBack} />,
   };
 
   return (
@@ -149,6 +156,15 @@ export default function Prototype() {
         <label style={{ display: "flex", alignItems: "center", gap: 8, cursor: "pointer", color: "#212638" }}>
           <input
             type="checkbox"
+            checked={litePosEnabled}
+            onChange={(e) => setLitePosEnabled(e.target.checked)}
+            style={{ accentColor: tokens.color.fg.brand }}
+          />
+          LitePOS enabled
+        </label>
+        <label style={{ display: "flex", alignItems: "center", gap: 8, cursor: "pointer", color: "#212638", opacity: litePosEnabled ? 1 : 0.4, pointerEvents: litePosEnabled ? "auto" : "none" }}>
+          <input
+            type="checkbox"
             checked={catalogueEnabled}
             onChange={(e) => setCatalogueEnabled(e.target.checked)}
             style={{ accentColor: tokens.color.fg.brand }}
@@ -156,9 +172,11 @@ export default function Prototype() {
           Product catalogue
         </label>
         <div style={{ fontSize: 11, color: "#6B7084", lineHeight: 1.4 }}>
-          {catalogueEnabled
-            ? "Showing configured merchant with products"
-            : "Showing new merchant — keypad only"}
+          {!litePosEnabled
+            ? "LitePOS off — showing default terminal home"
+            : catalogueEnabled
+            ? "LitePOS on — merchant with products"
+            : "LitePOS on — new merchant, keypad only"}
         </div>
       </div>
     </div>

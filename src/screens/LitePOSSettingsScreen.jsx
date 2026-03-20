@@ -94,8 +94,9 @@ function StatusPill({ active }) {
   );
 }
 
-export default function LitePOSSettingsScreen({ navigate, goBack }) {
-  const [enabled, setEnabled] = useState(true);
+export default function LitePOSSettingsScreen({ navigate, goBack, litePosEnabled, setLitePosEnabled }) {
+  const enabled = litePosEnabled;
+  const setEnabled = setLitePosEnabled;
   const [merchantReceipt, setMerchantReceipt] = useState(true);
   const [customerReceipt, setCustomerReceipt] = useState(true);
 
@@ -172,6 +173,7 @@ export default function LitePOSSettingsScreen({ navigate, goBack }) {
             headline="Import Products"
             supporting="Bulk import via QR from Connect Express"
             trailing={<Icon name="chevron" color={tokens.color.fg.subtle} />}
+            onClick={() => navigate("import-products")}
           />
           <ListItem
             leading={<Icon name="scan" color={tokens.color.fg.brand} />}
@@ -200,43 +202,6 @@ export default function LitePOSSettingsScreen({ navigate, goBack }) {
           />
         </SettingsCard>
 
-        {/* ── Admin Notice ──────────────────────────────────────── */}
-        <div style={{ padding: "16px 16px 0" }}>
-          <div
-            style={{
-              background: `${tokens.color.bg.info.default}10`,
-              border: `1px solid ${tokens.color.border.info}33`,
-              borderRadius: tokens.shape.large,
-              padding: "14px 16px",
-              display: "flex",
-              gap: 12,
-              alignItems: "flex-start",
-            }}
-          >
-            <Icon name="info" size={18} color={tokens.color.fg.info.icon} />
-            <div style={{ flex: 1 }}>
-              <div
-                style={{
-                  fontSize: tokens.type.labelMedium.size,
-                  fontWeight: 600,
-                  color: tokens.color.fg.emphasis,
-                }}
-              >
-                Admin Override
-              </div>
-              <div
-                style={{
-                  fontSize: tokens.type.bodySmall.size,
-                  color: tokens.color.fg.subtle,
-                  marginTop: 2,
-                  lineHeight: "1.4",
-                }}
-              >
-                Settings on this page may be remotely configured by an administrator if enabled on Connect Express.
-              </div>
-            </div>
-          </div>
-        </div>
       </div>
     </div>
   );
