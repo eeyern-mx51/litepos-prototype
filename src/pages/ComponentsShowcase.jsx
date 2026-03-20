@@ -286,14 +286,14 @@ export default function ComponentsShowcase() {
         {/* ── Icons ─────────────────────────────────────────────── */}
         <Section
           title="Icon Set"
-          description="SVG icon system with 24 Material Symbols icons, mapped to LitePOS use cases."
+          description="SVG icon system with 27 Material Symbols icons, mapped to LitePOS use cases."
         >
           <div style={{ display: "flex", flexWrap: "wrap", gap: 16 }}>
             {[
               "home", "menu", "settings", "back", "cart", "keypad", "receipt",
               "history", "chart", "add", "chevron", "search", "scan", "store",
               "toggle", "print", "image", "edit", "delete", "favorite", "qr",
-              "info", "close",
+              "info", "close", "check", "expand-more", "error", "flash",
             ].map((name) => (
               <div
                 key={name}
@@ -604,7 +604,11 @@ export default function ComponentsShowcase() {
             <div><strong style={{ color: tokens.color.fg.brand }}>OrderBar</strong> — custom Composable using <code style={{ background: tokens.color.bg.surface, padding: "2px 6px", borderRadius: 4 }}>Surface</code> + <code style={{ background: tokens.color.bg.surface, padding: "2px 6px", borderRadius: 4 }}>AnimatedContent</code> to crossfade between idle (terminal info) and active (basket) states. Inspired by Square Handheld's fixed bottom bar pattern.</div>
             <div><strong style={{ color: tokens.color.fg.brand }}>BottomNavBar</strong> — maps to <code style={{ background: tokens.color.bg.surface, padding: "2px 6px", borderRadius: 4 }}>NavigationBar</code> with custom indicator shape</div>
             <div><strong style={{ color: tokens.color.fg.brand }}>Switch</strong> — maps to <code style={{ background: tokens.color.bg.surface, padding: "2px 6px", borderRadius: 4 }}>Switch</code> with <code style={{ background: tokens.color.bg.surface, padding: "2px 6px", borderRadius: 4 }}>SwitchColors</code> using GKO tokens</div>
-            <div><strong style={{ color: tokens.color.fg.brand }}>FAB</strong> — maps to <code style={{ background: tokens.color.bg.surface, padding: "2px 6px", borderRadius: 4 }}>FloatingActionButton</code> / <code style={{ background: tokens.color.bg.surface, padding: "2px 6px", borderRadius: 4 }}>ExtendedFloatingActionButton</code> (used in Product Catalog for adding products — a legitimate primary creation action)</div>
+            <div><strong style={{ color: tokens.color.fg.brand }}>FAB</strong> — maps to <code style={{ background: tokens.color.bg.surface, padding: "2px 6px", borderRadius: 4 }}>FloatingActionButton</code> / <code style={{ background: tokens.color.bg.surface, padding: "2px 6px", borderRadius: 4 }}>ExtendedFloatingActionButton</code> (used in Product Catalog for "New Product" — a legitimate primary creation action)</div>
+            <div><strong style={{ color: tokens.color.fg.brand }}>ScanScreen</strong> — custom full-screen Composable using <code style={{ background: tokens.color.bg.surface, padding: "2px 6px", borderRadius: 4 }}>CameraX</code> preview with animated scan-line overlay. Dual mode: POS barcode scan (adds to basket) and Import scan (pre-fills Add Product form from Connect Express).</div>
+            <div><strong style={{ color: tokens.color.fg.brand }}>Delete Confirmation Dialog</strong> — maps to <code style={{ background: tokens.color.bg.surface, padding: "2px 6px", borderRadius: 4 }}>AlertDialog</code> with M3 Expressive shape. Used on product delete and category delete with scrim overlay.</div>
+            <div><strong style={{ color: tokens.color.fg.brand }}>Category CRUD</strong> — inline editable list in Product Catalog using <code style={{ background: tokens.color.bg.surface, padding: "2px 6px", borderRadius: 4 }}>LazyColumn</code> items with <code style={{ background: tokens.color.bg.surface, padding: "2px 6px", borderRadius: 4 }}>TextField</code> for rename. Cascading updates propagate to all products.</div>
+            <div><strong style={{ color: tokens.color.fg.brand }}>Native File Picker</strong> — maps to Android <code style={{ background: tokens.color.bg.surface, padding: "2px 6px", borderRadius: 4 }}>ActivityResultContracts.GetContent</code> for image picking in Add/Edit Product. Single tap triggers system file browser.</div>
           </div>
         </Section>
       </div>

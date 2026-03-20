@@ -224,17 +224,29 @@ export default function DocumentationPage() {
                 <ScreenNode name="Product Grid" type="nav">
                   <ScreenNode name="Basket" />
                   <ScreenNode name="Keypad" />
+                  <ScreenNode name="Scan (POS)" />
                 </ScreenNode>
                 <ScreenNode name="Menu" type="nav">
                   <ScreenNode name="History" />
                   <ScreenNode name="Reporting" />
                   <ScreenNode name="Settings" type="nav">
                     <ScreenNode name="LitePOS Settings">
-                      <ScreenNode name="Product Catalog" />
+                      <ScreenNode name="Product Catalog" type="nav">
+                        <ScreenNode name="New Product" />
+                        <ScreenNode name="Edit Product" />
+                        <ScreenNode name="Categories (CRUD)" />
+                      </ScreenNode>
+                      <ScreenNode name="Import Products" type="nav">
+                        <ScreenNode name="Scan (Import)" />
+                        <ScreenNode name="Review Import" />
+                      </ScreenNode>
                     </ScreenNode>
                   </ScreenNode>
                 </ScreenNode>
               </ScreenNode>
+            </div>
+            <div style={{ marginTop: 16, fontSize: tokens.type.bodySmall.size, color: tokens.color.fg.subtle, textAlign: "center" }}>
+              When LitePOS is OFF, the Home screen shows a Default Terminal Home placeholder instead of the Product Grid.
             </div>
           </div>
         </DocSection>
@@ -259,13 +271,7 @@ export default function DocumentationPage() {
           <FlowStep
             number={3}
             title="Enable the Feature"
-            description="Toggle the 'Enable LitePOS' switch to ON. The supporting text updates to 'Active — LitePOS is your home screen'."
-            screens={["LitePOS Settings"]}
-          />
-          <FlowStep
-            number={4}
-            title="Configure Home Screen Mode"
-            description="Choose between 'Products' (product grid as home) or 'Keypad' (manual entry as home). Products is the default and recommended mode."
+            description="Toggle the 'Enable LitePOS' switch to ON. The supporting text updates to 'Active — LitePOS is your home screen'. When OFF, the terminal shows a default home placeholder."
             screens={["LitePOS Settings"]}
           />
         </DocSection>
@@ -283,29 +289,37 @@ export default function DocumentationPage() {
           />
           <FlowStep
             number={2}
-            title="Add Products Manually"
-            description="Tap the '+' FAB to add a new product. Enter name, price, optional image, and category."
+            title="Manage Categories"
+            description="In the Product Catalog, expand the Categories section to create, rename, or delete categories. Renaming cascades to all products in that category. Deleting moves affected products to 'Uncategorised'."
             screens={["Product Catalog"]}
           />
           <FlowStep
             number={3}
-            title="Bulk Import (Optional)"
-            description="Alternatively, tap 'Import Products' to bulk-import via QR code from Connect Express."
-            screens={["LitePOS Settings"]}
+            title="Add Products Manually"
+            description="Tap the '+ New Product' FAB to add a product. Enter name, price, category (from preset or custom), optional image via native file picker, and optional fields (description, SKU, UPC). A favourite toggle is also available."
+            screens={["Product Catalog", "New Product"]}
           />
           <FlowStep
             number={4}
-            title="Configure Barcode Settings"
-            description="Optionally configure barcode types (UPC-A, UPC-E, EAN-13, EAN-8) for scanner-based product lookup."
-            screens={["LitePOS Settings"]}
+            title="Edit or Delete Products"
+            description="Tap any product in the catalogue to edit its details. Use the delete button (with confirmation dialog) to remove a product from the catalogue."
+            screens={["Edit Product"]}
+          />
+          <FlowStep
+            number={5}
+            title="Import from Connect Express"
+            description="From LitePOS Settings, tap 'Import Products' to see a step-by-step guide. Tap 'Start Scanning' to open the barcode scanner in import mode. Scanned products pre-fill the add product form. Choose 'Import Product' to save, or 'Save & Scan Another' to continue importing."
+            screens={["Import Products", "Scan (Import)", "Review Import"]}
           />
           <InfoCard
             accent="info"
             title="Compose Pattern Note"
             items={[
-              "Product Catalog uses a LazyColumn with swipe-to-delete gesture (SwipeToDismiss)",
-              "The Add Product FAB uses ExtendedFloatingActionButton with spring animation",
-              "Product images use AsyncImage with Coil, falling back to a placeholder icon",
+              "Product Catalog uses a LazyColumn with inline category CRUD (TextField for rename, cascading updates)",
+              "The 'New Product' FAB uses ExtendedFloatingActionButton with spring animation",
+              "Product images use ActivityResultContracts.GetContent for native Android file picking",
+              "Delete confirmation uses AlertDialog with scrim overlay",
+              "All product mutations persist in shared state and reflect immediately on the Home screen",
             ]}
           />
         </DocSection>
@@ -313,7 +327,7 @@ export default function DocumentationPage() {
         {/* ── Flow 3: Processing Transactions ───────────────────── */}
         <DocSection title="Flow 3 — Processing a Transaction">
           <p style={{ fontSize: tokens.type.bodyMedium.size, color: tokens.color.fg.subtle, lineHeight: "1.6", marginBottom: 20 }}>
-            Two entry modes for creating a transaction: product selection from the grid, or manual amount entry via keypad.
+            Three entry modes for creating a transaction: product selection from the grid, barcode scanning, or manual amount entry via keypad.
           </p>
 
           <div style={{ fontSize: tokens.type.titleSmall.size, fontWeight: 600, color: tokens.color.fg.brand, marginBottom: 12 }}>
@@ -345,7 +359,23 @@ export default function DocumentationPage() {
           />
 
           <div style={{ fontSize: tokens.type.titleSmall.size, fontWeight: 600, color: tokens.color.fg.brand, marginBottom: 12, marginTop: 24 }}>
-            Path B — Keypad Entry
+            Path B — Barcode Scanning
+          </div>
+          <FlowStep
+            number={1}
+            title="Open Scanner"
+            description="Tap the barcode scan icon in the Home screen search bar. This opens a full-screen camera viewfinder with an animated scan line."
+            screens={["Home", "Scan (POS)"]}
+          />
+          <FlowStep
+            number={2}
+            title="Scan Product"
+            description="Point the camera at a product barcode. If the barcode matches a product in the catalogue, it's automatically added to the basket and the screen returns to Home with a success snackbar. If no match, an error state is shown and scanning resumes."
+            screens={["Scan (POS)", "Home"]}
+          />
+
+          <div style={{ fontSize: tokens.type.titleSmall.size, fontWeight: 600, color: tokens.color.fg.brand, marginBottom: 12, marginTop: 24 }}>
+            Path C — Keypad Entry
           </div>
           <FlowStep
             number={1}
@@ -420,6 +450,46 @@ export default function DocumentationPage() {
           />
         </DocSection>
 
+        {/* ── Flow 6: Import from Connect Express ─────────────── */}
+        <DocSection title="Flow 6 — Import from Connect Express">
+          <p style={{ fontSize: tokens.type.bodyMedium.size, color: tokens.color.fg.subtle, lineHeight: "1.6", marginBottom: 20 }}>
+            Merchants with an existing Connect Express catalogue can import products by scanning barcodes printed from the Connect Express terminal.
+          </p>
+          <FlowStep
+            number={1}
+            title="Open Import Guide"
+            description="From LitePOS Settings → Product Catalogue, tap 'Import Products'. A three-step guide explains the process."
+            screens={["LitePOS Settings", "Import Products"]}
+          />
+          <FlowStep
+            number={2}
+            title="Print Barcode on Connect Express"
+            description="On the Connect Express terminal, locate the product and print its barcode via the receipt printer."
+            screens={["Connect Express (external)"]}
+          />
+          <FlowStep
+            number={3}
+            title="Scan the Barcode"
+            description="Tap 'Start Scanning' to open the camera in import mode. Point at the printed barcode. On match, a success snackbar appears showing the product name and price."
+            screens={["Scan (Import)"]}
+          />
+          <FlowStep
+            number={4}
+            title="Review & Save"
+            description="The scanned product details pre-fill the add product form (name, price, category, description, SKU, UPC). Review the information, optionally add an image, then choose 'Import Product' to save, or 'Save & Scan Another' to save and immediately scan the next product."
+            screens={["Review Import"]}
+          />
+          <InfoCard
+            accent="info"
+            title="Prototype Behaviour"
+            items={[
+              "Three sample import products cycle automatically: Soy Cappuccino, Smashed Avo Wrap, Berry Smoothie",
+              "80% scan success rate simulated — failed scans show error state and retry automatically",
+              "Imported products are saved to the shared catalogue and appear on the Home screen immediately",
+            ]}
+          />
+        </DocSection>
+
         {/* ── Configuration Summary ─────────────────────────────── */}
         <DocSection title="LitePOS Settings Reference">
           <div
@@ -442,12 +512,11 @@ export default function DocumentationPage() {
               <tbody>
                 {[
                   ["Enable LitePOS", "General", "Toggle", "On"],
-                  ["Home Screen Mode", "Home Screen", "Segmented (Products / Keypad)", "Products"],
+                  ["Manage Products", "Product Catalogue", "Navigation → Product Catalog", "—"],
+                  ["Import Products", "Product Catalogue", "Navigation → Import Guide", "—"],
+                  ["Barcode Settings", "Product Catalogue", "Navigation", "—"],
                   ["Merchant copy — print items", "Receipts", "Toggle", "On"],
                   ["Customer copy — print items", "Receipts", "Toggle", "On"],
-                  ["Manage Products", "Product Catalogue", "Navigation", "—"],
-                  ["Import Products", "Product Catalogue", "Navigation", "—"],
-                  ["Barcode Settings", "Product Catalogue", "Navigation", "—"],
                 ].map(([setting, section, type, def], i) => (
                   <tr key={i} style={{ borderBottom: `1px solid ${tokens.color.border.onpage}` }}>
                     <td style={{ padding: "10px 12px", color: tokens.color.fg.emphasis }}>{setting}</td>
@@ -468,7 +537,7 @@ export default function DocumentationPage() {
               <strong style={{ color: tokens.color.fg.brand }}>Consolidated Settings</strong> — All LitePOS configuration lives under Settings → LitePOS. The original spec had settings scattered across multiple navigation paths, which created a disjointed experience. Consolidating gives merchants a single place to configure everything.
             </div>
             <div>
-              <strong style={{ color: tokens.color.fg.brand }}>Product-First Home</strong> — The default home mode shows the product grid rather than the keypad. This encourages catalogue usage and reduces manual entry errors. The keypad is always accessible via an icon in the top app bar — treated as an input mode, not a floating action.
+              <strong style={{ color: tokens.color.fg.brand }}>Product-First Home</strong> — When LitePOS is enabled, the home screen shows the product grid. When disabled, a default terminal home placeholder is shown. The keypad is always accessible via an icon in the top app bar — treated as an input mode, not a floating action.
             </div>
             <div>
               <strong style={{ color: tokens.color.fg.brand }}>Fixed Bottom OrderBar</strong> — Inspired by Square Handheld and Toast Go, the bottom of the Home screen has a single fixed bar that transitions between two states: idle (terminal info) and active (basket summary with Charge action). This replaces the previous floating BasketBanner + keypad FAB pattern, eliminating competing floating elements and giving the product grid full scrollable space. Every major handheld POS uses this fixed-bar pattern for checkout — it's the most discoverable, predictable placement for the primary action.
@@ -481,6 +550,21 @@ export default function DocumentationPage() {
             </div>
             <div>
               <strong style={{ color: tokens.color.fg.brand }}>GKO Semantic Tokens</strong> — All colours use the Gecko semantic token system (bg/, fg/, border/) rather than M3's raw primary/secondary naming. This ensures the prototype maps directly to the Figma token structure and can be themed per bank brand (Gecko → CBA → etc.).
+            </div>
+            <div>
+              <strong style={{ color: tokens.color.fg.brand }}>Barcode Scanning (Dual Mode)</strong> — The ScanScreen serves two purposes: POS mode (scan product barcodes to add to basket) and Import mode (scan Connect Express receipt barcodes to pre-fill the add product form). This avoids building two separate scanner UIs while providing distinct post-scan flows.
+            </div>
+            <div>
+              <strong style={{ color: tokens.color.fg.brand }}>Connect Express Import Flow</strong> — Importing products follows a guided three-step process (print barcode → scan → review). After scanning, merchants land on a pre-filled form with two options: "Import Product" (save and return to catalogue) or "Save & Scan Another" (save and re-open scanner). This reduces friction for bulk imports.
+            </div>
+            <div>
+              <strong style={{ color: tokens.color.fg.brand }}>Category CRUD with Cascading Updates</strong> — Categories are managed inline within the Product Catalog screen. Renaming a category updates all products in that category. Deleting a category moves affected products to "Uncategorised". This keeps category management lightweight and avoids a separate settings screen.
+            </div>
+            <div>
+              <strong style={{ color: tokens.color.fg.brand }}>Android-Native Patterns</strong> — Scrollbars are hidden globally (matching Android default), image picking uses the system file browser (not custom Camera/Gallery buttons), and confirmation dialogs appear before destructive actions. These choices ensure the prototype feels native to the terminal's Android OS.
+            </div>
+            <div>
+              <strong style={{ color: tokens.color.fg.brand }}>In-Session Data Persistence</strong> — All product CRUD operations (add, edit, delete, import, category changes) persist in shared React state and immediately reflect on the Home screen product grid. A "Reset All Data" button in the demo controls panel restores the sample catalogue for demos.
             </div>
           </div>
         </DocSection>
