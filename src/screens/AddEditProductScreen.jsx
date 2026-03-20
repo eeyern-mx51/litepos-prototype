@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import tokens from "../theme/tokens";
 import TopAppBar from "../components/TopAppBar";
 import Icon from "../components/Icon";
@@ -153,6 +153,26 @@ export default function AddEditProductScreen({ navigate, goBack, editProduct }) 
   const [upc, setUpc] = useState(editProduct?.upc || "");
   const [favourite, setFavourite] = useState(editProduct?.fav || false);
   const [imageMethod, setImageMethod] = useState(null); // null | "camera" | "gallery" | "url"
+  const [imagePreview, setImagePreview] = useState(null);
+  const fileInputRef = useRef(null);
+
+  const handleImagePick = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleFileChange = (e) => {
+    const file = e.target.files?.[0];
+    if (file && file.type.startsWith("image/")) {
+      const reader = new FileReader();
+      reader.onload = (ev) => setImagePreview(ev.target.result);
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleRemoveImage = () => {
+    setImagePreview(null);
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  };
 
   const canSave = name.trim() && price.trim();
   const title = isImport ? "Review Import" : isEdit ? "Edit Product" : "Add Product";
@@ -170,106 +190,127 @@ export default function AddEditProductScreen({ navigate, goBack, editProduct }) 
       <div style={{ flex: 1, minHeight: 0, overflow: "auto", paddingBottom: 100 }}>
 
         {/* ── Product Image ─────────────────────────────────────── */}
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept="image/*"
+          onChange={handleFileChange}
+          style={{ display: "none" }}
+        />
         <div style={{ padding: "12px 16px" }}>
-          <div
-            style={{
-              width: "100%",
-              aspectRatio: "1",
-              maxHeight: 200,
-              borderRadius: tokens.shape.expressiveLarge,
-              background: tokens.color.bg.page,
-              border: `1.5px dashed ${tokens.color.border.onsurface}`,
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              justifyContent: "center",
-              gap: 12,
-              cursor: "pointer",
-              overflow: "hidden",
-              transition: `all ${tokens.motion.duration.short4} ${tokens.motion.easing.standard}`,
-            }}
-          >
-            <div
-              style={{
-                width: 52,
-                height: 52,
-                borderRadius: tokens.shape.full,
-                background: `${tokens.color.fg.brand}12`,
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-              }}
-            >
-              <Icon name="image" size={24} color={tokens.color.fg.brand} />
-            </div>
-            <div style={{ textAlign: "center" }}>
+          {imagePreview ? (
+            /* ── Image preview ──────────────────────────── */
+            <div style={{ position: "relative" }}>
               <div
                 style={{
-                  fontSize: tokens.type.labelLarge.size,
-                  fontWeight: 600,
-                  color: tokens.color.fg.emphasis,
+                  width: "100%",
+                  aspectRatio: "1",
+                  maxHeight: 200,
+                  borderRadius: tokens.shape.expressiveLarge,
+                  overflow: "hidden",
+                  background: tokens.color.bg.page,
                 }}
               >
-                Add product image
-              </div>
-              <div
-                style={{
-                  fontSize: tokens.type.bodySmall.size,
-                  color: tokens.color.fg.subtle,
-                  marginTop: 2,
-                }}
-              >
-                Auto square-cropped for grid display
-              </div>
-            </div>
-          </div>
-
-          {/* Image source buttons */}
-          <div style={{ display: "flex", gap: 8, marginTop: 10 }}>
-            {[
-              { key: "camera", icon: "image", label: "Camera" },
-              { key: "gallery", icon: "image", label: "Gallery" },
-              { key: "url", icon: "info", label: "Image URL" },
-            ].map((opt) => {
-              const active = imageMethod === opt.key;
-              return (
-                <button
-                  key={opt.key}
-                  onClick={() => setImageMethod(active ? null : opt.key)}
+                <img
+                  src={imagePreview}
+                  alt="Product"
                   style={{
-                    flex: 1,
-                    height: 40,
-                    borderRadius: tokens.shape.full,
-                    border: active
-                      ? `1.5px solid ${tokens.color.fg.brand}`
-                      : `1px solid ${tokens.color.border.onpage}`,
-                    background: active ? `${tokens.color.fg.brand}12` : tokens.color.bg.page,
-                    cursor: "pointer",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    gap: 6,
-                    transition: `all ${tokens.motion.duration.short4} ${tokens.motion.easing.standard}`,
+                    width: "100%",
+                    height: "100%",
+                    objectFit: "cover",
+                  }}
+                />
+              </div>
+              {/* Action buttons overlay */}
+              <div
+                style={{
+                  position: "absolute",
+                  bottom: 10,
+                  right: 10,
+                  display: "flex",
+                  gap: 8,
+                }}
+              >
+                <button
+                  onClick={handleImagePick}
+                  style={{
+                    width: 40, height: 40, borderRadius: tokens.shape.full,
+                    background: "rgba(0,0,0,0.55)", backdropFilter: "blur(8px)",
+                    border: "none", cursor: "pointer",
+                    display: "flex", alignItems: "center", justifyContent: "center",
                   }}
                 >
-                  <Icon
-                    name={opt.icon}
-                    size={16}
-                    color={active ? tokens.color.fg.brand : tokens.color.fg.subtle}
-                  />
-                  <span
-                    style={{
-                      fontSize: tokens.type.labelMedium.size,
-                      fontWeight: active ? 600 : 500,
-                      color: active ? tokens.color.fg.brand : tokens.color.fg.subtle,
-                    }}
-                  >
-                    {opt.label}
-                  </span>
+                  <Icon name="edit" size={18} color="#fff" />
                 </button>
-              );
-            })}
-          </div>
+                <button
+                  onClick={handleRemoveImage}
+                  style={{
+                    width: 40, height: 40, borderRadius: tokens.shape.full,
+                    background: "rgba(0,0,0,0.55)", backdropFilter: "blur(8px)",
+                    border: "none", cursor: "pointer",
+                    display: "flex", alignItems: "center", justifyContent: "center",
+                  }}
+                >
+                  <Icon name="delete" size={18} color="#fff" />
+                </button>
+              </div>
+            </div>
+          ) : (
+            /* ── Empty image placeholder ────────────────── */
+            <div
+              onClick={handleImagePick}
+              style={{
+                width: "100%",
+                aspectRatio: "1",
+                maxHeight: 200,
+                borderRadius: tokens.shape.expressiveLarge,
+                background: tokens.color.bg.page,
+                border: `1.5px dashed ${tokens.color.border.onsurface}`,
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: 12,
+                cursor: "pointer",
+                overflow: "hidden",
+                transition: `all ${tokens.motion.duration.short4} ${tokens.motion.easing.standard}`,
+              }}
+            >
+              <div
+                style={{
+                  width: 52,
+                  height: 52,
+                  borderRadius: tokens.shape.full,
+                  background: `${tokens.color.fg.brand}12`,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                <Icon name="image" size={24} color={tokens.color.fg.brand} />
+              </div>
+              <div style={{ textAlign: "center" }}>
+                <div
+                  style={{
+                    fontSize: tokens.type.labelLarge.size,
+                    fontWeight: 600,
+                    color: tokens.color.fg.emphasis,
+                  }}
+                >
+                  Add product image
+                </div>
+                <div
+                  style={{
+                    fontSize: tokens.type.bodySmall.size,
+                    color: tokens.color.fg.subtle,
+                    marginTop: 2,
+                  }}
+                >
+                  Tap to choose from gallery or camera
+                </div>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* ── Required Fields ───────────────────────────────────── */}
