@@ -45,11 +45,9 @@ export default function KeypadScreen({ navigate, basket, setBasket }) {
     const itemName = description.trim() || "Manual entry";
     if (setBasket && basket) {
       setBasket([...basket, { name: itemName, price: amount, qty: 1 }]);
-      navigate("basket");
-    } else {
-      // Fallback: just navigate to basket
-      navigate("basket");
     }
+    // Return to home — merchant stays in selling flow, OrderBar shows the update
+    navigate("home");
   };
 
   const canProceed = cents > 0;
