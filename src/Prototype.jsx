@@ -70,7 +70,7 @@ export default function Prototype() {
     menu: <MenuScreen navigate={navigate} />,
     settings: <SettingsScreen navigate={navigate} />,
     "litepos-settings": <LitePOSSettingsScreen navigate={navigate} />,
-    "product-catalog": <ProductCatalogScreen navigate={navigate} />,
+    "product-catalog": <ProductCatalogScreen navigate={navigate} products={catalogueEnabled ? products : []} />,
     "add-product": <AddEditProductScreen navigate={navigate} editProduct={editProduct} />,
     history: <HistoryScreen navigate={navigate} />,
     reporting: <ReportingScreen navigate={navigate} />,

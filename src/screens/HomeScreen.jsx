@@ -348,33 +348,38 @@ export default function HomeScreen({ navigate, basket, setBasket, products = [] 
               padding: "4px 16px 16px",
             }}
           >
-            {/* Manual Entry tile — first position in grid */}
+            {/* Manual Entry tile — same structure as ProductCard */}
             {!searchActive && (
-              <button
+              <div
                 onClick={() => navigate("keypad")}
                 style={{
-                  height: 88,
-                  borderRadius: tokens.shape.large,
+                  borderRadius: tokens.shape.expressiveLarge,
                   background: tokens.color.bg.brand,
-                  border: "none",
+                  overflow: "hidden",
                   cursor: "pointer",
-                  display: "flex",
-                  flexDirection: "column",
-                  alignItems: "flex-start",
-                  justifyContent: "space-between",
-                  padding: "12px 14px",
+                  border: `1px solid ${tokens.color.bg.brand}`,
                 }}
               >
-                <Icon name="keypad" size={20} color="rgba(255,255,255,0.8)" />
-                <div>
-                  <div style={{ fontSize: tokens.type.titleSmall.size, fontWeight: 600, color: tokens.color.fg.white }}>
+                <div
+                  style={{
+                    height: 96,
+                    background: "rgba(255,255,255,0.08)",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}
+                >
+                  <Icon name="keypad" size={32} color="rgba(255,255,255,0.5)" />
+                </div>
+                <div style={{ padding: "8px 12px 12px" }}>
+                  <div style={{ fontSize: tokens.type.bodyMedium.size, fontWeight: 500, color: tokens.color.fg.white }}>
                     Manual Entry
                   </div>
-                  <div style={{ fontSize: tokens.type.bodySmall.size, color: "rgba(255,255,255,0.6)", marginTop: 1 }}>
+                  <div style={{ fontSize: tokens.type.labelMedium.size, fontWeight: 600, color: "rgba(255,255,255,0.6)", marginTop: 2 }}>
                     Key in amount
                   </div>
                 </div>
-              </button>
+              </div>
             )}
             {filtered.map((p, i) => (
               <ProductCard key={i} name={p.name} price={p.price} isFav={p.fav} onClick={() => handleAdd(p)} />
