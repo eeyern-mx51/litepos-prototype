@@ -17,7 +17,7 @@ import Icon from "../components/Icon";
  * Top bar: back arrow (left) · "Products" title · close ✕ (right, goes home).
  */
 
-export default function ProductCatalogScreen({ navigate, goBack, products = [] }) {
+export default function ProductCatalogScreen({ navigate, goBack, products = [], setProducts }) {
   const hasProducts = products.length > 0;
 
   // Category management state
@@ -38,14 +38,28 @@ export default function ProductCatalogScreen({ navigate, goBack, products = [] }
 
   const handleRenameCategory = (index, newName) => {
     const trimmed = newName.trim();
+    const oldName = categories[index];
     if (trimmed && !categories.includes(trimmed)) {
       setCategories(categories.map((c, i) => (i === index ? trimmed : c)));
+      // Rename category on all products
+      if (setProducts) {
+        setProducts(products.map((p) =>
+          p.cat === oldName ? { ...p, cat: trimmed } : p
+        ));
+      }
     }
     setRenamingCat(null);
   };
 
   const handleDeleteCategory = (index) => {
+    const catName = categories[index];
     setCategories(categories.filter((_, i) => i !== index));
+    // Move products in this category to "Uncategorised"
+    if (setProducts) {
+      setProducts(products.map((p) =>
+        p.cat === catName ? { ...p, cat: "Uncategorised" } : p
+      ));
+    }
     setDeletingCat(null);
   };
 

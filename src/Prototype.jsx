@@ -92,8 +92,8 @@ export default function Prototype() {
     menu: <MenuScreen navigate={navigate} goBack={goBack} />,
     settings: <SettingsScreen navigate={navigate} goBack={goBack} />,
     "litepos-settings": <LitePOSSettingsScreen navigate={navigate} goBack={goBack} litePosEnabled={litePosEnabled} setLitePosEnabled={setLitePosEnabled} />,
-    "product-catalog": <ProductCatalogScreen navigate={navigate} goBack={goBack} products={catalogueEnabled ? products : []} />,
-    "add-product": <AddEditProductScreen navigate={navigate} goBack={goBack} editProduct={editProduct} />,
+    "product-catalog": <ProductCatalogScreen navigate={navigate} goBack={goBack} products={catalogueEnabled ? products : []} setProducts={setProducts} />,
+    "add-product": <AddEditProductScreen navigate={navigate} goBack={goBack} editProduct={editProduct} products={products} setProducts={setProducts} />,
     history: <HistoryScreen navigate={navigate} goBack={goBack} />,
     reporting: <ReportingScreen navigate={navigate} goBack={goBack} />,
     scan: <ScanScreen navigate={navigate} basket={basket} setBasket={setBasket} products={catalogueEnabled ? products : []} goBack={goBack} />,
@@ -176,8 +176,35 @@ export default function Prototype() {
           {!litePosEnabled
             ? "LitePOS off — showing default terminal home"
             : catalogueEnabled
-            ? "LitePOS on — merchant with products"
+            ? `LitePOS on — ${products.length} products`
             : "LitePOS on — new merchant, keypad only"}
+        </div>
+        <div style={{ borderTop: "1px solid #E0E0E4", paddingTop: 10, marginTop: 2 }}>
+          <button
+            onClick={() => {
+              setProducts(sampleProducts);
+              setBasket([]);
+              setEditProduct(null);
+              setScreen("home");
+              historyRef.current = ["home"];
+              setCatalogueEnabled(true);
+              setLitePosEnabled(true);
+            }}
+            style={{
+              width: "100%",
+              padding: "8px 12px",
+              borderRadius: 8,
+              border: "1px solid #E0E0E4",
+              background: "#fff",
+              cursor: "pointer",
+              fontSize: 12,
+              fontWeight: 600,
+              color: "#E53935",
+              fontFamily: "'Figtree', sans-serif",
+            }}
+          >
+            Reset All Data
+          </button>
         </div>
       </div>
     </div>

@@ -143,7 +143,7 @@ function PriceField({ value, onChange }) {
 
 // ── Main screen ───────────────────────────────────────────────────────
 
-export default function AddEditProductScreen({ navigate, goBack, editProduct }) {
+export default function AddEditProductScreen({ navigate, goBack, editProduct, products = [], setProducts }) {
   const isEdit = !!editProduct && !editProduct?.imported;
   const isImport = !!editProduct?.imported;
   const [name, setName] = useState(editProduct?.name || "");
@@ -182,6 +182,40 @@ export default function AddEditProductScreen({ navigate, goBack, editProduct }) 
   const canSave = name.trim() && price.trim();
   const title = isImport ? "Review Import" : isEdit ? "Edit Product" : "New Product";
   const saveLabel = isImport ? "Import Product" : isEdit ? "Save Changes" : "Save Product";
+
+  const buildProduct = () => ({
+    name: name.trim(),
+    price: price.trim(),
+    cat: category.trim() || "Uncategorised",
+    description: description.trim(),
+    sku: sku.trim(),
+    upc: upc.trim(),
+    fav: favourite,
+  });
+
+  const handleSave = (then) => {
+    if (!canSave || !setProducts) return;
+    const product = buildProduct();
+
+    if (isEdit && editProduct) {
+      // Update existing product (match by original name)
+      setProducts(products.map((p) =>
+        p.name === editProduct.name ? product : p
+      ));
+    } else {
+      // Add new product (or import)
+      setProducts([...products, product]);
+    }
+
+    navigate(then);
+  };
+
+  const handleDelete = () => {
+    if (setProducts && editProduct) {
+      setProducts(products.filter((p) => p.name !== editProduct.name));
+    }
+    navigate("product-catalog");
+  };
 
   return (
     <div style={{ flex: 1, display: "flex", flexDirection: "column", background: tokens.color.bg.surface, minHeight: 0 }}>
@@ -689,7 +723,7 @@ export default function AddEditProductScreen({ navigate, goBack, editProduct }) 
       >
         {isImport && (
           <button
-            onClick={() => navigate("import-scan")}
+            onClick={() => handleSave("import-scan")}
             disabled={!canSave}
             style={{
               width: "100%",
@@ -715,7 +749,7 @@ export default function AddEditProductScreen({ navigate, goBack, editProduct }) 
           </button>
         )}
         <button
-          onClick={() => navigate(isImport ? "product-catalog" : "product-catalog")}
+          onClick={() => handleSave("product-catalog")}
           disabled={!canSave}
           style={{
             width: "100%",
@@ -812,7 +846,7 @@ export default function AddEditProductScreen({ navigate, goBack, editProduct }) 
                 Cancel
               </button>
               <button
-                onClick={() => navigate("product-catalog")}
+                onClick={handleDelete}
                 style={{
                   padding: "10px 20px",
                   borderRadius: tokens.shape.full,
