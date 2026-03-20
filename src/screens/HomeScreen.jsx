@@ -161,25 +161,8 @@ export default function HomeScreen({ navigate, basket, setBasket }) {
           {/* Left: Menu pill */}
           <NavPill icon="menu" label="Menu" onClick={() => navigate("menu")} />
 
-          {/* Centre: brand mark or payment logos placeholder */}
-          <div style={{ display: "flex", gap: 4, alignItems: "center" }}>
-            <div
-              style={{
-                width: 28,
-                height: 28,
-                borderRadius: tokens.shape.full,
-                background: tokens.color.fg.brand,
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-              }}
-            >
-              <Icon name="store" size={16} color={tokens.color.fg.white} />
-            </div>
-          </div>
-
-          {/* Right: action pills */}
-          <div style={{ display: "flex", gap: 8 }}>
+          {/* Right: search + keypad pill */}
+          <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
             <button
               onClick={() => setSearchOpen(true)}
               style={{

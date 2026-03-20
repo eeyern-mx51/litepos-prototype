@@ -12,7 +12,7 @@ export default function MenuScreen({ navigate }) {
         background: tokens.color.bg.brand,
       }}
     >
-      <TopAppBar title="Menu" variant="small" theme="dark" />
+      <TopAppBar title="Menu" variant="small" theme="dark" onBack={() => navigate("home")} />
       <div
         style={{
           flex: 1,
