@@ -53,7 +53,7 @@ export default function Prototype() {
         width: 393,
         height: 852,
         margin: "20px auto",
-        borderRadius: 40,
+        borderRadius: 4,
         overflow: "hidden",
         background: tokens.color.bg.page,
         fontFamily: "'Google Sans', 'Roboto', -apple-system, sans-serif",
