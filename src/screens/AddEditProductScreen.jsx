@@ -151,9 +151,15 @@ export default function AddEditProductScreen({ navigate, goBack, editProduct }) 
   const [description, setDescription] = useState(editProduct?.description || "");
   const [sku, setSku] = useState(editProduct?.sku || "");
   const [upc, setUpc] = useState(editProduct?.upc || "");
+  const [category, setCategory] = useState(editProduct?.cat || "");
+  const [showCategoryPicker, setShowCategoryPicker] = useState(false);
+  const [customCategory, setCustomCategory] = useState("");
   const [favourite, setFavourite] = useState(editProduct?.fav || false);
   const [imagePreview, setImagePreview] = useState(null);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const fileInputRef = useRef(null);
+
+  const presetCategories = ["Drinks", "Food", "Snacks", "Merchandise", "Services"];
 
   const handleImagePick = () => {
     fileInputRef.current?.click();
@@ -183,10 +189,64 @@ export default function AddEditProductScreen({ navigate, goBack, editProduct }) 
         title={title}
         onBack={goBack}
         theme="light"
-        actions={isEdit ? [{ icon: "delete", onPress: () => navigate("product-catalog") }] : []}
+        actions={isEdit ? [{ icon: "delete", onPress: () => setShowDeleteConfirm(true) }] : []}
       />
 
       <div style={{ flex: 1, minHeight: 0, overflow: "auto", paddingBottom: isImport ? 150 : 100 }}>
+
+        {/* ── Import from Connect Express shortcut (Add mode only) ── */}
+        {!isEdit && !isImport && (
+          <div style={{ padding: "12px 16px 4px" }}>
+            <button
+              onClick={() => navigate("import-scan")}
+              style={{
+                width: "100%",
+                padding: "14px 16px",
+                borderRadius: tokens.shape.large,
+                background: `${tokens.color.fg.brand}08`,
+                border: `1px solid ${tokens.color.fg.brand}25`,
+                cursor: "pointer",
+                display: "flex",
+                alignItems: "center",
+                gap: 12,
+                textAlign: "left",
+                fontFamily: "inherit",
+              }}
+            >
+              <div
+                style={{
+                  width: 40,
+                  height: 40,
+                  borderRadius: tokens.shape.medium,
+                  background: `${tokens.color.fg.brand}15`,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  flexShrink: 0,
+                }}
+              >
+                <Icon name="scan" size={20} color={tokens.color.fg.brand} />
+              </div>
+              <div style={{ flex: 1 }}>
+                <div style={{
+                  fontSize: tokens.type.labelLarge.size,
+                  fontWeight: 600,
+                  color: tokens.color.fg.brand,
+                }}>
+                  Import from Connect Express
+                </div>
+                <div style={{
+                  fontSize: tokens.type.bodySmall.size,
+                  color: tokens.color.fg.subtle,
+                  marginTop: 1,
+                }}>
+                  Scan a barcode to auto-fill product details
+                </div>
+              </div>
+              <Icon name="chevron" size={20} color={tokens.color.fg.brand} />
+            </button>
+          </div>
+        )}
 
         {/* ── Product Image ─────────────────────────────────────── */}
         <input
@@ -323,6 +383,167 @@ export default function AddEditProductScreen({ navigate, goBack, editProduct }) 
             required
           />
           <PriceField value={price} onChange={setPrice} />
+
+          {/* ── Category field ──────────────────────────── */}
+          <div style={{ padding: "12px 16px", borderBottom: `1px solid ${tokens.color.border.onpage}`, position: "relative" }}>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 6 }}>
+              <label
+                style={{
+                  fontSize: tokens.type.labelMedium.size,
+                  fontWeight: 600,
+                  color: tokens.color.fg.subtle,
+                }}
+              >
+                Category
+              </label>
+              <span
+                style={{
+                  fontSize: tokens.type.labelSmall.size,
+                  color: tokens.color.fg.subtle,
+                }}
+              >
+                {category ? "" : "Defaults to Uncategorised"}
+              </span>
+            </div>
+            <button
+              onClick={() => setShowCategoryPicker(!showCategoryPicker)}
+              style={{
+                width: "100%",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                padding: 0,
+                border: "none",
+                background: "transparent",
+                cursor: "pointer",
+                fontFamily: "inherit",
+              }}
+            >
+              <span
+                style={{
+                  fontSize: tokens.type.bodyLarge.size,
+                  color: category ? tokens.color.fg.emphasis : tokens.color.fg.subtle,
+                }}
+              >
+                {category || "Select a category"}
+              </span>
+              <Icon
+                name="expand-more"
+                size={20}
+                color={tokens.color.fg.subtle}
+              />
+            </button>
+
+            {/* ── Category dropdown ──────────────────── */}
+            {showCategoryPicker && (
+              <>
+                <div
+                  onClick={() => setShowCategoryPicker(false)}
+                  style={{ position: "fixed", top: 0, left: 0, right: 0, bottom: 0, zIndex: 19 }}
+                />
+                <div
+                  style={{
+                    position: "absolute",
+                    top: "100%",
+                    left: 16,
+                    right: 16,
+                    zIndex: 20,
+                    background: tokens.color.bg.page,
+                    borderRadius: tokens.shape.medium,
+                    boxShadow: tokens.elevation.level3,
+                    border: `1px solid ${tokens.color.border.onpage}`,
+                    overflow: "hidden",
+                    maxHeight: 280,
+                    overflowY: "auto",
+                  }}
+                >
+                  {presetCategories.map((cat) => {
+                    const isActive = cat === category;
+                    return (
+                      <button
+                        key={cat}
+                        onClick={() => { setCategory(cat); setShowCategoryPicker(false); }}
+                        style={{
+                          width: "100%",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "space-between",
+                          padding: "13px 16px",
+                          border: "none",
+                          borderBottom: `1px solid ${tokens.color.border.onpage}`,
+                          background: isActive ? `${tokens.color.fg.brand}08` : "transparent",
+                          cursor: "pointer",
+                          fontSize: tokens.type.bodyMedium.size,
+                          fontWeight: isActive ? 600 : 400,
+                          color: isActive ? tokens.color.fg.brand : tokens.color.fg.emphasis,
+                          fontFamily: "inherit",
+                        }}
+                      >
+                        <span>{cat}</span>
+                        {isActive && <Icon name="check" size={18} color={tokens.color.fg.brand} />}
+                      </button>
+                    );
+                  })}
+
+                  {/* Custom category input */}
+                  <div
+                    style={{
+                      padding: "10px 16px",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 8,
+                    }}
+                  >
+                    <input
+                      value={customCategory}
+                      onChange={(e) => setCustomCategory(e.target.value)}
+                      placeholder="New category..."
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter" && customCategory.trim()) {
+                          setCategory(customCategory.trim());
+                          setCustomCategory("");
+                          setShowCategoryPicker(false);
+                        }
+                      }}
+                      style={{
+                        flex: 1,
+                        fontSize: tokens.type.bodyMedium.size,
+                        color: tokens.color.fg.emphasis,
+                        border: "none",
+                        outline: "none",
+                        background: "transparent",
+                        fontFamily: "inherit",
+                        padding: 0,
+                      }}
+                    />
+                    {customCategory.trim() && (
+                      <button
+                        onClick={() => {
+                          setCategory(customCategory.trim());
+                          setCustomCategory("");
+                          setShowCategoryPicker(false);
+                        }}
+                        style={{
+                          padding: "6px 14px",
+                          borderRadius: tokens.shape.full,
+                          background: tokens.color.bg.action.primary.default,
+                          border: "none",
+                          cursor: "pointer",
+                          fontSize: tokens.type.labelMedium.size,
+                          fontWeight: 600,
+                          color: "#fff",
+                          fontFamily: "inherit",
+                        }}
+                      >
+                        Add
+                      </button>
+                    )}
+                  </div>
+                </div>
+              </>
+            )}
+          </div>
+
           <TextField
             label="Description"
             value={description}
@@ -518,6 +739,98 @@ export default function AddEditProductScreen({ navigate, goBack, editProduct }) 
           {saveLabel}
         </button>
       </div>
+
+      {/* ── Delete confirmation dialog ───────────────────── */}
+      {showDeleteConfirm && (
+        <>
+          {/* Scrim */}
+          <div
+            onClick={() => setShowDeleteConfirm(false)}
+            style={{
+              position: "absolute",
+              inset: 0,
+              background: "rgba(0,0,0,0.45)",
+              zIndex: 50,
+            }}
+          />
+          {/* Dialog */}
+          <div
+            style={{
+              position: "absolute",
+              top: "50%",
+              left: "50%",
+              transform: "translate(-50%, -50%)",
+              width: "calc(100% - 48px)",
+              background: tokens.color.bg.page,
+              borderRadius: tokens.shape.expressiveLarge,
+              padding: "24px",
+              zIndex: 51,
+              boxShadow: tokens.elevation.level3,
+            }}
+          >
+            <div
+              style={{
+                fontSize: tokens.type.titleLarge.size,
+                fontWeight: tokens.type.titleLarge.weight,
+                color: tokens.color.fg.emphasis,
+              }}
+            >
+              Delete product?
+            </div>
+            <div
+              style={{
+                fontSize: tokens.type.bodyMedium.size,
+                color: tokens.color.fg.subtle,
+                marginTop: 8,
+                lineHeight: 1.5,
+              }}
+            >
+              <span style={{ fontWeight: 600, color: tokens.color.fg.emphasis }}>{name || "This product"}</span> will be permanently removed from your catalogue. This action cannot be undone.
+            </div>
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "flex-end",
+                gap: 8,
+                marginTop: 24,
+              }}
+            >
+              <button
+                onClick={() => setShowDeleteConfirm(false)}
+                style={{
+                  padding: "10px 20px",
+                  borderRadius: tokens.shape.full,
+                  border: "none",
+                  background: "transparent",
+                  cursor: "pointer",
+                  fontSize: tokens.type.labelLarge.size,
+                  fontWeight: 600,
+                  color: tokens.color.fg.brand,
+                  fontFamily: "inherit",
+                }}
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => navigate("product-catalog")}
+                style={{
+                  padding: "10px 20px",
+                  borderRadius: tokens.shape.full,
+                  border: "none",
+                  background: "#E53935",
+                  cursor: "pointer",
+                  fontSize: tokens.type.labelLarge.size,
+                  fontWeight: 600,
+                  color: "#fff",
+                  fontFamily: "inherit",
+                }}
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+        </>
+      )}
     </div>
   );
 }
