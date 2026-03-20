@@ -16,16 +16,28 @@ import ReportingScreen from "./screens/ReportingScreen";
 
 // Sample product catalogue — empty array simulates a new merchant
 const sampleProducts = [
+  // Drinks
   { name: "Flat White", price: "4.50", fav: true, cat: "Drinks" },
   { name: "Cappuccino", price: "4.80", fav: true, cat: "Drinks" },
   { name: "Long Black", price: "4.00", fav: false, cat: "Drinks" },
   { name: "Chai Latte", price: "5.20", fav: false, cat: "Drinks" },
   { name: "Lemon Squash", price: "3.50", fav: false, cat: "Drinks" },
+  { name: "Matcha Latte", price: "5.80", fav: false, cat: "Drinks" },
+  { name: "Iced Coffee", price: "5.50", fav: true, cat: "Drinks" },
+  { name: "Hot Chocolate", price: "4.50", fav: false, cat: "Drinks" },
+  { name: "Fresh OJ", price: "6.00", fav: false, cat: "Drinks" },
+  { name: "Espresso", price: "3.50", fav: false, cat: "Drinks" },
+  // Food
   { name: "Blueberry Muffin", price: "5.50", fav: true, cat: "Food" },
   { name: "Banana Bread", price: "6.00", fav: false, cat: "Food" },
   { name: "Croissant", price: "4.50", fav: false, cat: "Food" },
   { name: "Avo Toast", price: "14.00", fav: false, cat: "Food" },
   { name: "Eggs Benny", price: "16.50", fav: true, cat: "Food" },
+  { name: "Acai Bowl", price: "15.00", fav: false, cat: "Food" },
+  { name: "Granola Bowl", price: "12.00", fav: false, cat: "Food" },
+  { name: "BLT Sandwich", price: "11.50", fav: false, cat: "Food" },
+  { name: "Caesar Salad", price: "13.00", fav: false, cat: "Food" },
+  { name: "Chicken Wrap", price: "12.50", fav: true, cat: "Food" },
 ];
 
 export default function Prototype() {

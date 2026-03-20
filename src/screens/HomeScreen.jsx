@@ -4,25 +4,17 @@ import OrderBar from "../components/OrderBar";
 import ProductCard from "../components/ProductCard";
 import Icon from "../components/Icon";
 
-// Category tile colours (Square-style)
-const catColors = {
-  Drinks: { bg: "#E0F2F1", fg: "#00695C" },
-  Food: { bg: "#FFF3E0", fg: "#E65100" },
-  Favourites: { bg: "#FCE4EC", fg: "#C62828" },
-  All: { bg: tokens.color.bg.surface, fg: tokens.color.fg.emphasis },
-};
-
 
 export default function HomeScreen({ navigate, basket, setBasket, products = [] }) {
-  const [activeFilter, setActiveFilter] = useState(null);
+  const [activeFilter, setActiveFilter] = useState("Favourites");
   const [searchQuery, setSearchQuery] = useState("");
-  const [searchFocused, setSearchFocused] = useState(false);
-  const [showSearch, setShowSearch] = useState(false);
+  const [searchActive, setSearchActive] = useState(false);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
   const [scanResult, setScanResult] = useState(null);
   const searchRef = useRef(null);
 
   const hasProducts = products.length > 0;
-  const categoryList = [...new Set(products.map((p) => p.cat))];
+  const categoryList = ["Favourites", ...new Set(products.map((p) => p.cat)), "All Items"];
 
   const handleScan = () => {
     if (!hasProducts) return;
@@ -44,23 +36,33 @@ export default function HomeScreen({ navigate, basket, setBasket, products = [] 
     }
   };
 
-  // Filter logic
+  const openSearch = () => {
+    setSearchActive(true);
+    setDropdownOpen(false);
+    setTimeout(() => searchRef.current?.focus(), 80);
+  };
+
+  const closeSearch = () => {
+    setSearchActive(false);
+    setSearchQuery("");
+  };
+
+  // Filter logic — filter applies to category view
   let filtered = products;
-  if (activeFilter === "Favourites") {
-    filtered = filtered.filter((p) => p.fav);
-  } else if (activeFilter && activeFilter !== "All") {
-    filtered = filtered.filter((p) => p.cat === activeFilter);
-  }
   if (searchQuery.trim()) {
+    // Search always applies across ALL items
     const q = searchQuery.toLowerCase();
     filtered = products.filter(
       (p) => p.name.toLowerCase().includes(q) || p.price.includes(q)
     );
+  } else if (activeFilter === "Favourites") {
+    filtered = filtered.filter((p) => p.fav);
+  } else if (activeFilter !== "All Items") {
+    filtered = filtered.filter((p) => p.cat === activeFilter);
   }
 
   const total = basket.reduce((s, b) => s + b.price * b.qty, 0);
   const itemCount = basket.reduce((s, b) => s + b.qty, 0);
-  const showCategoryHome = hasProducts && !activeFilter && !searchQuery.trim();
 
   return (
     <div style={{ flex: 1, display: "flex", flexDirection: "column", minHeight: 0, position: "relative" }}>
@@ -86,17 +88,6 @@ export default function HomeScreen({ navigate, basket, setBasket, products = [] 
         >
           <Icon name="menu" size={24} color={tokens.color.fg.white} />
         </button>
-
-        {activeFilter && !showSearch && (
-          <span style={{
-            fontSize: tokens.type.titleMedium.size,
-            fontWeight: tokens.type.titleMedium.weight,
-            color: tokens.color.fg.white,
-          }}>
-            {activeFilter === "All" ? "All Items" : activeFilter}
-          </span>
-        )}
-
         <button
           onClick={() => navigate("litepos-settings")}
           style={{
@@ -109,73 +100,175 @@ export default function HomeScreen({ navigate, basket, setBasket, products = [] 
         </button>
       </div>
 
-      {/* ── Collapsible search bar ────────────────────────── */}
-      <div
-        style={{
-          maxHeight: showSearch ? 72 : 0,
-          opacity: showSearch ? 1 : 0,
-          overflow: "hidden",
-          transition: `max-height ${tokens.motion.duration.medium2} ${tokens.motion.easing.emphasizedDecelerate}, opacity ${tokens.motion.duration.short4} ${tokens.motion.easing.standard}`,
-          background: tokens.color.bg.page,
-          flexShrink: 0,
-        }}
-      >
-        <div style={{ padding: "8px 16px" }}>
-          <div
-            style={{
-              height: 56,
-              borderRadius: tokens.shape.full,
-              background: tokens.color.bg.surface,
-              display: "flex",
-              alignItems: "center",
-              padding: "0 8px 0 16px",
-              gap: 8,
-              boxShadow: searchFocused ? tokens.elevation.level2 : tokens.elevation.level1,
-              transition: `box-shadow ${tokens.motion.duration.short4} ${tokens.motion.easing.standard}`,
-            }}
-          >
-            <Icon name="search" size={20} color={tokens.color.fg.subtle} />
-            <input
-              ref={searchRef}
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              onFocus={() => setSearchFocused(true)}
-              onBlur={() => setSearchFocused(false)}
-              placeholder="Search products..."
+      {hasProducts && (
+        /* ── Filter row: category dropdown | search icon ── */
+        /* When search is active, the search input spans the full row */
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            padding: "8px 12px 8px 16px",
+            background: tokens.color.bg.page,
+            flexShrink: 0,
+            gap: 8,
+            position: "relative",
+          }}
+        >
+          {searchActive ? (
+            /* ── Expanded search bar (covers full row) ──── */
+            <div
               style={{
-                flex: 1, border: "none", outline: "none", background: "transparent",
-                fontSize: tokens.type.bodyLarge.size, lineHeight: tokens.type.bodyLarge.lineHeight,
-                letterSpacing: tokens.type.bodyLarge.tracking, color: tokens.color.fg.emphasis,
-                fontFamily: "inherit", padding: 0, height: "100%",
+                flex: 1,
+                height: 44,
+                borderRadius: tokens.shape.full,
+                background: tokens.color.bg.surface,
+                display: "flex",
+                alignItems: "center",
+                padding: "0 4px 0 14px",
+                gap: 8,
+                boxShadow: tokens.elevation.level1,
               }}
-            />
-            {searchQuery ? (
+            >
               <button
-                onClick={() => { setSearchQuery(""); searchRef.current?.focus(); }}
+                onClick={closeSearch}
                 style={{
-                  width: 40, height: 40, borderRadius: tokens.shape.full, border: "none",
+                  width: 36, height: 36, borderRadius: tokens.shape.full, border: "none",
                   background: "transparent", cursor: "pointer",
                   display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0,
                 }}
               >
-                <Icon name="close" size={20} color={tokens.color.fg.subtle} />
+                <Icon name="back" size={20} color={tokens.color.fg.subtle} />
               </button>
-            ) : (
+              <input
+                ref={searchRef}
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Search all products..."
+                style={{
+                  flex: 1, border: "none", outline: "none", background: "transparent",
+                  fontSize: tokens.type.bodyLarge.size, color: tokens.color.fg.emphasis,
+                  fontFamily: "inherit", padding: 0, height: "100%",
+                }}
+              />
+              {searchQuery ? (
+                <button
+                  onClick={() => { setSearchQuery(""); searchRef.current?.focus(); }}
+                  style={{
+                    width: 36, height: 36, borderRadius: tokens.shape.full, border: "none",
+                    background: "transparent", cursor: "pointer",
+                    display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0,
+                  }}
+                >
+                  <Icon name="close" size={18} color={tokens.color.fg.subtle} />
+                </button>
+              ) : null}
               <button
                 onClick={handleScan}
                 disabled={scanResult === "scanning"}
                 style={{
-                  width: 40, height: 40, borderRadius: tokens.shape.full, border: "none",
+                  width: 36, height: 36, borderRadius: tokens.shape.full, border: "none",
                   background: "transparent", cursor: scanResult === "scanning" ? "wait" : "pointer",
                   display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0,
                 }}
               >
-                <Icon name="scan" size={20} color={scanResult === "scanning" ? tokens.color.fg.brand : tokens.color.fg.subtle} />
+                <Icon name="scan" size={18} color={scanResult === "scanning" ? tokens.color.fg.brand : tokens.color.fg.subtle} />
               </button>
-            )}
-          </div>
+            </div>
+          ) : (
+            /* ── Default: Category dropdown + search icon ── */
+            <>
+              <button
+                onClick={() => setDropdownOpen(!dropdownOpen)}
+                style={{
+                  display: "flex", alignItems: "center", gap: 4,
+                  background: "transparent", border: "none", cursor: "pointer",
+                  padding: "8px 0",
+                }}
+              >
+                <span style={{
+                  fontSize: tokens.type.titleSmall.size,
+                  fontWeight: 600,
+                  color: tokens.color.fg.brand,
+                }}>
+                  {activeFilter}
+                </span>
+                <Icon name="expand-more" size={20} color={tokens.color.fg.brand} />
+              </button>
+              <div style={{ flex: 1 }} />
+              <button
+                onClick={openSearch}
+                style={{
+                  width: 44, height: 44, borderRadius: tokens.shape.full, border: "none",
+                  background: "transparent", cursor: "pointer",
+                  display: "flex", alignItems: "center", justifyContent: "center",
+                }}
+              >
+                <Icon name="search" size={22} color={tokens.color.fg.subtle} />
+              </button>
+            </>
+          )}
+
+          {/* ── Dropdown menu ──────────────────────────── */}
+          {dropdownOpen && (
+            <>
+              {/* Backdrop */}
+              <div
+                onClick={() => setDropdownOpen(false)}
+                style={{
+                  position: "fixed", top: 0, left: 0, right: 0, bottom: 0, zIndex: 19,
+                }}
+              />
+              <div
+                style={{
+                  position: "absolute",
+                  top: "100%",
+                  left: 16,
+                  zIndex: 20,
+                  background: tokens.color.bg.page,
+                  borderRadius: tokens.shape.medium,
+                  boxShadow: tokens.elevation.level3,
+                  border: `1px solid ${tokens.color.border.onpage}`,
+                  minWidth: 180,
+                  overflow: "hidden",
+                }}
+              >
+                {categoryList.map((cat) => {
+                  const isActive = cat === activeFilter;
+                  const count = cat === "Favourites"
+                    ? products.filter((p) => p.fav).length
+                    : cat === "All Items"
+                    ? products.length
+                    : products.filter((p) => p.cat === cat).length;
+                  return (
+                    <button
+                      key={cat}
+                      onClick={() => { setActiveFilter(cat); setDropdownOpen(false); }}
+                      style={{
+                        width: "100%",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "space-between",
+                        padding: "12px 16px",
+                        border: "none",
+                        background: isActive ? tokens.color.bg.surface : "transparent",
+                        cursor: "pointer",
+                        fontSize: tokens.type.bodyMedium.size,
+                        fontWeight: isActive ? 600 : 400,
+                        color: isActive ? tokens.color.fg.brand : tokens.color.fg.emphasis,
+                      }}
+                    >
+                      <span>{cat}</span>
+                      <span style={{ fontSize: tokens.type.bodySmall.size, color: tokens.color.fg.subtle }}>
+                        {count}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+            </>
+          )}
         </div>
-      </div>
+      )}
 
       {/* ── Content area ──────────────────────────────────── */}
       <div
@@ -187,43 +280,28 @@ export default function HomeScreen({ navigate, basket, setBasket, products = [] 
         }}
       >
         {!hasProducts ? (
-          /* ══════════════════════════════════════════════════
-             EMPTY STATE — no products configured yet.
-             Keypad is the primary action. Nudge to set up catalogue.
-             ══════════════════════════════════════════════════ */
+          /* ═══ EMPTY STATE — no products configured ═══ */
           <div
             style={{
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              padding: "32px 24px",
-              gap: 0,
-              height: "100%",
+              display: "flex", flexDirection: "column", alignItems: "center",
+              padding: "32px 24px", gap: 0, height: "100%",
             }}
           >
-            {/* Keypad hero */}
             <button
               onClick={() => navigate("keypad")}
               style={{
-                width: "100%",
-                padding: "28px 20px",
+                width: "100%", padding: "28px 20px",
                 borderRadius: tokens.shape.expressiveLarge,
                 background: tokens.color.bg.action.primary.default,
-                border: "none",
-                cursor: "pointer",
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "center",
-                gap: 10,
+                border: "none", cursor: "pointer",
+                display: "flex", flexDirection: "column", alignItems: "center", gap: 10,
               }}
             >
-              <div
-                style={{
-                  width: 56, height: 56, borderRadius: tokens.shape.full,
-                  background: "rgba(255,255,255,0.2)",
-                  display: "flex", alignItems: "center", justifyContent: "center",
-                }}
-              >
+              <div style={{
+                width: 56, height: 56, borderRadius: tokens.shape.full,
+                background: "rgba(255,255,255,0.2)",
+                display: "flex", alignItems: "center", justifyContent: "center",
+              }}>
                 <Icon name="keypad" size={28} color={tokens.color.fg.onAction} />
               </div>
               <span style={{ fontSize: tokens.type.titleMedium.size, fontWeight: tokens.type.titleMedium.weight, color: tokens.color.fg.onAction }}>
@@ -233,10 +311,7 @@ export default function HomeScreen({ navigate, basket, setBasket, products = [] 
                 Key in a sale amount to get started
               </span>
             </button>
-
             <div style={{ flex: 1, minHeight: 24 }} />
-
-            {/* Set up products nudge */}
             <button
               onClick={() => navigate("product-catalog")}
               style={{
@@ -245,13 +320,11 @@ export default function HomeScreen({ navigate, basket, setBasket, products = [] 
                 cursor: "pointer", display: "flex", alignItems: "center", gap: 14, textAlign: "left",
               }}
             >
-              <div
-                style={{
-                  width: 44, height: 44, borderRadius: tokens.shape.medium,
-                  background: tokens.color.bg.page, border: `1px solid ${tokens.color.border.onpage}`,
-                  display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0,
-                }}
-              >
+              <div style={{
+                width: 44, height: 44, borderRadius: tokens.shape.medium,
+                background: tokens.color.bg.page, border: `1px solid ${tokens.color.border.onpage}`,
+                display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0,
+              }}>
                 <Icon name="add" size={22} color={tokens.color.fg.brand} />
               </div>
               <div style={{ flex: 1 }}>
@@ -265,122 +338,50 @@ export default function HomeScreen({ navigate, basket, setBasket, products = [] 
               <Icon name="chevron" size={20} color={tokens.color.fg.subtle} />
             </button>
           </div>
-        ) : showCategoryHome ? (
-          /* ══════════════════════════════════════════════════
-             CATEGORY HOME — tiles grid with manual entry + search
-             ══════════════════════════════════════════════════ */
+        ) : filtered.length > 0 ? (
+          /* ═══ PRODUCT GRID ═══ */
           <div
             style={{
               display: "grid",
               gridTemplateColumns: "1fr 1fr",
               gap: 10,
-              padding: "12px 16px 16px",
+              padding: "4px 16px 16px",
             }}
           >
-            {/* Manual Entry tile — always first, prominent */}
-            <CategoryTile
-              label="Manual Entry"
-              subtitle="Key in amount"
-              color={{ bg: tokens.color.bg.brand, fg: tokens.color.fg.white }}
-              icon="keypad"
-              onClick={() => navigate("keypad")}
-            />
-
-            {/* Search tile */}
-            <CategoryTile
-              label="Search"
-              subtitle="Find a product"
-              color={{ bg: tokens.color.bg.surface, fg: tokens.color.fg.emphasis }}
-              icon="search"
-              onClick={() => {
-                setShowSearch(true);
-                setTimeout(() => searchRef.current?.focus(), 100);
-              }}
-            />
-
-            {/* Category tiles */}
-            {products.some((p) => p.fav) && (
-              <CategoryTile
-                label="Favourites"
-                count={products.filter((p) => p.fav).length}
-                color={catColors.Favourites}
-                icon="favorite"
-                onClick={() => setActiveFilter("Favourites")}
-              />
-            )}
-            {categoryList.map((cat) => (
-              <CategoryTile
-                key={cat}
-                label={cat}
-                count={products.filter((p) => p.cat === cat).length}
-                color={catColors[cat] || { bg: "#E8EAF6", fg: "#283593" }}
-                onClick={() => setActiveFilter(cat)}
-              />
-            ))}
-            <CategoryTile
-              label="All Items"
-              count={products.length}
-              color={catColors.All}
-              onClick={() => setActiveFilter("All")}
-            />
-
-            {/* Popular quick access */}
-            {products.some((p) => p.fav) && (
-              <>
-                <div
-                  style={{
-                    gridColumn: "1 / -1",
-                    padding: "8px 0 4px",
-                    fontSize: tokens.type.labelLarge.size,
-                    fontWeight: tokens.type.labelLarge.weight,
-                    color: tokens.color.fg.subtle,
-                  }}
-                >
-                  Popular
-                </div>
-                {products
-                  .filter((p) => p.fav)
-                  .map((p, i) => (
-                    <ProductCard key={i} name={p.name} price={p.price} isFav={p.fav} onClick={() => handleAdd(p)} />
-                  ))}
-              </>
-            )}
-          </div>
-        ) : filtered.length > 0 ? (
-          /* ══════════════════════════════════════════════════
-             DRILLED-IN — viewing a category or search results
-             ══════════════════════════════════════════════════ */
-          <div>
-            {activeFilter && !searchQuery.trim() && (
+            {/* Manual Entry tile — first position in grid */}
+            {!searchActive && (
               <button
-                onClick={() => setActiveFilter(null)}
+                onClick={() => navigate("keypad")}
                 style={{
-                  display: "flex", alignItems: "center", gap: 6,
-                  padding: "10px 16px", background: "transparent", border: "none",
-                  cursor: "pointer", fontSize: tokens.type.labelLarge.size,
-                  fontWeight: tokens.type.labelLarge.weight, color: tokens.color.fg.brand,
-                  width: "100%",
+                  height: 88,
+                  borderRadius: tokens.shape.large,
+                  background: tokens.color.bg.brand,
+                  border: "none",
+                  cursor: "pointer",
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "flex-start",
+                  justifyContent: "space-between",
+                  padding: "12px 14px",
                 }}
               >
-                <Icon name="back" size={18} color={tokens.color.fg.brand} />
-                All Categories
+                <Icon name="keypad" size={20} color="rgba(255,255,255,0.8)" />
+                <div>
+                  <div style={{ fontSize: tokens.type.titleSmall.size, fontWeight: 600, color: tokens.color.fg.white }}>
+                    Manual Entry
+                  </div>
+                  <div style={{ fontSize: tokens.type.bodySmall.size, color: "rgba(255,255,255,0.6)", marginTop: 1 }}>
+                    Key in amount
+                  </div>
+                </div>
               </button>
             )}
-            <div
-              style={{
-                display: "grid",
-                gridTemplateColumns: "1fr 1fr",
-                gap: 10,
-                padding: "4px 16px 16px",
-              }}
-            >
-              {filtered.map((p, i) => (
-                <ProductCard key={i} name={p.name} price={p.price} isFav={p.fav} onClick={() => handleAdd(p)} />
-              ))}
-            </div>
+            {filtered.map((p, i) => (
+              <ProductCard key={i} name={p.name} price={p.price} isFav={p.fav} onClick={() => handleAdd(p)} />
+            ))}
           </div>
         ) : (
-          /* ── Search/filter empty state ────────────────── */
+          /* ═══ EMPTY RESULTS ═══ */
           <div
             style={{
               display: "flex", flexDirection: "column", alignItems: "center",
@@ -391,7 +392,7 @@ export default function HomeScreen({ navigate, basket, setBasket, products = [] 
             <div style={{ fontSize: tokens.type.bodyLarge.size, color: tokens.color.fg.subtle, textAlign: "center" }}>
               {searchQuery
                 ? `No products matching "${searchQuery}"`
-                : `No products in ${activeFilter}`}
+                : `No ${activeFilter === "Favourites" ? "favourites" : "items"} yet`}
             </div>
           </div>
         )}
@@ -426,43 +427,5 @@ export default function HomeScreen({ navigate, basket, setBasket, products = [] 
         />
       </div>
     </div>
-  );
-}
-
-
-/**
- * CategoryTile — Square/Clover-style coloured tile in the grid.
- * Supports both category tiles (with count) and action tiles (with subtitle).
- */
-function CategoryTile({ label, count, subtitle, color, icon, onClick }) {
-  return (
-    <button
-      onClick={onClick}
-      style={{
-        height: 88,
-        borderRadius: tokens.shape.large,
-        background: color.bg,
-        border: "none",
-        cursor: "pointer",
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "flex-start",
-        justifyContent: "space-between",
-        padding: "12px 14px",
-        transition: `transform ${tokens.motion.duration.short4} ${tokens.motion.easing.standard}`,
-      }}
-    >
-      {icon && (
-        <Icon name={icon} size={20} color={color.fg} style={{ opacity: 0.8 }} />
-      )}
-      <div>
-        <div style={{ fontSize: tokens.type.titleSmall.size, fontWeight: 600, color: color.fg }}>
-          {label}
-        </div>
-        <div style={{ fontSize: tokens.type.bodySmall.size, color: color.fg, opacity: 0.7, marginTop: 1 }}>
-          {subtitle || (count !== undefined ? `${count} ${count === 1 ? "item" : "items"}` : "")}
-        </div>
-      </div>
-    </button>
   );
 }
