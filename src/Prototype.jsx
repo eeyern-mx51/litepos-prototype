@@ -11,6 +11,7 @@ import MenuScreen from "./screens/MenuScreen";
 import SettingsScreen from "./screens/SettingsScreen";
 import LitePOSSettingsScreen from "./screens/LitePOSSettingsScreen";
 import ProductCatalogScreen from "./screens/ProductCatalogScreen";
+import AddEditProductScreen from "./screens/AddEditProductScreen";
 import HistoryScreen from "./screens/HistoryScreen";
 import ReportingScreen from "./screens/ReportingScreen";
 
@@ -18,9 +19,18 @@ export default function Prototype() {
   const [screen, setScreen] = useState("home");
   const [basket, setBasket] = useState([]);
   const [bottomTab, setBottomTab] = useState(0);
+  const [editProduct, setEditProduct] = useState(null);
 
   const navigate = useCallback(
-    (target) => {
+    (target, data) => {
+      if (target === "edit-product") {
+        setEditProduct(data || null);
+        setScreen("add-product");
+        return;
+      }
+      if (target === "add-product") {
+        setEditProduct(null);
+      }
       setScreen(target);
       if (target === "home") setBottomTab(0);
       else if (target === "menu") setBottomTab(1);
@@ -42,6 +52,7 @@ export default function Prototype() {
     settings: <SettingsScreen navigate={navigate} />,
     "litepos-settings": <LitePOSSettingsScreen navigate={navigate} />,
     "product-catalog": <ProductCatalogScreen navigate={navigate} />,
+    "add-product": <AddEditProductScreen navigate={navigate} editProduct={editProduct} />,
     history: <HistoryScreen navigate={navigate} />,
     reporting: <ReportingScreen navigate={navigate} />,
   };
