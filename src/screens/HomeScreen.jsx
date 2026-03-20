@@ -10,22 +10,10 @@ export default function HomeScreen({ navigate, basket, setBasket, products = [] 
   const [searchQuery, setSearchQuery] = useState("");
   const [searchActive, setSearchActive] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
-  const [scanResult, setScanResult] = useState(null);
   const searchRef = useRef(null);
 
   const hasProducts = products.length > 0;
   const categoryList = ["Favourites", ...new Set(products.map((p) => p.cat)), "All Items"];
-
-  const handleScan = () => {
-    if (!hasProducts) return;
-    setScanResult("scanning");
-    setTimeout(() => {
-      const found = products[Math.floor(Math.random() * products.length)];
-      setScanResult(found);
-      handleAdd(found);
-      setTimeout(() => setScanResult(null), 2000);
-    }, 1200);
-  };
 
   const handleAdd = (p) => {
     const existing = basket.find((b) => b.name === p.name);
@@ -166,15 +154,14 @@ export default function HomeScreen({ navigate, basket, setBasket, products = [] 
                 </button>
               ) : null}
               <button
-                onClick={handleScan}
-                disabled={scanResult === "scanning"}
+                onClick={() => navigate("scan")}
                 style={{
                   width: 36, height: 36, borderRadius: tokens.shape.full, border: "none",
-                  background: "transparent", cursor: scanResult === "scanning" ? "wait" : "pointer",
+                  background: "transparent", cursor: "pointer",
                   display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0,
                 }}
               >
-                <Icon name="scan" size={18} color={scanResult === "scanning" ? tokens.color.fg.brand : tokens.color.fg.subtle} />
+                <Icon name="scan" size={18} color={tokens.color.fg.subtle} />
               </button>
             </div>
           ) : (
@@ -405,26 +392,6 @@ export default function HomeScreen({ navigate, basket, setBasket, products = [] 
           </div>
         )}
       </div>
-
-      {/* ── Scan feedback toast ────────────────────────────── */}
-      {scanResult && (
-        <div
-          style={{
-            position: "absolute", bottom: 100, left: 16, right: 16,
-            background: scanResult === "scanning" ? tokens.color.bg.snackbar : tokens.color.bg.action.primary.default,
-            borderRadius: tokens.shape.medium, padding: "12px 16px",
-            display: "flex", alignItems: "center", gap: 10,
-            zIndex: 10, boxShadow: tokens.elevation.level3,
-          }}
-        >
-          <Icon name={scanResult === "scanning" ? "scan" : "check"} size={20} color={tokens.color.fg.white} />
-          <span style={{ fontSize: tokens.type.bodyMedium.size, color: tokens.color.fg.white, fontWeight: 500 }}>
-            {scanResult === "scanning"
-              ? "Scanning barcode..."
-              : `Added ${scanResult.name} — $${scanResult.price}`}
-          </span>
-        </div>
-      )}
 
       {/* ── Order bar ──────────────────────────────────────── */}
       <div style={{ flexShrink: 0 }}>

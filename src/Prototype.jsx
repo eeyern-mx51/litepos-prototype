@@ -13,6 +13,7 @@ import ProductCatalogScreen from "./screens/ProductCatalogScreen";
 import AddEditProductScreen from "./screens/AddEditProductScreen";
 import HistoryScreen from "./screens/HistoryScreen";
 import ReportingScreen from "./screens/ReportingScreen";
+import ScanScreen from "./screens/ScanScreen";
 
 // Sample product catalogue — empty array simulates a new merchant
 const sampleProducts = [
@@ -74,6 +75,7 @@ export default function Prototype() {
     "add-product": <AddEditProductScreen navigate={navigate} editProduct={editProduct} />,
     history: <HistoryScreen navigate={navigate} />,
     reporting: <ReportingScreen navigate={navigate} />,
+    scan: <ScanScreen navigate={navigate} basket={basket} setBasket={setBasket} products={catalogueEnabled ? products : []} />,
   };
 
   return (
