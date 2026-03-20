@@ -68,6 +68,7 @@ export default function BasketScreen({ navigate, goBack, basket, setBasket }) {
             <span style={{ color: tokens.color.fg.brand }}>${total.toFixed(2)}</span>
           </div>
           <button
+            onClick={() => navigate("payment")}
             style={{
               width: "100%",
               height: 56,
@@ -78,6 +79,7 @@ export default function BasketScreen({ navigate, goBack, basket, setBasket }) {
               fontSize: tokens.type.labelLarge.size,
               fontWeight: 600,
               cursor: "pointer",
+              fontFamily: "inherit",
             }}
           >
             Proceed to Payment

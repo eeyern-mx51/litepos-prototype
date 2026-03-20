@@ -222,7 +222,13 @@ export default function DocumentationPage() {
             <div style={{ display: "flex", justifyContent: "center", gap: 32 }}>
               <ScreenNode name="Home" type="root">
                 <ScreenNode name="Product Grid" type="nav">
-                  <ScreenNode name="Basket" />
+                  <ScreenNode name="Basket" type="nav">
+                    <ScreenNode name="Payment Options" type="nav">
+                      <ScreenNode name="Pay in Full" />
+                      <ScreenNode name="Split by Item" />
+                      <ScreenNode name="Split Equally" />
+                    </ScreenNode>
+                  </ScreenNode>
                   <ScreenNode name="Keypad" />
                   <ScreenNode name="Scan (POS)" />
                 </ScreenNode>
@@ -353,9 +359,21 @@ export default function DocumentationPage() {
           />
           <FlowStep
             number={4}
-            title="Process Payment"
-            description="Tap 'Charge' to initiate the payment flow. The terminal handles the card/contactless transaction."
-            screens={["Basket", "Payment"]}
+            title="Proceed to Payment"
+            description="Tap 'Proceed to Payment' to see three payment options inspired by CBA Smart Hospitality: Pay in Full, Split by Item, or Split Equally."
+            screens={["Basket", "Payment Options"]}
+          />
+          <FlowStep
+            number={5}
+            title="Choose Payment Method"
+            description="Pay in Full charges the entire amount at once. Split by Item lets each patron select their items and pay for their share across multiple rounds. Split Equally divides the total by the number of patrons, processing one payment per person."
+            screens={["Pay in Full", "Split by Item", "Split Equally"]}
+          />
+          <FlowStep
+            number={6}
+            title="Tap to Pay"
+            description="Each payment shows a contactless card prompt, processes the transaction, and displays an 'Approved' confirmation with receipt options (Print or Digital QR). For split payments, the flow returns for the next patron until all shares are paid."
+            screens={["Payment Processing", "Approved"]}
           />
 
           <div style={{ fontSize: tokens.type.titleSmall.size, fontWeight: 600, color: tokens.color.fg.brand, marginBottom: 12, marginTop: 24 }}>
@@ -562,6 +580,9 @@ export default function DocumentationPage() {
             </div>
             <div>
               <strong style={{ color: tokens.color.fg.brand }}>Android-Native Patterns</strong> — Scrollbars are hidden globally (matching Android default), image picking uses the system file browser (not custom Camera/Gallery buttons), and confirmation dialogs appear before destructive actions. These choices ensure the prototype feels native to the terminal's Android OS.
+            </div>
+            <div>
+              <strong style={{ color: tokens.color.fg.brand }}>Split Payment (CBA Smart Hospitality Pattern)</strong> — Inspired by CBA Smart Hospitality, the payment screen presents three clear options: Pay in Full, Split by Item, and Split Equally. Split by Item uses a checkbox-based item selector with a progress bar and per-round payment confirmations. Split Equally uses a stepper to set patron count, then processes one payment per person with visual progress circles. Both split modes complete only when all shares are paid.
             </div>
             <div>
               <strong style={{ color: tokens.color.fg.brand }}>In-Session Data Persistence</strong> — All product CRUD operations (add, edit, delete, import, category changes) persist in shared React state and immediately reflect on the Home screen product grid. A "Reset All Data" button in the demo controls panel restores the sample catalogue for demos.

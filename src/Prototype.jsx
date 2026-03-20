@@ -16,6 +16,10 @@ import ReportingScreen from "./screens/ReportingScreen";
 import ScanScreen from "./screens/ScanScreen";
 import DefaultHomeScreen from "./screens/DefaultHomeScreen";
 import ImportProductsScreen from "./screens/ImportProductsScreen";
+import PaymentScreen from "./screens/PaymentScreen";
+import SplitByItemScreen from "./screens/SplitByItemScreen";
+import SplitEquallyScreen from "./screens/SplitEquallyScreen";
+import PaymentProcessingScreen from "./screens/PaymentProcessingScreen";
 
 // Sample product catalogue — empty array simulates a new merchant
 const sampleProducts = [
@@ -99,6 +103,10 @@ export default function Prototype() {
     scan: <ScanScreen navigate={navigate} basket={basket} setBasket={setBasket} products={catalogueEnabled ? products : []} goBack={goBack} />,
     "import-scan": <ScanScreen navigate={navigate} basket={basket} setBasket={setBasket} products={[]} mode="import" goBack={goBack} />,
     "import-products": <ImportProductsScreen navigate={navigate} goBack={goBack} />,
+    payment: <PaymentScreen navigate={navigate} goBack={goBack} basket={basket} />,
+    "split-by-item": <SplitByItemScreen navigate={navigate} goBack={goBack} basket={basket} setBasket={setBasket} />,
+    "split-equally": <SplitEquallyScreen navigate={navigate} goBack={goBack} basket={basket} setBasket={setBasket} />,
+    "payment-processing": <PaymentProcessingScreen navigate={navigate} basket={basket} setBasket={setBasket} />,
   };
 
   return (
