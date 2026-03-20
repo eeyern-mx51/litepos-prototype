@@ -1,55 +1,62 @@
 // ════════════════════════════════════════════════════════════════════
-// M3 EXPRESSIVE DESIGN TOKENS — Gecko Bank / LitePOS
-// Material 3 Expressive: vibrant color, expressive shapes,
-// fluid motion, accessible typography.
+// MXA DESIGN TOKENS — Gecko (GKO) + M3 Expressive for LitePOS
+//
+// Semantic layer maps to GKO Figma tokens (bg/, fg/, border/).
+// M3 Expressive shape/motion for new LitePOS components.
 // ════════════════════════════════════════════════════════════════════
 
 const tokens = {
-  // ── Color System (M3 Expressive — Gecko Bank palette) ──────────
+  // ── GKO Semantic Colour System ─────────────────────────────────
   color: {
-    primary: "#1B6B52",
-    onPrimary: "#FFFFFF",
-    primaryContainer: "#A4F4D3",
-    onPrimaryContainer: "#002117",
+    // Background tokens
+    bg: {
+      page: "#FFFFFF",
+      surface: "#F5F5F5",
+      overlay: "rgba(33, 38, 56, 0.6)",
+      statusbar: "#1E2640",
+      snackbar: "#212638",
+      keypadbar: "#2D3555",
+      button: { default: "#FFFFFF", press: "#E8E8EC" },
+      brand: "#2D3555",
+      action: {
+        primary: { default: "#1A7B6F", disable: "rgba(26,123,111,0.25)", press: "#0F5C53" },
+        secondary: { default: "#FFFFFF", press: "#E8E8EC" },
+      },
+      error:   { default: "#D32F2F", disable: "rgba(211,47,47,0.25)", press: "#B71C1C" },
+      warning: { default: "#F57C00", disable: "rgba(245,124,0,0.25)", press: "#E65100" },
+      success: { default: "#2E7D32", disable: "rgba(46,125,50,0.25)", press: "#1B5E20" },
+      info:    { default: "#1565C0", disable: "rgba(21,101,192,0.25)", press: "#0D47A1" },
+    },
 
-    secondary: "#4C6359",
-    onSecondary: "#FFFFFF",
-    secondaryContainer: "#CEE9DB",
-    onSecondaryContainer: "#082018",
+    // Foreground tokens
+    fg: {
+      emphasis: "#212638",
+      subtle: "#6B7084",
+      disable: "#B0B3C0",
+      white: "#FFFFFF",
+      brand: "#1A7B6F",
+      onBrand: "#FFFFFF",
+      onAction: "#FFFFFF",
+      action: { default: "#1A7B6F", disable: "rgba(26,123,111,0.25)", press: "#0F5C53" },
+      error:   { icon: "#EF5350", text: "#D32F2F" },
+      warning: { icon: "#FFA726", text: "#F57C00" },
+      success: { icon: "#66BB6A", text: "#2E7D32" },
+      info:    { icon: "#42A5F5", text: "#1565C0" },
+    },
 
-    tertiary: "#3E6374",
-    onTertiary: "#FFFFFF",
-    tertiaryContainer: "#C2E8FC",
-    onTertiaryContainer: "#001F2A",
-
-    error: "#BA1A1A",
-    onError: "#FFFFFF",
-    errorContainer: "#FFDAD6",
-    onErrorContainer: "#410002",
-
-    surface: "#F6FBF4",
-    surfaceDim: "#D6DBD4",
-    surfaceBright: "#F6FBF4",
-    surfaceContainerLowest: "#FFFFFF",
-    surfaceContainerLow: "#F0F5EE",
-    surfaceContainer: "#EAF0E8",
-    surfaceContainerHigh: "#E5EAE3",
-    surfaceContainerHighest: "#DFE4DD",
-    onSurface: "#181D19",
-    onSurfaceVariant: "#414942",
-
-    outline: "#717972",
-    outlineVariant: "#C1C9C0",
-
-    inverseSurface: "#2D322E",
-    inverseOnSurface: "#EDF2EB",
-    inversePrimary: "#88D7B8",
-
-    scrim: "#000000",
-    shadow: "#000000",
+    // Border tokens
+    border: {
+      onpage: "#E0E0E4",
+      onsurface: "#C8C9D0",
+      action: { default: "#1A7B6F", disable: "rgba(26,123,111,0.25)" },
+      error: "#EF5350",
+      warning: "#FFA726",
+      success: "#66BB6A",
+      info: "#42A5F5",
+    },
   },
 
-  // ── Shape System (M3 Expressive — rounder, more expressive) ────
+  // ── Shape System (M3 Expressive) ───────────────────────────────
   shape: {
     none: "0px",
     extraSmall: "4px",
@@ -62,7 +69,7 @@ const tokens = {
     expressiveExtraLarge: "32px",
   },
 
-  // ── Typography (M3 Expressive) ─────────────────────────────────
+  // ── Typography (M3 — maps to GKO M3/ text styles) ─────────────
   type: {
     displayLarge:   { size: "57px", weight: 400, lineHeight: "64px", tracking: "-0.25px" },
     displayMedium:  { size: "45px", weight: 400, lineHeight: "52px", tracking: "0px" },
@@ -81,7 +88,7 @@ const tokens = {
     labelSmall:     { size: "11px", weight: 600, lineHeight: "16px", tracking: "0.5px" },
   },
 
-  // ── Elevation (M3 tonal elevation) ─────────────────────────────
+  // ── Elevation (M3 Light — maps to GKO M3/Elevation Light/) ────
   elevation: {
     level0: "none",
     level1: "0 1px 2px rgba(0,0,0,0.1), 0 1px 3px rgba(0,0,0,0.08)",
@@ -91,32 +98,20 @@ const tokens = {
     level5: "0 8px 16px rgba(0,0,0,0.12), 0 4px 10px rgba(0,0,0,0.1)",
   },
 
-  // ── Motion (M3 Expressive — fluid, spring-based) ───────────────
+  // ── Motion (M3 Expressive) ─────────────────────────────────────
   motion: {
     easing: {
       standard: "cubic-bezier(0.2, 0, 0, 1)",
       standardDecelerate: "cubic-bezier(0, 0, 0, 1)",
-      standardAccelerate: "cubic-bezier(0.3, 0, 1, 1)",
       emphasized: "cubic-bezier(0.2, 0, 0, 1)",
       emphasizedDecelerate: "cubic-bezier(0.05, 0.7, 0.1, 1.0)",
-      emphasizedAccelerate: "cubic-bezier(0.3, 0, 0.8, 0.15)",
       expressive: "cubic-bezier(0.175, 0.885, 0.32, 1.275)",
     },
     duration: {
-      short1: "50ms",
-      short2: "100ms",
-      short3: "150ms",
-      short4: "200ms",
-      medium1: "250ms",
-      medium2: "300ms",
-      medium3: "350ms",
-      medium4: "400ms",
-      long1: "450ms",
-      long2: "500ms",
-      long3: "550ms",
-      long4: "600ms",
-      expressiveEntry: "500ms",
-      expressiveExit: "300ms",
+      short1: "50ms", short2: "100ms", short3: "150ms", short4: "200ms",
+      medium1: "250ms", medium2: "300ms", medium3: "350ms", medium4: "400ms",
+      long1: "450ms", long2: "500ms",
+      expressiveEntry: "500ms", expressiveExit: "300ms",
     },
   },
 
