@@ -12,7 +12,9 @@ export default function BasketScreen({ navigate, basket, setBasket }) {
         title="Basket"
         onBack={() => navigate("home")}
         theme="light"
-        actions={[{ icon: "delete", onPress: () => setBasket([]) }]}
+        actions={basket.length > 0
+          ? [{ icon: "delete", onPress: () => setBasket([]) }]
+          : [{ icon: "close", onPress: () => navigate("home") }]}
       />
       <div style={{ flex: 1, overflow: "auto", background: tokens.color.bg.page }}>
         {basket.length === 0 ? (
@@ -24,7 +26,7 @@ export default function BasketScreen({ navigate, basket, setBasket }) {
               justifyContent: "center",
               height: "100%",
               color: tokens.color.fg.subtle,
-              gap: 8,
+              gap: 12,
             }}
           >
             <Icon name="cart" size={48} color={tokens.color.border.onpage} />

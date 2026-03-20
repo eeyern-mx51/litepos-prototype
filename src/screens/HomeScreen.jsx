@@ -65,7 +65,7 @@ export default function HomeScreen({ navigate, basket, setBasket, products = [] 
   return (
     <div style={{ flex: 1, display: "flex", flexDirection: "column", minHeight: 0, position: "relative" }}>
 
-      {/* ── Top bar ─────────────────────────────────────────── */}
+      {/* ── Top bar: menu (left) · settings (right) ───────── */}
       <div
         style={{
           background: tokens.color.bg.brand,
@@ -97,44 +97,16 @@ export default function HomeScreen({ navigate, basket, setBasket, products = [] 
           </span>
         )}
 
-        <div style={{ display: "flex", alignItems: "center" }}>
-          <button
-            onClick={() => navigate("keypad")}
-            style={{
-              width: 48, height: 48, borderRadius: tokens.shape.full,
-              border: "none", background: "transparent", cursor: "pointer",
-              display: "flex", alignItems: "center", justifyContent: "center",
-            }}
-          >
-            <Icon name="keypad" size={24} color={tokens.color.fg.white} />
-          </button>
-          {hasProducts && (
-            <button
-              onClick={() => {
-                setShowSearch(!showSearch);
-                if (!showSearch) setTimeout(() => searchRef.current?.focus(), 100);
-                if (showSearch) { setSearchQuery(""); setSearchFocused(false); }
-              }}
-              style={{
-                width: 48, height: 48, borderRadius: tokens.shape.full,
-                border: "none", background: "transparent", cursor: "pointer",
-                display: "flex", alignItems: "center", justifyContent: "center",
-              }}
-            >
-              <Icon name={showSearch ? "close" : "search"} size={24} color={tokens.color.fg.white} />
-            </button>
-          )}
-          <button
-            onClick={() => navigate("litepos-settings")}
-            style={{
-              width: 48, height: 48, borderRadius: tokens.shape.full,
-              border: "none", background: "transparent", cursor: "pointer",
-              display: "flex", alignItems: "center", justifyContent: "center",
-            }}
-          >
-            <Icon name="settings" size={24} color={tokens.color.fg.white} />
-          </button>
-        </div>
+        <button
+          onClick={() => navigate("litepos-settings")}
+          style={{
+            width: 48, height: 48, borderRadius: tokens.shape.full,
+            border: "none", background: "transparent", cursor: "pointer",
+            display: "flex", alignItems: "center", justifyContent: "center",
+          }}
+        >
+          <Icon name="settings" size={24} color={tokens.color.fg.white} />
+        </button>
       </div>
 
       {/* ── Collapsible search bar ────────────────────────── */}
@@ -229,7 +201,7 @@ export default function HomeScreen({ navigate, basket, setBasket, products = [] 
               height: "100%",
             }}
           >
-            {/* Keypad hero — big tappable entry point */}
+            {/* Keypad hero */}
             <button
               onClick={() => navigate("keypad")}
               style={{
@@ -243,92 +215,50 @@ export default function HomeScreen({ navigate, basket, setBasket, products = [] 
                 flexDirection: "column",
                 alignItems: "center",
                 gap: 10,
-                transition: `transform ${tokens.motion.duration.short4} ${tokens.motion.easing.standard}`,
               }}
             >
               <div
                 style={{
-                  width: 56,
-                  height: 56,
-                  borderRadius: tokens.shape.full,
+                  width: 56, height: 56, borderRadius: tokens.shape.full,
                   background: "rgba(255,255,255,0.2)",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
+                  display: "flex", alignItems: "center", justifyContent: "center",
                 }}
               >
                 <Icon name="keypad" size={28} color={tokens.color.fg.onAction} />
               </div>
-              <span
-                style={{
-                  fontSize: tokens.type.titleMedium.size,
-                  fontWeight: tokens.type.titleMedium.weight,
-                  color: tokens.color.fg.onAction,
-                }}
-              >
+              <span style={{ fontSize: tokens.type.titleMedium.size, fontWeight: tokens.type.titleMedium.weight, color: tokens.color.fg.onAction }}>
                 Enter Amount
               </span>
-              <span
-                style={{
-                  fontSize: tokens.type.bodySmall.size,
-                  color: "rgba(255,255,255,0.7)",
-                }}
-              >
+              <span style={{ fontSize: tokens.type.bodySmall.size, color: "rgba(255,255,255,0.7)" }}>
                 Key in a sale amount to get started
               </span>
             </button>
 
-            {/* Spacer */}
             <div style={{ flex: 1, minHeight: 24 }} />
 
             {/* Set up products nudge */}
             <button
               onClick={() => navigate("product-catalog")}
               style={{
-                width: "100%",
-                padding: "16px 20px",
-                borderRadius: tokens.shape.large,
-                background: tokens.color.bg.surface,
-                border: `1px solid ${tokens.color.border.onpage}`,
-                cursor: "pointer",
-                display: "flex",
-                alignItems: "center",
-                gap: 14,
-                textAlign: "left",
+                width: "100%", padding: "16px 20px", borderRadius: tokens.shape.large,
+                background: tokens.color.bg.surface, border: `1px solid ${tokens.color.border.onpage}`,
+                cursor: "pointer", display: "flex", alignItems: "center", gap: 14, textAlign: "left",
               }}
             >
               <div
                 style={{
-                  width: 44,
-                  height: 44,
-                  borderRadius: tokens.shape.medium,
-                  background: tokens.color.bg.page,
-                  border: `1px solid ${tokens.color.border.onpage}`,
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  flexShrink: 0,
+                  width: 44, height: 44, borderRadius: tokens.shape.medium,
+                  background: tokens.color.bg.page, border: `1px solid ${tokens.color.border.onpage}`,
+                  display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0,
                 }}
               >
                 <Icon name="add" size={22} color={tokens.color.fg.brand} />
               </div>
               <div style={{ flex: 1 }}>
-                <div
-                  style={{
-                    fontSize: tokens.type.titleSmall.size,
-                    fontWeight: tokens.type.titleSmall.weight,
-                    color: tokens.color.fg.emphasis,
-                  }}
-                >
+                <div style={{ fontSize: tokens.type.titleSmall.size, fontWeight: tokens.type.titleSmall.weight, color: tokens.color.fg.emphasis }}>
                   Set up products
                 </div>
-                <div
-                  style={{
-                    fontSize: tokens.type.bodySmall.size,
-                    color: tokens.color.fg.subtle,
-                    marginTop: 2,
-                  }}
-                >
+                <div style={{ fontSize: tokens.type.bodySmall.size, color: tokens.color.fg.subtle, marginTop: 2 }}>
                   Add items for faster checkout with tap-to-sell
                 </div>
               </div>
@@ -337,7 +267,7 @@ export default function HomeScreen({ navigate, basket, setBasket, products = [] 
           </div>
         ) : showCategoryHome ? (
           /* ══════════════════════════════════════════════════
-             CATEGORY HOME — products exist, show category grid
+             CATEGORY HOME — tiles grid with manual entry + search
              ══════════════════════════════════════════════════ */
           <div
             style={{
@@ -347,12 +277,34 @@ export default function HomeScreen({ navigate, basket, setBasket, products = [] 
               padding: "12px 16px 16px",
             }}
           >
-            {/* Favourites tile (only if there are favs) */}
+            {/* Manual Entry tile — always first, prominent */}
+            <CategoryTile
+              label="Manual Entry"
+              subtitle="Key in amount"
+              color={{ bg: tokens.color.bg.brand, fg: tokens.color.fg.white }}
+              icon="keypad"
+              onClick={() => navigate("keypad")}
+            />
+
+            {/* Search tile */}
+            <CategoryTile
+              label="Search"
+              subtitle="Find a product"
+              color={{ bg: tokens.color.bg.surface, fg: tokens.color.fg.emphasis }}
+              icon="search"
+              onClick={() => {
+                setShowSearch(true);
+                setTimeout(() => searchRef.current?.focus(), 100);
+              }}
+            />
+
+            {/* Category tiles */}
             {products.some((p) => p.fav) && (
               <CategoryTile
                 label="Favourites"
                 count={products.filter((p) => p.fav).length}
                 color={catColors.Favourites}
+                icon="favorite"
                 onClick={() => setActiveFilter("Favourites")}
               />
             )}
@@ -372,7 +324,7 @@ export default function HomeScreen({ navigate, basket, setBasket, products = [] 
               onClick={() => setActiveFilter("All")}
             />
 
-            {/* Popular / favourites quick access */}
+            {/* Popular quick access */}
             {products.some((p) => p.fav) && (
               <>
                 <div
@@ -479,9 +431,10 @@ export default function HomeScreen({ navigate, basket, setBasket, products = [] 
 
 
 /**
- * CategoryTile — Square/Clover-style coloured category tile in the grid.
+ * CategoryTile — Square/Clover-style coloured tile in the grid.
+ * Supports both category tiles (with count) and action tiles (with subtitle).
  */
-function CategoryTile({ label, count, color, onClick }) {
+function CategoryTile({ label, count, subtitle, color, icon, onClick }) {
   return (
     <button
       onClick={onClick}
@@ -494,18 +447,22 @@ function CategoryTile({ label, count, color, onClick }) {
         display: "flex",
         flexDirection: "column",
         alignItems: "flex-start",
-        justifyContent: "flex-end",
+        justifyContent: "space-between",
         padding: "12px 14px",
-        gap: 4,
         transition: `transform ${tokens.motion.duration.short4} ${tokens.motion.easing.standard}`,
       }}
     >
-      <span style={{ fontSize: tokens.type.titleSmall.size, fontWeight: 600, color: color.fg }}>
-        {label}
-      </span>
-      <span style={{ fontSize: tokens.type.bodySmall.size, color: color.fg, opacity: 0.7 }}>
-        {count} {count === 1 ? "item" : "items"}
-      </span>
+      {icon && (
+        <Icon name={icon} size={20} color={color.fg} style={{ opacity: 0.8 }} />
+      )}
+      <div>
+        <div style={{ fontSize: tokens.type.titleSmall.size, fontWeight: 600, color: color.fg }}>
+          {label}
+        </div>
+        <div style={{ fontSize: tokens.type.bodySmall.size, color: color.fg, opacity: 0.7, marginTop: 1 }}>
+          {subtitle || (count !== undefined ? `${count} ${count === 1 ? "item" : "items"}` : "")}
+        </div>
+      </div>
     </button>
   );
 }
