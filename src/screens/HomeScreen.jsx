@@ -9,7 +9,7 @@ export default function HomeScreen({ navigate, basket, setBasket, products = [] 
   const [activeFilter, setActiveFilter] = useState("Favourites");
   const [searchQuery, setSearchQuery] = useState("");
   const [searchActive, setSearchActive] = useState(false);
-  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [sheetOpen, setSheetOpen] = useState(false);
   const searchRef = useRef(null);
 
   const hasProducts = products.length > 0;
@@ -26,7 +26,7 @@ export default function HomeScreen({ navigate, basket, setBasket, products = [] 
 
   const openSearch = () => {
     setSearchActive(true);
-    setDropdownOpen(false);
+    setSheetOpen(false);
     setTimeout(() => searchRef.current?.focus(), 80);
   };
 
@@ -165,10 +165,10 @@ export default function HomeScreen({ navigate, basket, setBasket, products = [] 
               </button>
             </div>
           ) : (
-            /* ── Default: Category dropdown + search icon ── */
+            /* ── Default: Category chip + search icon ── */
             <>
               <button
-                onClick={() => setDropdownOpen(!dropdownOpen)}
+                onClick={() => setSheetOpen(true)}
                 style={{
                   display: "flex", alignItems: "center", gap: 4,
                   background: "transparent", border: "none", cursor: "pointer",
@@ -195,66 +195,6 @@ export default function HomeScreen({ navigate, basket, setBasket, products = [] 
               >
                 <Icon name="search" size={22} color={tokens.color.fg.subtle} />
               </button>
-            </>
-          )}
-
-          {/* ── Dropdown menu ──────────────────────────── */}
-          {dropdownOpen && (
-            <>
-              {/* Backdrop */}
-              <div
-                onClick={() => setDropdownOpen(false)}
-                style={{
-                  position: "fixed", top: 0, left: 0, right: 0, bottom: 0, zIndex: 19,
-                }}
-              />
-              <div
-                style={{
-                  position: "absolute",
-                  top: "100%",
-                  left: 16,
-                  zIndex: 20,
-                  background: tokens.color.bg.page,
-                  borderRadius: tokens.shape.medium,
-                  boxShadow: tokens.elevation.level3,
-                  border: `1px solid ${tokens.color.border.onpage}`,
-                  minWidth: 180,
-                  overflow: "hidden",
-                }}
-              >
-                {categoryList.map((cat) => {
-                  const isActive = cat === activeFilter;
-                  const count = cat === "Favourites"
-                    ? products.filter((p) => p.fav).length
-                    : cat === "All Items"
-                    ? products.length
-                    : products.filter((p) => p.cat === cat).length;
-                  return (
-                    <button
-                      key={cat}
-                      onClick={() => { setActiveFilter(cat); setDropdownOpen(false); }}
-                      style={{
-                        width: "100%",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "space-between",
-                        padding: "12px 16px",
-                        border: "none",
-                        background: isActive ? tokens.color.bg.surface : "transparent",
-                        cursor: "pointer",
-                        fontSize: tokens.type.bodyMedium.size,
-                        fontWeight: isActive ? 600 : 400,
-                        color: isActive ? tokens.color.fg.brand : tokens.color.fg.emphasis,
-                      }}
-                    >
-                      <span>{cat}</span>
-                      <span style={{ fontSize: tokens.type.bodySmall.size, color: tokens.color.fg.subtle }}>
-                        {count}
-                      </span>
-                    </button>
-                  );
-                })}
-              </div>
             </>
           )}
         </div>
@@ -401,6 +341,183 @@ export default function HomeScreen({ navigate, basket, setBasket, products = [] 
           onCharge={() => navigate("basket")}
         />
       </div>
+
+      {/* ── Category bottom sheet (M3 ModalBottomSheet) ── */}
+      {sheetOpen && (
+        <>
+          {/* Scrim */}
+          <div
+            onClick={() => setSheetOpen(false)}
+            style={{
+              position: "absolute",
+              inset: 0,
+              background: "rgba(0,0,0,0.45)",
+              zIndex: 40,
+              animation: "scrimFadeIn 0.2s ease-out",
+            }}
+          />
+          {/* Sheet */}
+          <div
+            style={{
+              position: "absolute",
+              bottom: 0,
+              left: 0,
+              right: 0,
+              zIndex: 41,
+              background: tokens.color.bg.page,
+              borderRadius: `${tokens.shape.expressiveLarge} ${tokens.shape.expressiveLarge} 0 0`,
+              boxShadow: tokens.elevation.level4,
+              maxHeight: "70%",
+              display: "flex",
+              flexDirection: "column",
+              animation: "sheetSlideUp 0.35s cubic-bezier(0.34, 1.56, 0.64, 1)",
+            }}
+          >
+            {/* Drag handle */}
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "center",
+                padding: "12px 0 4px",
+              }}
+            >
+              <div
+                style={{
+                  width: 36,
+                  height: 4,
+                  borderRadius: 2,
+                  background: tokens.color.border.onsurface,
+                }}
+              />
+            </div>
+
+            {/* Header */}
+            <div
+              style={{
+                padding: "8px 20px 16px",
+                fontSize: tokens.type.titleMedium.size,
+                fontWeight: 600,
+                color: tokens.color.fg.emphasis,
+              }}
+            >
+              Filter by category
+            </div>
+
+            {/* Scrollable category list */}
+            <div style={{ flex: 1, overflow: "auto", minHeight: 0 }}>
+              {categoryList.map((cat) => {
+                const isActive = cat === activeFilter;
+                const count =
+                  cat === "Favourites"
+                    ? products.filter((p) => p.fav).length
+                    : cat === "All Items"
+                    ? products.length
+                    : products.filter((p) => p.cat === cat).length;
+                return (
+                  <button
+                    key={cat}
+                    onClick={() => {
+                      setActiveFilter(cat);
+                      setSheetOpen(false);
+                    }}
+                    style={{
+                      width: "100%",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 14,
+                      padding: "16px 20px",
+                      border: "none",
+                      borderBottom: `1px solid ${tokens.color.border.onpage}`,
+                      background: isActive
+                        ? `${tokens.color.fg.brand}08`
+                        : "transparent",
+                      cursor: "pointer",
+                      fontFamily: "inherit",
+                      textAlign: "left",
+                    }}
+                  >
+                    {/* Radio indicator */}
+                    <div
+                      style={{
+                        width: 24,
+                        height: 24,
+                        borderRadius: tokens.shape.full,
+                        border: `2px solid ${
+                          isActive
+                            ? tokens.color.fg.brand
+                            : tokens.color.border.onsurface
+                        }`,
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        flexShrink: 0,
+                        transition: `all ${tokens.motion.duration.short2} ${tokens.motion.easing.expressive}`,
+                      }}
+                    >
+                      {isActive && (
+                        <div
+                          style={{
+                            width: 12,
+                            height: 12,
+                            borderRadius: tokens.shape.full,
+                            background: tokens.color.fg.brand,
+                          }}
+                        />
+                      )}
+                    </div>
+
+                    {/* Label */}
+                    <span
+                      style={{
+                        flex: 1,
+                        fontSize: tokens.type.bodyLarge.size,
+                        fontWeight: isActive ? 600 : 400,
+                        color: isActive
+                          ? tokens.color.fg.brand
+                          : tokens.color.fg.emphasis,
+                      }}
+                    >
+                      {cat}
+                    </span>
+
+                    {/* Count badge */}
+                    <span
+                      style={{
+                        fontSize: tokens.type.labelSmall.size,
+                        fontWeight: 600,
+                        color: isActive
+                          ? tokens.color.fg.brand
+                          : tokens.color.fg.subtle,
+                        background: isActive
+                          ? `${tokens.color.fg.brand}12`
+                          : tokens.color.bg.surface,
+                        padding: "3px 10px",
+                        borderRadius: tokens.shape.full,
+                      }}
+                    >
+                      {count}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Bottom sheet animations */}
+          <style>
+            {`
+              @keyframes sheetSlideUp {
+                0% { transform: translateY(100%); }
+                100% { transform: translateY(0); }
+              }
+              @keyframes scrimFadeIn {
+                0% { opacity: 0; }
+                100% { opacity: 1; }
+              }
+            `}
+          </style>
+        </>
+      )}
     </div>
   );
 }

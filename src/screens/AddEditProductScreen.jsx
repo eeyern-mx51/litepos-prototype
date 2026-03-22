@@ -152,14 +152,15 @@ export default function AddEditProductScreen({ navigate, goBack, editProduct, pr
   const [sku, setSku] = useState(editProduct?.sku || "");
   const [upc, setUpc] = useState(editProduct?.upc || "");
   const [category, setCategory] = useState(editProduct?.cat || "");
-  const [showCategoryPicker, setShowCategoryPicker] = useState(false);
-  const [customCategory, setCustomCategory] = useState("");
   const [favourite, setFavourite] = useState(editProduct?.fav || false);
   const [imagePreview, setImagePreview] = useState(null);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const fileInputRef = useRef(null);
 
-  const presetCategories = ["Drinks", "Food", "Snacks", "Merchandise", "Services"];
+  // Gather unique categories from existing products for suggestions
+  const existingCategories = [...new Set(products.map((p) => p.cat).filter(
+    (c) => c && c !== "Uncategorised"
+  ))];
 
   const handleImagePick = () => {
     fileInputRef.current?.click();
@@ -418,7 +419,7 @@ export default function AddEditProductScreen({ navigate, goBack, editProduct, pr
           />
           <PriceField value={price} onChange={setPrice} />
 
-          {/* ── Category field (opens bottom sheet) ──────── */}
+          {/* ── Category field (text input with datalist) ──── */}
           <div style={{ padding: "12px 16px", borderBottom: `1px solid ${tokens.color.border.onpage}` }}>
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 6 }}>
               <label
@@ -439,34 +440,30 @@ export default function AddEditProductScreen({ navigate, goBack, editProduct, pr
                 {category ? "" : "Defaults to Uncategorised"}
               </span>
             </div>
-            <button
-              onClick={() => setShowCategoryPicker(true)}
+            <input
+              list="category-suggestions"
+              value={category}
+              onChange={(e) => setCategory(e.target.value)}
+              placeholder="e.g. Drinks, Food, Snacks"
               style={{
                 width: "100%",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "space-between",
-                padding: 0,
+                fontSize: tokens.type.bodyLarge.size,
+                color: tokens.color.fg.emphasis,
                 border: "none",
+                outline: "none",
                 background: "transparent",
-                cursor: "pointer",
                 fontFamily: "inherit",
+                padding: 0,
+                lineHeight: tokens.type.bodyLarge.lineHeight,
               }}
-            >
-              <span
-                style={{
-                  fontSize: tokens.type.bodyLarge.size,
-                  color: category ? tokens.color.fg.emphasis : tokens.color.fg.subtle,
-                }}
-              >
-                {category || "Select a category"}
-              </span>
-              <Icon
-                name="expand-more"
-                size={20}
-                color={tokens.color.fg.subtle}
-              />
-            </button>
+            />
+            <datalist id="category-suggestions">
+              {["Drinks", "Food", "Snacks", "Merchandise", "Services", ...existingCategories]
+                .filter((v, i, a) => a.indexOf(v) === i)
+                .map((cat) => (
+                  <option key={cat} value={cat} />
+                ))}
+            </datalist>
           </div>
 
           <TextField
@@ -664,298 +661,6 @@ export default function AddEditProductScreen({ navigate, goBack, editProduct, pr
           {saveLabel}
         </button>
       </div>
-
-      {/* ── Category bottom sheet (M3 ModalBottomSheet) ──── */}
-      {showCategoryPicker && (
-        <>
-          {/* Scrim */}
-          <div
-            onClick={() => setShowCategoryPicker(false)}
-            style={{
-              position: "absolute",
-              inset: 0,
-              background: "rgba(0,0,0,0.45)",
-              zIndex: 40,
-              transition: `opacity ${tokens.motion.duration.medium2} ${tokens.motion.easing.standard}`,
-            }}
-          />
-          {/* Bottom sheet */}
-          <div
-            style={{
-              position: "absolute",
-              bottom: 0,
-              left: 0,
-              right: 0,
-              zIndex: 41,
-              background: tokens.color.bg.page,
-              borderRadius: `${tokens.shape.expressiveLarge} ${tokens.shape.expressiveLarge} 0 0`,
-              boxShadow: tokens.elevation.level4,
-              maxHeight: "70%",
-              display: "flex",
-              flexDirection: "column",
-              animation: "sheetSlideUp 0.35s cubic-bezier(0.34, 1.56, 0.64, 1)",
-            }}
-          >
-            {/* Drag handle */}
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "center",
-                padding: "12px 0 4px",
-              }}
-            >
-              <div
-                style={{
-                  width: 36,
-                  height: 4,
-                  borderRadius: 2,
-                  background: tokens.color.border.onsurface,
-                }}
-              />
-            </div>
-
-            {/* Header */}
-            <div
-              style={{
-                padding: "8px 20px 16px",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "space-between",
-              }}
-            >
-              <div
-                style={{
-                  fontSize: tokens.type.titleMedium.size,
-                  fontWeight: 600,
-                  color: tokens.color.fg.emphasis,
-                }}
-              >
-                Select category
-              </div>
-              {category && (
-                <button
-                  onClick={() => {
-                    setCategory("");
-                    setShowCategoryPicker(false);
-                  }}
-                  style={{
-                    padding: "6px 14px",
-                    borderRadius: tokens.shape.full,
-                    border: "none",
-                    background: "transparent",
-                    cursor: "pointer",
-                    fontSize: tokens.type.labelMedium.size,
-                    fontWeight: 600,
-                    color: tokens.color.fg.subtle,
-                    fontFamily: "inherit",
-                  }}
-                >
-                  Clear
-                </button>
-              )}
-            </div>
-
-            {/* Scrollable category list */}
-            <div style={{ flex: 1, overflow: "auto", minHeight: 0 }}>
-              {presetCategories.map((cat) => {
-                const isActive = cat === category;
-                return (
-                  <button
-                    key={cat}
-                    onClick={() => {
-                      setCategory(cat);
-                      setShowCategoryPicker(false);
-                    }}
-                    style={{
-                      width: "100%",
-                      display: "flex",
-                      alignItems: "center",
-                      gap: 14,
-                      padding: "16px 20px",
-                      border: "none",
-                      borderBottom: `1px solid ${tokens.color.border.onpage}`,
-                      background: isActive
-                        ? `${tokens.color.fg.brand}08`
-                        : "transparent",
-                      cursor: "pointer",
-                      fontSize: tokens.type.bodyLarge.size,
-                      fontWeight: isActive ? 600 : 400,
-                      color: isActive
-                        ? tokens.color.fg.brand
-                        : tokens.color.fg.emphasis,
-                      fontFamily: "inherit",
-                      textAlign: "left",
-                    }}
-                  >
-                    {/* Radio indicator */}
-                    <div
-                      style={{
-                        width: 24,
-                        height: 24,
-                        borderRadius: tokens.shape.full,
-                        border: `2px solid ${
-                          isActive
-                            ? tokens.color.fg.brand
-                            : tokens.color.border.onsurface
-                        }`,
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        flexShrink: 0,
-                        transition: `all ${tokens.motion.duration.short2} ${tokens.motion.easing.expressive}`,
-                      }}
-                    >
-                      {isActive && (
-                        <div
-                          style={{
-                            width: 12,
-                            height: 12,
-                            borderRadius: tokens.shape.full,
-                            background: tokens.color.fg.brand,
-                          }}
-                        />
-                      )}
-                    </div>
-                    <span>{cat}</span>
-                  </button>
-                );
-              })}
-
-              {/* Also show any categories from existing products not in presets */}
-              {[...new Set(products.map((p) => p.cat).filter(
-                (c) => c && c !== "Uncategorised" && !presetCategories.includes(c)
-              ))].map((cat) => {
-                const isActive = cat === category;
-                return (
-                  <button
-                    key={cat}
-                    onClick={() => {
-                      setCategory(cat);
-                      setShowCategoryPicker(false);
-                    }}
-                    style={{
-                      width: "100%",
-                      display: "flex",
-                      alignItems: "center",
-                      gap: 14,
-                      padding: "16px 20px",
-                      border: "none",
-                      borderBottom: `1px solid ${tokens.color.border.onpage}`,
-                      background: isActive
-                        ? `${tokens.color.fg.brand}08`
-                        : "transparent",
-                      cursor: "pointer",
-                      fontSize: tokens.type.bodyLarge.size,
-                      fontWeight: isActive ? 600 : 400,
-                      color: isActive
-                        ? tokens.color.fg.brand
-                        : tokens.color.fg.emphasis,
-                      fontFamily: "inherit",
-                      textAlign: "left",
-                    }}
-                  >
-                    <div
-                      style={{
-                        width: 24,
-                        height: 24,
-                        borderRadius: tokens.shape.full,
-                        border: `2px solid ${
-                          isActive
-                            ? tokens.color.fg.brand
-                            : tokens.color.border.onsurface
-                        }`,
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        flexShrink: 0,
-                      }}
-                    >
-                      {isActive && (
-                        <div
-                          style={{
-                            width: 12,
-                            height: 12,
-                            borderRadius: tokens.shape.full,
-                            background: tokens.color.fg.brand,
-                          }}
-                        />
-                      )}
-                    </div>
-                    <span>{cat}</span>
-                  </button>
-                );
-              })}
-            </div>
-
-            {/* Custom category input at the bottom */}
-            <div
-              style={{
-                padding: "12px 20px 20px",
-                borderTop: `1px solid ${tokens.color.border.onpage}`,
-                display: "flex",
-                alignItems: "center",
-                gap: 10,
-              }}
-            >
-              <Icon name="add" size={20} color={tokens.color.fg.brand} />
-              <input
-                value={customCategory}
-                onChange={(e) => setCustomCategory(e.target.value)}
-                placeholder="Create new category..."
-                onKeyDown={(e) => {
-                  if (e.key === "Enter" && customCategory.trim()) {
-                    setCategory(customCategory.trim());
-                    setCustomCategory("");
-                    setShowCategoryPicker(false);
-                  }
-                }}
-                style={{
-                  flex: 1,
-                  fontSize: tokens.type.bodyLarge.size,
-                  color: tokens.color.fg.emphasis,
-                  border: "none",
-                  outline: "none",
-                  background: "transparent",
-                  fontFamily: "inherit",
-                  padding: 0,
-                }}
-              />
-              {customCategory.trim() && (
-                <button
-                  onClick={() => {
-                    setCategory(customCategory.trim());
-                    setCustomCategory("");
-                    setShowCategoryPicker(false);
-                  }}
-                  style={{
-                    padding: "8px 18px",
-                    borderRadius: tokens.shape.full,
-                    background: tokens.color.bg.action.primary.default,
-                    border: "none",
-                    cursor: "pointer",
-                    fontSize: tokens.type.labelLarge.size,
-                    fontWeight: 600,
-                    color: tokens.color.fg.onAction,
-                    fontFamily: "inherit",
-                  }}
-                >
-                  Add
-                </button>
-              )}
-            </div>
-          </div>
-
-          {/* Bottom sheet animation */}
-          <style>
-            {`
-              @keyframes sheetSlideUp {
-                0% { transform: translateY(100%); }
-                100% { transform: translateY(0); }
-              }
-            `}
-          </style>
-        </>
-      )}
 
       {/* ── Delete confirmation dialog ───────────────────── */}
       {showDeleteConfirm && (
