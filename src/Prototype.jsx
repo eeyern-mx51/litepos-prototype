@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef } from "react";
+import { useState, useCallback, useRef, useEffect } from "react";
 import tokens from "./theme/tokens";
 import StatusBar from "./components/StatusBar";
 
@@ -69,6 +69,33 @@ export default function Prototype() {
     amount: null,
   });
 
+  // ── Mobile detection & triple-tap to reveal demo controls ──
+  const [isMobile, setIsMobile] = useState(() => window.innerWidth <= 500);
+  const [showMobileControls, setShowMobileControls] = useState(false);
+  const tapTimestamps = useRef([]);
+
+  useEffect(() => {
+    const mq = window.matchMedia("(max-width: 500px)");
+    const handler = (e) => { setIsMobile(e.matches); if (!e.matches) setShowMobileControls(false); };
+    mq.addEventListener("change", handler);
+    return () => mq.removeEventListener("change", handler);
+  }, []);
+
+  const handleTripleTap = useCallback(() => {
+    const now = Date.now();
+    tapTimestamps.current.push(now);
+    // Keep only the last 3 taps
+    if (tapTimestamps.current.length > 3) tapTimestamps.current.shift();
+    // Check if 3 taps happened within 600ms
+    if (tapTimestamps.current.length === 3) {
+      const span = tapTimestamps.current[2] - tapTimestamps.current[0];
+      if (span < 600) {
+        setShowMobileControls((v) => !v);
+        tapTimestamps.current = [];
+      }
+    }
+  }, []);
+
   const historyRef = useRef(["home"]);
 
   const navigate = useCallback(
@@ -129,20 +156,94 @@ export default function Prototype() {
     "payment-processing": <PaymentProcessingScreen navigate={navigate} basket={basket} setBasket={setBasket} splitState={splitState} setSplitState={setSplitState} />,
   };
 
+  // ── Shared demo controls content ──
+  const demoControlsContent = (
+    <>
+      <div style={{ fontWeight: 600, color: "#6B7084", fontSize: 11, textTransform: "uppercase", letterSpacing: 1 }}>
+        Demo controls
+      </div>
+      <label style={{ display: "flex", alignItems: "center", gap: 8, cursor: "pointer", color: "#212638" }}>
+        <input
+          type="checkbox"
+          checked={litePosEnabled}
+          onChange={(e) => setLitePosEnabled(e.target.checked)}
+          style={{ accentColor: tokens.color.fg.brand }}
+        />
+        LitePOS enabled
+      </label>
+      <label style={{ display: "flex", alignItems: "center", gap: 8, cursor: "pointer", color: "#212638", opacity: litePosEnabled ? 1 : 0.4, pointerEvents: litePosEnabled ? "auto" : "none" }}>
+        <input
+          type="checkbox"
+          checked={catalogueEnabled}
+          onChange={(e) => setCatalogueEnabled(e.target.checked)}
+          style={{ accentColor: tokens.color.fg.brand }}
+        />
+        Product catalogue
+      </label>
+      <div style={{ fontSize: 11, color: "#6B7084", lineHeight: 1.4 }}>
+        {!litePosEnabled
+          ? "LitePOS off — showing default terminal home"
+          : catalogueEnabled
+          ? `LitePOS on — ${products.length} products`
+          : "LitePOS on — new merchant, keypad only"}
+      </div>
+      <div style={{ borderTop: "1px solid #E0E0E4", paddingTop: 10, marginTop: 2 }}>
+        <button
+          onClick={() => {
+            setProducts(sampleProducts);
+            setBasket([]);
+            setEditProduct(null);
+            setScreen("home");
+            historyRef.current = ["home"];
+            setCatalogueEnabled(true);
+            setLitePosEnabled(true);
+            setSplitState({ byItem: { paidIds: [] }, equally: { patronCount: 2, paidCount: 0 }, returnTo: null, amount: null });
+          }}
+          style={{
+            width: "100%",
+            padding: "8px 12px",
+            borderRadius: 8,
+            border: "1px solid #E0E0E4",
+            background: "#fff",
+            cursor: "pointer",
+            fontSize: 12,
+            fontWeight: 600,
+            color: "#E53935",
+            fontFamily: "'Figtree', sans-serif",
+          }}
+        >
+          Reset All Data
+        </button>
+      </div>
+    </>
+  );
+
   return (
-    <div style={{ display: "flex", justifyContent: "center", alignItems: "flex-start", gap: 16, padding: "20px 0" }}>
+    <div
+      style={{
+        display: "flex",
+        justifyContent: "center",
+        alignItems: isMobile ? "stretch" : "flex-start",
+        gap: 16,
+        padding: isMobile ? 0 : "20px 0",
+        minHeight: isMobile ? "100dvh" : undefined,
+      }}
+    >
+      {/* ── Device frame ──────────────────────────────── */}
       <div
+        onClick={isMobile ? handleTripleTap : undefined}
         style={{
-          width: 393,
-          height: 852,
-          borderRadius: 4,
+          width: isMobile ? "100%" : 393,
+          height: isMobile ? "100dvh" : 852,
+          borderRadius: isMobile ? 0 : 4,
           overflow: "hidden",
           background: tokens.color.bg.page,
           fontFamily: "'Figtree', -apple-system, sans-serif",
           display: "flex",
           flexDirection: "column",
-          boxShadow:
-            "0 20px 60px rgba(0,0,0,0.15), 0 0 0 1px rgba(0,0,0,0.05)",
+          boxShadow: isMobile
+            ? "none"
+            : "0 20px 60px rgba(0,0,0,0.15), 0 0 0 1px rgba(0,0,0,0.05)",
           position: "relative",
           WebkitFontSmoothing: "antialiased",
         }}
@@ -161,81 +262,106 @@ export default function Prototype() {
         >
           {screens[screen] || screens.home}
         </div>
+
+        {/* ── Mobile: floating demo controls overlay ──── */}
+        {isMobile && showMobileControls && (
+          <>
+            {/* Scrim */}
+            <div
+              onClick={(e) => { e.stopPropagation(); setShowMobileControls(false); }}
+              style={{
+                position: "absolute",
+                inset: 0,
+                background: "rgba(0,0,0,0.5)",
+                zIndex: 9998,
+                animation: "scrimFadeIn 0.15s ease-out",
+              }}
+            />
+            {/* Controls card */}
+            <div
+              onClick={(e) => e.stopPropagation()}
+              style={{
+                position: "absolute",
+                bottom: 24,
+                left: 16,
+                right: 16,
+                zIndex: 9999,
+                padding: "16px 18px",
+                background: "#F8F9FA",
+                borderRadius: 16,
+                border: "1px solid #E0E0E4",
+                fontSize: 13,
+                fontFamily: "'Figtree', sans-serif",
+                display: "flex",
+                flexDirection: "column",
+                gap: 10,
+                boxShadow: "0 12px 40px rgba(0,0,0,0.2)",
+                animation: "sheetSlideUp 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)",
+              }}
+            >
+              {/* Close button */}
+              <button
+                onClick={() => setShowMobileControls(false)}
+                style={{
+                  position: "absolute",
+                  top: 8,
+                  right: 8,
+                  width: 32,
+                  height: 32,
+                  borderRadius: "50%",
+                  border: "none",
+                  background: "transparent",
+                  cursor: "pointer",
+                  fontSize: 18,
+                  color: "#6B7084",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                ✕
+              </button>
+              {demoControlsContent}
+              <div style={{ fontSize: 10, color: "#9CA0AF", textAlign: "center", marginTop: 2 }}>
+                Triple-tap to toggle · Tap outside to close
+              </div>
+            </div>
+            <style>
+              {`
+                @keyframes sheetSlideUp {
+                  0% { transform: translateY(100%); opacity: 0; }
+                  100% { transform: translateY(0); opacity: 1; }
+                }
+                @keyframes scrimFadeIn {
+                  0% { opacity: 0; }
+                  100% { opacity: 1; }
+                }
+              `}
+            </style>
+          </>
+        )}
       </div>
 
-      {/* ── Demo controls (outside device frame) ──────── */}
-      <div
-        style={{
-          padding: "12px 16px",
-          background: "#F8F9FA",
-          borderRadius: 12,
-          border: "1px solid #E0E0E4",
-          fontSize: 13,
-          fontFamily: "'Figtree', sans-serif",
-          display: "flex",
-          flexDirection: "column",
-          gap: 10,
-          marginTop: 40,
-          minWidth: 180,
-        }}
-      >
-        <div style={{ fontWeight: 600, color: "#6B7084", fontSize: 11, textTransform: "uppercase", letterSpacing: 1 }}>
-          Demo controls
+      {/* ── Desktop: demo controls sidebar ────────────── */}
+      {!isMobile && (
+        <div
+          style={{
+            padding: "12px 16px",
+            background: "#F8F9FA",
+            borderRadius: 12,
+            border: "1px solid #E0E0E4",
+            fontSize: 13,
+            fontFamily: "'Figtree', sans-serif",
+            display: "flex",
+            flexDirection: "column",
+            gap: 10,
+            marginTop: 40,
+            minWidth: 180,
+          }}
+        >
+          {demoControlsContent}
         </div>
-        <label style={{ display: "flex", alignItems: "center", gap: 8, cursor: "pointer", color: "#212638" }}>
-          <input
-            type="checkbox"
-            checked={litePosEnabled}
-            onChange={(e) => setLitePosEnabled(e.target.checked)}
-            style={{ accentColor: tokens.color.fg.brand }}
-          />
-          LitePOS enabled
-        </label>
-        <label style={{ display: "flex", alignItems: "center", gap: 8, cursor: "pointer", color: "#212638", opacity: litePosEnabled ? 1 : 0.4, pointerEvents: litePosEnabled ? "auto" : "none" }}>
-          <input
-            type="checkbox"
-            checked={catalogueEnabled}
-            onChange={(e) => setCatalogueEnabled(e.target.checked)}
-            style={{ accentColor: tokens.color.fg.brand }}
-          />
-          Product catalogue
-        </label>
-        <div style={{ fontSize: 11, color: "#6B7084", lineHeight: 1.4 }}>
-          {!litePosEnabled
-            ? "LitePOS off — showing default terminal home"
-            : catalogueEnabled
-            ? `LitePOS on — ${products.length} products`
-            : "LitePOS on — new merchant, keypad only"}
-        </div>
-        <div style={{ borderTop: "1px solid #E0E0E4", paddingTop: 10, marginTop: 2 }}>
-          <button
-            onClick={() => {
-              setProducts(sampleProducts);
-              setBasket([]);
-              setEditProduct(null);
-              setScreen("home");
-              historyRef.current = ["home"];
-              setCatalogueEnabled(true);
-              setLitePosEnabled(true);
-              setSplitState({ byItem: { paidIds: [] }, equally: { patronCount: 2, paidCount: 0 }, returnTo: null, amount: null });
-            }}
-            style={{
-              width: "100%",
-              padding: "8px 12px",
-              borderRadius: 8,
-              border: "1px solid #E0E0E4",
-              background: "#fff",
-              cursor: "pointer",
-              fontSize: 12,
-              fontWeight: 600,
-              color: "#E53935",
-              fontFamily: "'Figtree', sans-serif",
-            }}
-          >
-            Reset All Data
-          </button>
-        </div>
-      </div>
+      )}
     </div>
   );
 }

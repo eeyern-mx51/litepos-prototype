@@ -18,10 +18,11 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
-body {
+html, body {
   margin: 0;
   background: #E8E8E8;
   min-height: 100vh;
+  min-height: 100dvh;
   display: flex;
   align-items: flex-start;
   justify-content: center;
@@ -32,6 +33,18 @@ body {
   display: flex;
   align-items: flex-start;
   justify-content: center;
+  min-height: 100dvh;
+}
+
+/* On mobile viewports, go edge-to-edge */
+@media (max-width: 500px) {
+  html, body {
+    background: #fff;
+    align-items: stretch;
+  }
+  #root {
+    align-items: stretch;
+  }
 }
 
 /* Hide scrollbars — matches Android behaviour */
