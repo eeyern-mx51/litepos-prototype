@@ -4,39 +4,49 @@ import TopAppBar from "../components/TopAppBar";
 import Icon from "../components/Icon";
 
 // ── Split Equally ──────────────────────────────────────────────────────
-// CBA Smart Hospitality–inspired: choose number of patrons, then
-// process one payment at a time for each patron's equal share.
+// Choose number of patrons, then navigate to payment-processing for each.
+// State persists across round-trips via shared splitState in Prototype.jsx.
 export default function SplitEquallyScreen({
   navigate,
   goBack,
   basket = [],
   setBasket,
+  splitState,
+  setSplitState,
 }) {
   const total = basket.reduce((s, b) => s + b.price * b.qty, 0);
-  const [patronCount, setPatronCount] = useState(2);
-  const [paidCount, setPaidCount] = useState(0);
-  const [showSnackbar, setShowSnackbar] = useState(null);
 
-  const perPerson = total / patronCount;
-  // Handle rounding — last person pays the remainder
+  // Read persisted state
+  const { patronCount, paidCount } = splitState.equally;
+  const [localPatronCount, setLocalPatronCount] = useState(patronCount);
+
+  // Use localPatronCount before first payment, committed patronCount after
+  const effectivePatronCount = paidCount > 0 ? patronCount : localPatronCount;
+
+  const perPerson = total / effectivePatronCount;
   const regularShare = Math.floor(perPerson * 100) / 100;
-  const lastShare =
-    total - regularShare * (patronCount - 1);
+  const lastShare = total - regularShare * (effectivePatronCount - 1);
 
-  const allPaid = paidCount >= patronCount;
+  const allPaid = paidCount >= effectivePatronCount;
   const currentShare =
-    paidCount === patronCount - 1 ? lastShare : regularShare;
+    paidCount === effectivePatronCount - 1 ? lastShare : regularShare;
 
-  const handlePayPerson = () => {
-    const newPaid = paidCount + 1;
-    setPaidCount(newPaid);
-
-    setShowSnackbar(currentShare);
-    setTimeout(() => setShowSnackbar(null), 2500);
-
-    if (newPaid >= patronCount) {
-      // All done
-    }
+  // Charge this patron — navigate to payment-processing
+  const handleCharge = () => {
+    // Commit patron count on first charge
+    const pc = paidCount === 0 ? localPatronCount : effectivePatronCount;
+    setSplitState((s) => ({
+      ...s,
+      returnTo: "split-equally",
+      amount: paidCount === pc - 1
+        ? total - regularShare * (pc - 1)  // last person pays remainder
+        : regularShare,
+      equally: {
+        ...s.equally,
+        patronCount: pc,
+      },
+    }));
+    navigate("payment-processing");
   };
 
   return (
@@ -102,12 +112,12 @@ export default function SplitEquallyScreen({
               color: tokens.color.fg.white,
             }}
           >
-            ${regularShare.toFixed(2)}
+            ${(total / effectivePatronCount).toFixed(2)}
           </div>
         </div>
       </div>
 
-      {/* Patron selector — only show if no payments started yet */}
+      {/* Patron selector — only show before first payment */}
       {paidCount === 0 && (
         <div
           style={{
@@ -137,28 +147,29 @@ export default function SplitEquallyScreen({
               gap: 24,
             }}
           >
-            {/* Minus */}
             <button
-              onClick={() => setPatronCount(Math.max(2, patronCount - 1))}
-              disabled={patronCount <= 2}
+              onClick={() =>
+                setLocalPatronCount(Math.max(2, localPatronCount - 1))
+              }
+              disabled={localPatronCount <= 2}
               style={{
                 width: 52,
                 height: 52,
                 borderRadius: tokens.shape.full,
                 border: `2px solid ${
-                  patronCount <= 2
+                  localPatronCount <= 2
                     ? tokens.color.border.onpage
                     : tokens.color.border.action.default
                 }`,
                 background: "transparent",
-                cursor: patronCount <= 2 ? "default" : "pointer",
+                cursor: localPatronCount <= 2 ? "default" : "pointer",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
                 fontSize: 24,
                 fontWeight: 600,
                 color:
-                  patronCount <= 2
+                  localPatronCount <= 2
                     ? tokens.color.fg.disable
                     : tokens.color.fg.brand,
                 fontFamily: "inherit",
@@ -168,7 +179,6 @@ export default function SplitEquallyScreen({
               −
             </button>
 
-            {/* Count */}
             <div style={{ textAlign: "center", minWidth: 60 }}>
               <div
                 style={{
@@ -178,7 +188,7 @@ export default function SplitEquallyScreen({
                   lineHeight: 1,
                 }}
               >
-                {patronCount}
+                {localPatronCount}
               </div>
               <div
                 style={{
@@ -187,32 +197,33 @@ export default function SplitEquallyScreen({
                   marginTop: 4,
                 }}
               >
-                {patronCount === 1 ? "person" : "people"}
+                people
               </div>
             </div>
 
-            {/* Plus */}
             <button
-              onClick={() => setPatronCount(Math.min(20, patronCount + 1))}
-              disabled={patronCount >= 20}
+              onClick={() =>
+                setLocalPatronCount(Math.min(20, localPatronCount + 1))
+              }
+              disabled={localPatronCount >= 20}
               style={{
                 width: 52,
                 height: 52,
                 borderRadius: tokens.shape.full,
                 border: `2px solid ${
-                  patronCount >= 20
+                  localPatronCount >= 20
                     ? tokens.color.border.onpage
                     : tokens.color.border.action.default
                 }`,
                 background: "transparent",
-                cursor: patronCount >= 20 ? "default" : "pointer",
+                cursor: localPatronCount >= 20 ? "default" : "pointer",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
                 fontSize: 24,
                 fontWeight: 600,
                 color:
-                  patronCount >= 20
+                  localPatronCount >= 20
                     ? tokens.color.fg.disable
                     : tokens.color.fg.brand,
                 fontFamily: "inherit",
@@ -228,7 +239,6 @@ export default function SplitEquallyScreen({
       {/* Payment progress — patron circles */}
       {paidCount > 0 && (
         <div style={{ padding: "0 16px 8px" }}>
-          {/* Progress bar */}
           <div
             style={{
               height: 6,
@@ -241,7 +251,7 @@ export default function SplitEquallyScreen({
             <div
               style={{
                 height: "100%",
-                width: `${(paidCount / patronCount) * 100}%`,
+                width: `${(paidCount / effectivePatronCount) * 100}%`,
                 background: tokens.color.bg.success.default,
                 borderRadius: 3,
                 transition: `width ${tokens.motion.duration.medium2} ${tokens.motion.easing.expressive}`,
@@ -258,19 +268,20 @@ export default function SplitEquallyScreen({
             }}
           >
             <span>
-              {paidCount} of {patronCount} payments
+              {paidCount} of {effectivePatronCount} payments
             </span>
             <span
-              style={{
-                color: tokens.color.fg.success.icon,
-                fontWeight: 600,
-              }}
+              style={{ color: tokens.color.fg.success.icon, fontWeight: 600 }}
             >
-              ${(paidCount * regularShare).toFixed(2)} received
+              $
+              {paidCount < effectivePatronCount
+                ? (paidCount * regularShare).toFixed(2)
+                : total.toFixed(2)}{" "}
+              received
             </span>
           </div>
 
-          {/* Patron circles grid */}
+          {/* Patron circles */}
           <div
             style={{
               display: "flex",
@@ -280,7 +291,7 @@ export default function SplitEquallyScreen({
               padding: "8px 0",
             }}
           >
-            {Array.from({ length: patronCount }).map((_, i) => {
+            {Array.from({ length: effectivePatronCount }).map((_, i) => {
               const isPaid = i < paidCount;
               const isCurrent = i === paidCount;
               return (
@@ -369,7 +380,6 @@ export default function SplitEquallyScreen({
       >
         {!allPaid ? (
           <>
-            {/* Current payment info */}
             <div
               style={{
                 display: "flex",
@@ -385,8 +395,8 @@ export default function SplitEquallyScreen({
                 }}
               >
                 {paidCount === 0
-                  ? `Each person pays`
-                  : `Person ${paidCount + 1} of ${patronCount}`}
+                  ? "Each person pays"
+                  : `Person ${paidCount + 1} of ${effectivePatronCount}`}
               </span>
               <span
                 style={{
@@ -399,7 +409,7 @@ export default function SplitEquallyScreen({
               </span>
             </div>
             <button
-              onClick={handlePayPerson}
+              onClick={handleCharge}
               style={{
                 width: "100%",
                 height: 56,
@@ -445,7 +455,7 @@ export default function SplitEquallyScreen({
                   color: tokens.color.fg.success.icon,
                 }}
               >
-                All {patronCount} payments received
+                All {effectivePatronCount} payments received
               </span>
             </div>
             <button
@@ -471,36 +481,6 @@ export default function SplitEquallyScreen({
           </>
         )}
       </div>
-
-      {/* Snackbar */}
-      {showSnackbar !== null && (
-        <div
-          style={{
-            position: "absolute",
-            bottom: 100,
-            left: 16,
-            right: 16,
-            background: tokens.color.bg.brand,
-            color: tokens.color.fg.white,
-            borderRadius: tokens.shape.medium,
-            padding: "14px 16px",
-            display: "flex",
-            alignItems: "center",
-            gap: 10,
-            boxShadow: tokens.elevation.level3,
-            animation:
-              "slideUp 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)",
-            fontSize: tokens.type.bodyMedium.size,
-            fontWeight: 500,
-          }}
-        >
-          <Icon name="check" size={20} color={tokens.color.fg.white} />
-          <span>
-            Payment {paidCount} of {patronCount} — $
-            {showSnackbar.toFixed(2)} received
-          </span>
-        </div>
-      )}
     </div>
   );
 }

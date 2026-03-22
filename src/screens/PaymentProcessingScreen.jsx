@@ -4,22 +4,26 @@ import Icon from "../components/Icon";
 
 // ── Payment Processing ─────────────────────────────────────────────────
 // Simulated tap-to-pay flow: waiting → processing → approved.
-// Used for Pay in Full and as the endpoint for split payments.
+// Split-aware: reads amount from splitState.amount when doing split rounds,
+// and on Done navigates back to the split screen (splitState.returnTo).
 export default function PaymentProcessingScreen({
   navigate,
   basket = [],
   setBasket,
-  amount,
+  splitState,
+  setSplitState,
 }) {
+  // Determine the amount to charge
+  const returnTo = splitState?.returnTo;
+  const splitAmount = splitState?.amount;
   const total =
-    amount != null
-      ? amount
+    splitAmount != null
+      ? splitAmount
       : basket.reduce((s, b) => s + b.price * b.qty, 0);
 
   const [stage, setStage] = useState("waiting"); // waiting → processing → approved
 
   useEffect(() => {
-    // Simulate tap-to-pay timing
     const t1 = setTimeout(() => setStage("processing"), 2200);
     const t2 = setTimeout(() => setStage("approved"), 3800);
     return () => {
@@ -27,6 +31,44 @@ export default function PaymentProcessingScreen({
       clearTimeout(t2);
     };
   }, []);
+
+  // When approved, commit the split progress
+  const handleDone = () => {
+    if (returnTo === "split-by-item") {
+      // Commit pending IDs as paid
+      setSplitState((s) => ({
+        ...s,
+        returnTo: null,
+        amount: null,
+        byItem: {
+          paidIds: [
+            ...s.byItem.paidIds,
+            ...(s.byItem.pendingIds || []),
+          ],
+          pendingIds: [],
+        },
+      }));
+      navigate("split-by-item");
+    } else if (returnTo === "split-equally") {
+      // Increment paid count
+      setSplitState((s) => ({
+        ...s,
+        returnTo: null,
+        amount: null,
+        equally: {
+          ...s.equally,
+          paidCount: s.equally.paidCount + 1,
+        },
+      }));
+      navigate("split-equally");
+    } else {
+      // Pay in full — clear basket and go home
+      setBasket([]);
+      navigate("home");
+    }
+  };
+
+  const isSplit = !!returnTo;
 
   return (
     <div
@@ -68,7 +110,6 @@ export default function PaymentProcessingScreen({
               position: "relative",
             }}
           >
-            {/* Pulse rings */}
             <div
               style={{
                 position: "absolute",
@@ -87,7 +128,6 @@ export default function PaymentProcessingScreen({
                 animation: "pulseRing 2s ease-out infinite 0.5s",
               }}
             />
-            {/* Contactless symbol (NFC waves) */}
             <svg
               width={56}
               height={56}
@@ -98,7 +138,6 @@ export default function PaymentProcessingScreen({
             </svg>
           </div>
 
-          {/* Amount */}
           <div style={{ textAlign: "center" }}>
             <div
               style={{
@@ -122,7 +161,6 @@ export default function PaymentProcessingScreen({
             </div>
           </div>
 
-          {/* Tap instruction */}
           <div
             style={{
               fontSize: tokens.type.bodyLarge.size,
@@ -149,7 +187,6 @@ export default function PaymentProcessingScreen({
             padding: 32,
           }}
         >
-          {/* Spinner */}
           <div
             style={{
               width: 80,
@@ -195,7 +232,6 @@ export default function PaymentProcessingScreen({
             padding: 32,
           }}
         >
-          {/* Check circle */}
           <div
             style={{
               width: 96,
@@ -245,13 +281,7 @@ export default function PaymentProcessingScreen({
           </div>
 
           {/* Receipt options */}
-          <div
-            style={{
-              display: "flex",
-              gap: 12,
-              marginTop: 16,
-            }}
-          >
+          <div style={{ display: "flex", gap: 12, marginTop: 16 }}>
             <button
               onClick={() => {}}
               style={{
@@ -294,12 +324,9 @@ export default function PaymentProcessingScreen({
             </button>
           </div>
 
-          {/* New order button */}
+          {/* Done / Next button */}
           <button
-            onClick={() => {
-              setBasket([]);
-              navigate("home");
-            }}
+            onClick={handleDone}
             style={{
               width: "calc(100% - 64px)",
               maxWidth: 300,
@@ -315,7 +342,7 @@ export default function PaymentProcessingScreen({
               fontFamily: "inherit",
             }}
           >
-            Done — New Order
+            {isSplit ? "Next Payment" : "Done — New Order"}
           </button>
         </div>
       )}

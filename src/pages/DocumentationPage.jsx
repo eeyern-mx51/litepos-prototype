@@ -1,3 +1,4 @@
+import { useState } from "react";
 import tokens from "../theme/tokens";
 
 // ── Reusable section components ───────────────────────────────────────
@@ -141,6 +142,44 @@ function ScreenNode({ name, type, children }) {
 
 // ── Main documentation page ───────────────────────────────────────────
 export default function DocumentationPage() {
+  const [showMapLightbox, setShowMapLightbox] = useState(false);
+
+  // ── Screen map content (reused in inline + lightbox) ────────────────
+  const screenMapContent = (
+    <div style={{ display: "flex", justifyContent: "center", gap: 32 }}>
+      <ScreenNode name="Home" type="root">
+        <ScreenNode name="Product Grid" type="nav">
+          <ScreenNode name="Basket" type="nav">
+            <ScreenNode name="Payment Options" type="nav">
+              <ScreenNode name="Pay in Full" />
+              <ScreenNode name="Split by Item" />
+              <ScreenNode name="Split Equally" />
+            </ScreenNode>
+          </ScreenNode>
+          <ScreenNode name="Keypad" />
+          <ScreenNode name="Scan (POS)" />
+        </ScreenNode>
+        <ScreenNode name="Menu" type="nav">
+          <ScreenNode name="History" />
+          <ScreenNode name="Reporting" />
+          <ScreenNode name="Settings" type="nav">
+            <ScreenNode name="LitePOS Settings">
+              <ScreenNode name="Product Catalog" type="nav">
+                <ScreenNode name="New Product" />
+                <ScreenNode name="Edit Product" />
+                <ScreenNode name="Categories (CRUD)" />
+              </ScreenNode>
+              <ScreenNode name="Import Products" type="nav">
+                <ScreenNode name="Scan (Import)" />
+                <ScreenNode name="Review Import" />
+              </ScreenNode>
+            </ScreenNode>
+          </ScreenNode>
+        </ScreenNode>
+      </ScreenNode>
+    </div>
+  );
+
   return (
     <div
       style={{
@@ -217,45 +256,134 @@ export default function DocumentationPage() {
               padding: 32,
               border: `1px solid ${tokens.color.border.onpage}`,
               overflowX: "auto",
+              position: "relative",
             }}
           >
-            <div style={{ display: "flex", justifyContent: "center", gap: 32 }}>
-              <ScreenNode name="Home" type="root">
-                <ScreenNode name="Product Grid" type="nav">
-                  <ScreenNode name="Basket" type="nav">
-                    <ScreenNode name="Payment Options" type="nav">
-                      <ScreenNode name="Pay in Full" />
-                      <ScreenNode name="Split by Item" />
-                      <ScreenNode name="Split Equally" />
-                    </ScreenNode>
-                  </ScreenNode>
-                  <ScreenNode name="Keypad" />
-                  <ScreenNode name="Scan (POS)" />
-                </ScreenNode>
-                <ScreenNode name="Menu" type="nav">
-                  <ScreenNode name="History" />
-                  <ScreenNode name="Reporting" />
-                  <ScreenNode name="Settings" type="nav">
-                    <ScreenNode name="LitePOS Settings">
-                      <ScreenNode name="Product Catalog" type="nav">
-                        <ScreenNode name="New Product" />
-                        <ScreenNode name="Edit Product" />
-                        <ScreenNode name="Categories (CRUD)" />
-                      </ScreenNode>
-                      <ScreenNode name="Import Products" type="nav">
-                        <ScreenNode name="Scan (Import)" />
-                        <ScreenNode name="Review Import" />
-                      </ScreenNode>
-                    </ScreenNode>
-                  </ScreenNode>
-                </ScreenNode>
-              </ScreenNode>
-            </div>
+            {screenMapContent}
             <div style={{ marginTop: 16, fontSize: tokens.type.bodySmall.size, color: tokens.color.fg.subtle, textAlign: "center" }}>
               When LitePOS is OFF, the Home screen shows a Default Terminal Home placeholder instead of the Product Grid.
             </div>
+            {/* Expand button */}
+            <button
+              onClick={() => setShowMapLightbox(true)}
+              style={{
+                position: "absolute",
+                top: 12,
+                right: 12,
+                padding: "8px 16px",
+                borderRadius: tokens.shape.full,
+                background: tokens.color.bg.action.primary.default,
+                color: tokens.color.fg.onAction,
+                border: "none",
+                fontSize: tokens.type.labelMedium.size,
+                fontWeight: 600,
+                cursor: "pointer",
+                fontFamily: "inherit",
+                display: "flex",
+                alignItems: "center",
+                gap: 6,
+                boxShadow: tokens.elevation.level2,
+              }}
+            >
+              <svg width={16} height={16} viewBox="0 0 24 24" fill="currentColor">
+                <path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z" />
+              </svg>
+              Expand
+            </button>
           </div>
         </DocSection>
+
+        {/* ── Lightbox overlay for screen map ── */}
+        {showMapLightbox && (
+          <div
+            onClick={() => setShowMapLightbox(false)}
+            style={{
+              position: "fixed",
+              inset: 0,
+              zIndex: 1000,
+              background: "rgba(0,0,0,0.7)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              padding: 32,
+              cursor: "pointer",
+            }}
+          >
+            <div
+              onClick={(e) => e.stopPropagation()}
+              style={{
+                background: tokens.color.bg.surface,
+                borderRadius: tokens.shape.expressiveLarge,
+                padding: 48,
+                maxWidth: "95vw",
+                maxHeight: "90vh",
+                overflow: "auto",
+                position: "relative",
+                cursor: "default",
+                boxShadow: tokens.elevation.level5,
+              }}
+            >
+              {/* Close button */}
+              <button
+                onClick={() => setShowMapLightbox(false)}
+                style={{
+                  position: "absolute",
+                  top: 16,
+                  right: 16,
+                  width: 40,
+                  height: 40,
+                  borderRadius: tokens.shape.full,
+                  background: tokens.color.bg.page,
+                  border: `1px solid ${tokens.color.border.onpage}`,
+                  cursor: "pointer",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  fontSize: 18,
+                  color: tokens.color.fg.emphasis,
+                  fontFamily: "inherit",
+                }}
+              >
+                ✕
+              </button>
+
+              <div style={{ marginBottom: 24 }}>
+                <h2
+                  style={{
+                    fontSize: tokens.type.headlineSmall.size,
+                    fontWeight: tokens.type.headlineSmall.weight,
+                    color: tokens.color.fg.emphasis,
+                    margin: 0,
+                  }}
+                >
+                  Screen Map
+                </h2>
+                <p
+                  style={{
+                    fontSize: tokens.type.bodyMedium.size,
+                    color: tokens.color.fg.subtle,
+                    marginTop: 4,
+                  }}
+                >
+                  Full navigation hierarchy of the LitePOS prototype
+                </p>
+              </div>
+
+              {screenMapContent}
+
+              <div
+                style={{
+                  marginTop: 24,
+                  fontSize: tokens.type.bodySmall.size,
+                  color: tokens.color.fg.subtle,
+                  textAlign: "center",
+                }}
+              >
+                When LitePOS is OFF, the Home screen shows a Default Terminal Home placeholder instead of the Product Grid.
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* ── Flow 1: Enabling LitePOS ──────────────────────────── */}
         <DocSection title="Flow 1 — Enabling LitePOS">
@@ -366,7 +494,7 @@ export default function DocumentationPage() {
           <FlowStep
             number={5}
             title="Choose Payment Method"
-            description="Pay in Full charges the entire amount at once. Split by Item lets each patron select their items and pay for their share across multiple rounds. Split Equally divides the total by the number of patrons, processing one payment per person."
+            description="Pay in Full charges the entire amount at once. Split by Item explodes quantities into individual units (e.g. 'Flat White × 2' becomes two selectable rows) so each patron picks their items and taps to pay — the card-present screen appears for each round. Split Equally divides the total by the number of patrons, processing one card-present payment per person."
             screens={["Pay in Full", "Split by Item", "Split Equally"]}
           />
           <FlowStep
@@ -582,7 +710,7 @@ export default function DocumentationPage() {
               <strong style={{ color: tokens.color.fg.brand }}>Android-Native Patterns</strong> — Scrollbars are hidden globally (matching Android default), image picking uses the system file browser (not custom Camera/Gallery buttons), and confirmation dialogs appear before destructive actions. These choices ensure the prototype feels native to the terminal's Android OS.
             </div>
             <div>
-              <strong style={{ color: tokens.color.fg.brand }}>Split Payment (CBA Smart Hospitality Pattern)</strong> — Inspired by CBA Smart Hospitality, the payment screen presents three clear options: Pay in Full, Split by Item, and Split Equally. Split by Item uses a checkbox-based item selector with a progress bar and per-round payment confirmations. Split Equally uses a stepper to set patron count, then processes one payment per person with visual progress circles. Both split modes complete only when all shares are paid.
+              <strong style={{ color: tokens.color.fg.brand }}>Split Payment (CBA Smart Hospitality Pattern)</strong> — Inspired by CBA Smart Hospitality, the payment screen presents three clear options: Pay in Full, Split by Item, and Split Equally. Split by Item explodes basket quantities into individual selectable units (e.g. "Flat White × 2" becomes two rows) — each patron picks their items and the full card-present screen (tap/insert/swipe → processing → approved) appears for each round. Split Equally uses a stepper for patron count and shows the card-present screen per person. Both modes track progress with a green bar and complete only when all shares are paid.
             </div>
             <div>
               <strong style={{ color: tokens.color.fg.brand }}>In-Session Data Persistence</strong> — All product CRUD operations (add, edit, delete, import, category changes) persist in shared React state and immediately reflect on the Home screen product grid. A "Reset All Data" button in the demo controls panel restores the sample catalogue for demos.

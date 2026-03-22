@@ -418,8 +418,8 @@ export default function AddEditProductScreen({ navigate, goBack, editProduct, pr
           />
           <PriceField value={price} onChange={setPrice} />
 
-          {/* ── Category field ──────────────────────────── */}
-          <div style={{ padding: "12px 16px", borderBottom: `1px solid ${tokens.color.border.onpage}`, position: "relative" }}>
+          {/* ── Category field (opens bottom sheet) ──────── */}
+          <div style={{ padding: "12px 16px", borderBottom: `1px solid ${tokens.color.border.onpage}` }}>
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 6 }}>
               <label
                 style={{
@@ -440,7 +440,7 @@ export default function AddEditProductScreen({ navigate, goBack, editProduct, pr
               </span>
             </div>
             <button
-              onClick={() => setShowCategoryPicker(!showCategoryPicker)}
+              onClick={() => setShowCategoryPicker(true)}
               style={{
                 width: "100%",
                 display: "flex",
@@ -467,115 +467,6 @@ export default function AddEditProductScreen({ navigate, goBack, editProduct, pr
                 color={tokens.color.fg.subtle}
               />
             </button>
-
-            {/* ── Category dropdown ──────────────────── */}
-            {showCategoryPicker && (
-              <>
-                <div
-                  onClick={() => setShowCategoryPicker(false)}
-                  style={{ position: "fixed", top: 0, left: 0, right: 0, bottom: 0, zIndex: 19 }}
-                />
-                <div
-                  style={{
-                    position: "absolute",
-                    top: "100%",
-                    left: 16,
-                    right: 16,
-                    zIndex: 20,
-                    background: tokens.color.bg.page,
-                    borderRadius: tokens.shape.medium,
-                    boxShadow: tokens.elevation.level3,
-                    border: `1px solid ${tokens.color.border.onpage}`,
-                    overflow: "hidden",
-                    maxHeight: 280,
-                    overflowY: "auto",
-                  }}
-                >
-                  {presetCategories.map((cat) => {
-                    const isActive = cat === category;
-                    return (
-                      <button
-                        key={cat}
-                        onClick={() => { setCategory(cat); setShowCategoryPicker(false); }}
-                        style={{
-                          width: "100%",
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "space-between",
-                          padding: "13px 16px",
-                          border: "none",
-                          borderBottom: `1px solid ${tokens.color.border.onpage}`,
-                          background: isActive ? `${tokens.color.fg.brand}08` : "transparent",
-                          cursor: "pointer",
-                          fontSize: tokens.type.bodyMedium.size,
-                          fontWeight: isActive ? 600 : 400,
-                          color: isActive ? tokens.color.fg.brand : tokens.color.fg.emphasis,
-                          fontFamily: "inherit",
-                        }}
-                      >
-                        <span>{cat}</span>
-                        {isActive && <Icon name="check" size={18} color={tokens.color.fg.brand} />}
-                      </button>
-                    );
-                  })}
-
-                  {/* Custom category input */}
-                  <div
-                    style={{
-                      padding: "10px 16px",
-                      display: "flex",
-                      alignItems: "center",
-                      gap: 8,
-                    }}
-                  >
-                    <input
-                      value={customCategory}
-                      onChange={(e) => setCustomCategory(e.target.value)}
-                      placeholder="New category..."
-                      onKeyDown={(e) => {
-                        if (e.key === "Enter" && customCategory.trim()) {
-                          setCategory(customCategory.trim());
-                          setCustomCategory("");
-                          setShowCategoryPicker(false);
-                        }
-                      }}
-                      style={{
-                        flex: 1,
-                        fontSize: tokens.type.bodyMedium.size,
-                        color: tokens.color.fg.emphasis,
-                        border: "none",
-                        outline: "none",
-                        background: "transparent",
-                        fontFamily: "inherit",
-                        padding: 0,
-                      }}
-                    />
-                    {customCategory.trim() && (
-                      <button
-                        onClick={() => {
-                          setCategory(customCategory.trim());
-                          setCustomCategory("");
-                          setShowCategoryPicker(false);
-                        }}
-                        style={{
-                          padding: "6px 14px",
-                          borderRadius: tokens.shape.full,
-                          background: tokens.color.bg.action.primary.default,
-                          border: "none",
-                          cursor: "pointer",
-                          fontSize: tokens.type.labelMedium.size,
-                          fontWeight: 600,
-                          color: "#fff",
-                          fontFamily: "inherit",
-                        }}
-                      >
-                        Add
-                      </button>
-                    )}
-                  </div>
-                </div>
-              </>
-            )}
           </div>
 
           <TextField
@@ -773,6 +664,298 @@ export default function AddEditProductScreen({ navigate, goBack, editProduct, pr
           {saveLabel}
         </button>
       </div>
+
+      {/* ── Category bottom sheet (M3 ModalBottomSheet) ──── */}
+      {showCategoryPicker && (
+        <>
+          {/* Scrim */}
+          <div
+            onClick={() => setShowCategoryPicker(false)}
+            style={{
+              position: "absolute",
+              inset: 0,
+              background: "rgba(0,0,0,0.45)",
+              zIndex: 40,
+              transition: `opacity ${tokens.motion.duration.medium2} ${tokens.motion.easing.standard}`,
+            }}
+          />
+          {/* Bottom sheet */}
+          <div
+            style={{
+              position: "absolute",
+              bottom: 0,
+              left: 0,
+              right: 0,
+              zIndex: 41,
+              background: tokens.color.bg.page,
+              borderRadius: `${tokens.shape.expressiveLarge} ${tokens.shape.expressiveLarge} 0 0`,
+              boxShadow: tokens.elevation.level4,
+              maxHeight: "70%",
+              display: "flex",
+              flexDirection: "column",
+              animation: "sheetSlideUp 0.35s cubic-bezier(0.34, 1.56, 0.64, 1)",
+            }}
+          >
+            {/* Drag handle */}
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "center",
+                padding: "12px 0 4px",
+              }}
+            >
+              <div
+                style={{
+                  width: 36,
+                  height: 4,
+                  borderRadius: 2,
+                  background: tokens.color.border.onsurface,
+                }}
+              />
+            </div>
+
+            {/* Header */}
+            <div
+              style={{
+                padding: "8px 20px 16px",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+              }}
+            >
+              <div
+                style={{
+                  fontSize: tokens.type.titleMedium.size,
+                  fontWeight: 600,
+                  color: tokens.color.fg.emphasis,
+                }}
+              >
+                Select category
+              </div>
+              {category && (
+                <button
+                  onClick={() => {
+                    setCategory("");
+                    setShowCategoryPicker(false);
+                  }}
+                  style={{
+                    padding: "6px 14px",
+                    borderRadius: tokens.shape.full,
+                    border: "none",
+                    background: "transparent",
+                    cursor: "pointer",
+                    fontSize: tokens.type.labelMedium.size,
+                    fontWeight: 600,
+                    color: tokens.color.fg.subtle,
+                    fontFamily: "inherit",
+                  }}
+                >
+                  Clear
+                </button>
+              )}
+            </div>
+
+            {/* Scrollable category list */}
+            <div style={{ flex: 1, overflow: "auto", minHeight: 0 }}>
+              {presetCategories.map((cat) => {
+                const isActive = cat === category;
+                return (
+                  <button
+                    key={cat}
+                    onClick={() => {
+                      setCategory(cat);
+                      setShowCategoryPicker(false);
+                    }}
+                    style={{
+                      width: "100%",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 14,
+                      padding: "16px 20px",
+                      border: "none",
+                      borderBottom: `1px solid ${tokens.color.border.onpage}`,
+                      background: isActive
+                        ? `${tokens.color.fg.brand}08`
+                        : "transparent",
+                      cursor: "pointer",
+                      fontSize: tokens.type.bodyLarge.size,
+                      fontWeight: isActive ? 600 : 400,
+                      color: isActive
+                        ? tokens.color.fg.brand
+                        : tokens.color.fg.emphasis,
+                      fontFamily: "inherit",
+                      textAlign: "left",
+                    }}
+                  >
+                    {/* Radio indicator */}
+                    <div
+                      style={{
+                        width: 24,
+                        height: 24,
+                        borderRadius: tokens.shape.full,
+                        border: `2px solid ${
+                          isActive
+                            ? tokens.color.fg.brand
+                            : tokens.color.border.onsurface
+                        }`,
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        flexShrink: 0,
+                        transition: `all ${tokens.motion.duration.short2} ${tokens.motion.easing.expressive}`,
+                      }}
+                    >
+                      {isActive && (
+                        <div
+                          style={{
+                            width: 12,
+                            height: 12,
+                            borderRadius: tokens.shape.full,
+                            background: tokens.color.fg.brand,
+                          }}
+                        />
+                      )}
+                    </div>
+                    <span>{cat}</span>
+                  </button>
+                );
+              })}
+
+              {/* Also show any categories from existing products not in presets */}
+              {[...new Set(products.map((p) => p.cat).filter(
+                (c) => c && c !== "Uncategorised" && !presetCategories.includes(c)
+              ))].map((cat) => {
+                const isActive = cat === category;
+                return (
+                  <button
+                    key={cat}
+                    onClick={() => {
+                      setCategory(cat);
+                      setShowCategoryPicker(false);
+                    }}
+                    style={{
+                      width: "100%",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 14,
+                      padding: "16px 20px",
+                      border: "none",
+                      borderBottom: `1px solid ${tokens.color.border.onpage}`,
+                      background: isActive
+                        ? `${tokens.color.fg.brand}08`
+                        : "transparent",
+                      cursor: "pointer",
+                      fontSize: tokens.type.bodyLarge.size,
+                      fontWeight: isActive ? 600 : 400,
+                      color: isActive
+                        ? tokens.color.fg.brand
+                        : tokens.color.fg.emphasis,
+                      fontFamily: "inherit",
+                      textAlign: "left",
+                    }}
+                  >
+                    <div
+                      style={{
+                        width: 24,
+                        height: 24,
+                        borderRadius: tokens.shape.full,
+                        border: `2px solid ${
+                          isActive
+                            ? tokens.color.fg.brand
+                            : tokens.color.border.onsurface
+                        }`,
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        flexShrink: 0,
+                      }}
+                    >
+                      {isActive && (
+                        <div
+                          style={{
+                            width: 12,
+                            height: 12,
+                            borderRadius: tokens.shape.full,
+                            background: tokens.color.fg.brand,
+                          }}
+                        />
+                      )}
+                    </div>
+                    <span>{cat}</span>
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Custom category input at the bottom */}
+            <div
+              style={{
+                padding: "12px 20px 20px",
+                borderTop: `1px solid ${tokens.color.border.onpage}`,
+                display: "flex",
+                alignItems: "center",
+                gap: 10,
+              }}
+            >
+              <Icon name="add" size={20} color={tokens.color.fg.brand} />
+              <input
+                value={customCategory}
+                onChange={(e) => setCustomCategory(e.target.value)}
+                placeholder="Create new category..."
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" && customCategory.trim()) {
+                    setCategory(customCategory.trim());
+                    setCustomCategory("");
+                    setShowCategoryPicker(false);
+                  }
+                }}
+                style={{
+                  flex: 1,
+                  fontSize: tokens.type.bodyLarge.size,
+                  color: tokens.color.fg.emphasis,
+                  border: "none",
+                  outline: "none",
+                  background: "transparent",
+                  fontFamily: "inherit",
+                  padding: 0,
+                }}
+              />
+              {customCategory.trim() && (
+                <button
+                  onClick={() => {
+                    setCategory(customCategory.trim());
+                    setCustomCategory("");
+                    setShowCategoryPicker(false);
+                  }}
+                  style={{
+                    padding: "8px 18px",
+                    borderRadius: tokens.shape.full,
+                    background: tokens.color.bg.action.primary.default,
+                    border: "none",
+                    cursor: "pointer",
+                    fontSize: tokens.type.labelLarge.size,
+                    fontWeight: 600,
+                    color: tokens.color.fg.onAction,
+                    fontFamily: "inherit",
+                  }}
+                >
+                  Add
+                </button>
+              )}
+            </div>
+          </div>
+
+          {/* Bottom sheet animation */}
+          <style>
+            {`
+              @keyframes sheetSlideUp {
+                0% { transform: translateY(100%); }
+                100% { transform: translateY(0); }
+              }
+            `}
+          </style>
+        </>
+      )}
 
       {/* ── Delete confirmation dialog ───────────────────── */}
       {showDeleteConfirm && (

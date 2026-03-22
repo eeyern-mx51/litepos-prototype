@@ -5,16 +5,16 @@ import Icon from "../components/Icon";
 
 // ── Split by Item ──────────────────────────────────────────────────────
 // Explodes basket quantities into individual selectable units.
-// e.g. "Flat White × 2" becomes two separate rows so each person
-// can pick their own Flat White alongside their main.
+// Each payment round navigates to payment-processing and returns here.
 export default function SplitByItemScreen({
   navigate,
   goBack,
   basket = [],
   setBasket,
+  splitState,
+  setSplitState,
 }) {
   // Explode basket into individual units
-  // { name, price, basketIndex, unitIndex }
   const units = useMemo(() => {
     const list = [];
     basket.forEach((item, bi) => {
@@ -32,8 +32,9 @@ export default function SplitByItemScreen({
   }, [basket]);
 
   const [selected, setSelected] = useState({});
-  const [paidIds, setPaidIds] = useState([]);
-  const [showSnackbar, setShowSnackbar] = useState(null);
+
+  // Read paid state from shared splitState (survives round-trips to payment-processing)
+  const paidIds = splitState.byItem.paidIds;
 
   const toggle = (id) => {
     setSelected((prev) => ({ ...prev, [id]: !prev[id] }));
@@ -50,7 +51,10 @@ export default function SplitByItemScreen({
   const unpaidUnits = units.filter((u) => !paidIds.includes(u.id));
   const totalRemaining = unpaidUnits.reduce((s, u) => s + u.price, 0);
   const paidTotal = paidIds.reduce(
-    (s, id) => s + units.find((u) => u.id === id).price,
+    (s, id) => {
+      const u = units.find((u) => u.id === id);
+      return s + (u ? u.price : 0);
+    },
     0
   );
   const grandTotal = units.reduce((s, u) => s + u.price, 0);
@@ -58,17 +62,23 @@ export default function SplitByItemScreen({
   const canCharge = selectedIds.length > 0;
   const allPaid = unpaidUnits.length === 0;
 
-  const handlePayRound = () => {
-    const newPaid = [...paidIds, ...selectedIds];
-    setPaidIds(newPaid);
+  // Navigate to payment-processing with the selected amount
+  const handleCharge = () => {
+    // Save which IDs will be marked as paid after processing
+    setSplitState((s) => ({
+      ...s,
+      returnTo: "split-by-item",
+      amount: selectedTotal,
+      byItem: {
+        ...s.byItem,
+        pendingIds: selectedIds, // will be committed after approval
+      },
+    }));
     setSelected({});
-
-    setShowSnackbar(selectedTotal);
-    setTimeout(() => setShowSnackbar(null), 2500);
+    navigate("payment-processing");
   };
 
-  // Group units for display: show product name once as a header,
-  // then each unit as a selectable row underneath
+  // Group units for display
   const grouped = useMemo(() => {
     const map = new Map();
     units.forEach((u) => {
@@ -127,10 +137,7 @@ export default function SplitByItemScreen({
               {paidIds.length} of {units.length} items paid
             </span>
             <span
-              style={{
-                color: tokens.color.fg.success.icon,
-                fontWeight: 600,
-              }}
+              style={{ color: tokens.color.fg.success.icon, fontWeight: 600 }}
             >
               ${paidTotal.toFixed(2)} paid
             </span>
@@ -179,7 +186,12 @@ export default function SplitByItemScreen({
                 >
                   <span>
                     {group.name}{" "}
-                    <span style={{ color: tokens.color.fg.subtle, fontWeight: 400 }}>
+                    <span
+                      style={{
+                        color: tokens.color.fg.subtle,
+                        fontWeight: 400,
+                      }}
+                    >
                       × {group.units.length}
                     </span>
                   </span>
@@ -356,7 +368,7 @@ export default function SplitByItemScreen({
           )}
 
           <button
-            onClick={handlePayRound}
+            onClick={handleCharge}
             disabled={!canCharge}
             style={{
               width: "100%",
@@ -437,32 +449,6 @@ export default function SplitByItemScreen({
           >
             Done — New Order
           </button>
-        </div>
-      )}
-
-      {/* Snackbar */}
-      {showSnackbar !== null && (
-        <div
-          style={{
-            position: "absolute",
-            bottom: 100,
-            left: 16,
-            right: 16,
-            background: tokens.color.bg.brand,
-            color: tokens.color.fg.white,
-            borderRadius: tokens.shape.medium,
-            padding: "14px 16px",
-            display: "flex",
-            alignItems: "center",
-            gap: 10,
-            boxShadow: tokens.elevation.level3,
-            animation: "slideUp 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)",
-            fontSize: tokens.type.bodyMedium.size,
-            fontWeight: 500,
-          }}
-        >
-          <Icon name="check" size={20} color={tokens.color.fg.white} />
-          <span>Payment of ${showSnackbar.toFixed(2)} received</span>
         </div>
       )}
     </div>

@@ -57,6 +57,18 @@ export default function Prototype() {
   // LitePOS feature toggle — when off, show default terminal home
   const [litePosEnabled, setLitePosEnabled] = useState(true);
 
+  // ── Split payment state (persists across navigation to payment-processing) ──
+  // splitByItem: { paidIds: string[] }  — tracks which individual unit IDs are paid
+  // splitEqually: { patronCount, paidCount }  — tracks how many patrons have paid
+  // paymentReturn: screen name to navigate back to after payment-processing completes
+  // paymentAmount: the amount being charged in the current payment round
+  const [splitState, setSplitState] = useState({
+    byItem: { paidIds: [] },
+    equally: { patronCount: 2, paidCount: 0 },
+    returnTo: null,
+    amount: null,
+  });
+
   const historyRef = useRef(["home"]);
 
   const navigate = useCallback(
@@ -103,10 +115,18 @@ export default function Prototype() {
     scan: <ScanScreen navigate={navigate} basket={basket} setBasket={setBasket} products={catalogueEnabled ? products : []} goBack={goBack} />,
     "import-scan": <ScanScreen navigate={navigate} basket={basket} setBasket={setBasket} products={[]} mode="import" goBack={goBack} />,
     "import-products": <ImportProductsScreen navigate={navigate} goBack={goBack} />,
-    payment: <PaymentScreen navigate={navigate} goBack={goBack} basket={basket} />,
-    "split-by-item": <SplitByItemScreen navigate={navigate} goBack={goBack} basket={basket} setBasket={setBasket} />,
-    "split-equally": <SplitEquallyScreen navigate={navigate} goBack={goBack} basket={basket} setBasket={setBasket} />,
-    "payment-processing": <PaymentProcessingScreen navigate={navigate} basket={basket} setBasket={setBasket} />,
+    payment: <PaymentScreen navigate={navigate} goBack={goBack} basket={basket} onSelectSplit={(type) => {
+      // Reset split state when starting a new split
+      if (type === "split-by-item") {
+        setSplitState(s => ({ ...s, byItem: { paidIds: [] }, returnTo: null, amount: null }));
+      } else if (type === "split-equally") {
+        setSplitState(s => ({ ...s, equally: { patronCount: 2, paidCount: 0 }, returnTo: null, amount: null }));
+      }
+      navigate(type);
+    }} />,
+    "split-by-item": <SplitByItemScreen navigate={navigate} goBack={goBack} basket={basket} setBasket={setBasket} splitState={splitState} setSplitState={setSplitState} />,
+    "split-equally": <SplitEquallyScreen navigate={navigate} goBack={goBack} basket={basket} setBasket={setBasket} splitState={splitState} setSplitState={setSplitState} />,
+    "payment-processing": <PaymentProcessingScreen navigate={navigate} basket={basket} setBasket={setBasket} splitState={splitState} setSplitState={setSplitState} />,
   };
 
   return (
@@ -197,6 +217,7 @@ export default function Prototype() {
               historyRef.current = ["home"];
               setCatalogueEnabled(true);
               setLitePosEnabled(true);
+              setSplitState({ byItem: { paidIds: [] }, equally: { patronCount: 2, paidCount: 0 }, returnTo: null, amount: null });
             }}
             style={{
               width: "100%",

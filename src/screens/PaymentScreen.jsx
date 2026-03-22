@@ -4,7 +4,7 @@ import Icon from "../components/Icon";
 
 // ── CBA Smart Hospitality–inspired payment option selector ─────────────
 // Three prominent cards: Pay in Full, Split by Item, Split Equally
-export default function PaymentScreen({ navigate, goBack, basket = [] }) {
+export default function PaymentScreen({ navigate, goBack, basket = [], onSelectSplit }) {
   const total = basket.reduce((s, b) => s + b.price * b.qty, 0);
 
   const options = [
@@ -117,7 +117,13 @@ export default function PaymentScreen({ navigate, goBack, basket = [] }) {
         {options.map((opt) => (
           <button
             key={opt.key}
-            onClick={() => navigate(opt.target)}
+            onClick={() => {
+              if (opt.key === "split-item" || opt.key === "split-equal") {
+                onSelectSplit?.(opt.target);
+              } else {
+                navigate(opt.target);
+              }
+            }}
             style={{
               display: "flex",
               alignItems: "center",
