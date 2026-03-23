@@ -28,6 +28,7 @@ const iconPaths = {
   "expand-more": "M16.59 8.59L12 13.17 7.41 8.59 6 10l6 6 6-6z",
   error: "M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z",
   flash: "M7 2v11h3v9l7-12h-4l4-8z",
+  tune: "M3 17v2h6v-2H3zM3 5v2h10V5H3zm10 16v-2h8v-2h-8v-2h-2v6h2zM7 9v2H3v2h4v2h2V9H7zm14 4v-2H11v2h10zm-6-4h2V7h4V5h-4V3h-2v6z",
 };
 
 export default function Icon({ name, size = 24, color = tokens.color.fg.emphasis }) {

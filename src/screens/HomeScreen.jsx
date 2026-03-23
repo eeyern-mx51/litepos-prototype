@@ -130,7 +130,7 @@ export default function HomeScreen({ navigate, basket, setBasket, products = [] 
             boxShadow: "none",
           }}
         >
-          <Icon name="settings" size={20} color={tokens.color.fg.brand} />
+          <Icon name="tune" size={20} color={tokens.color.fg.brand} />
           <span
             style={{
               fontSize: tokens.type.labelLarge.size,

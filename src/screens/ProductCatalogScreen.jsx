@@ -415,7 +415,7 @@ export default function ProductCatalogScreen({ navigate, goBack, products = [], 
             <div style={{ height: 80 }} /> {/* FAB clearance */}
           </>
         ) : (
-          /* ═══ EMPTY — skeleton cards + prompt ═══ */
+          /* ═══ EMPTY — example row + skeleton cards + prompt ═══ */
           <div style={{ padding: "8px 16px 80px" }}>
             {/* Descriptor */}
             <div style={{ padding: "12px 0 16px", textAlign: "center" }}>
@@ -437,14 +437,69 @@ export default function ProductCatalogScreen({ navigate, goBack, products = [], 
               </div>
             </div>
 
-            {/* Skeleton product cards */}
+            {/* Product list with example + skeletons */}
             <div style={{
               background: tokens.color.bg.page,
               borderRadius: tokens.shape.expressiveLarge,
               border: `1px solid ${tokens.color.border.onpage}`,
               overflow: "hidden",
             }}>
-              {[0, 1, 2, 3, 4].map((i) => (
+              {/* ── Example row — realistic but clearly illustrative ── */}
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 12,
+                  padding: "12px 16px",
+                  borderBottom: `1px solid ${tokens.color.border.onpage}`,
+                  position: "relative",
+                }}
+              >
+                {/* Example product thumbnail */}
+                <div
+                  style={{
+                    width: 44, height: 44, borderRadius: tokens.shape.medium,
+                    background: `linear-gradient(135deg, ${tokens.color.bg.action.primary.default}18, ${tokens.color.bg.action.primary.default}30)`,
+                    display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0,
+                    border: `1px dashed ${tokens.color.fg.brand}40`,
+                  }}
+                >
+                  <span style={{ fontSize: 20 }}>☕</span>
+                </div>
+                {/* Example text */}
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{
+                    fontSize: tokens.type.bodyMedium.size, fontWeight: 500,
+                    color: tokens.color.fg.emphasis,
+                  }}>
+                    Flat White
+                  </div>
+                  <div style={{ fontSize: tokens.type.bodySmall.size, color: tokens.color.fg.subtle, marginTop: 1 }}>
+                    $4.50  ·  Drinks
+                  </div>
+                </div>
+                <div style={{ display: "flex", alignItems: "center", gap: 6, flexShrink: 0 }}>
+                  <Icon name="favorite" size={16} color={tokens.color.fg.error?.icon || "#E53935"} />
+                  <Icon name="chevron" size={20} color={tokens.color.fg.subtle} />
+                </div>
+                {/* "Example" badge */}
+                <div style={{
+                  position: "absolute",
+                  top: 4,
+                  right: 8,
+                  fontSize: 9,
+                  fontWeight: 700,
+                  letterSpacing: "0.5px",
+                  textTransform: "uppercase",
+                  color: tokens.color.fg.brand,
+                  opacity: 0.5,
+                }}>
+                  example
+                </div>
+              </div>
+
+              {/* ── Skeleton rows ── */}
+              {[0, 1, 2, 3].map((i) => (
                 <div
                   key={i}
                   style={{
@@ -452,10 +507,10 @@ export default function ProductCatalogScreen({ navigate, goBack, products = [], 
                     alignItems: "center",
                     gap: 12,
                     padding: "12px 16px",
-                    borderBottom: i < 4 ? `1px solid ${tokens.color.border.onpage}` : "none",
+                    borderBottom: i < 3 ? `1px solid ${tokens.color.border.onpage}` : "none",
+                    opacity: 1 - i * 0.15,
                   }}
                 >
-                  {/* Skeleton image */}
                   <div
                     style={{
                       width: 44, height: 44, borderRadius: tokens.shape.medium,
@@ -463,14 +518,13 @@ export default function ProductCatalogScreen({ navigate, goBack, products = [], 
                       flexShrink: 0,
                     }}
                   />
-                  {/* Skeleton text lines */}
                   <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: 6 }}>
                     <div
                       style={{
                         height: 12,
                         borderRadius: 6,
                         background: tokens.color.bg.surface,
-                        width: `${55 + (i * 13) % 35}%`,
+                        width: `${55 + (i * 17) % 35}%`,
                       }}
                     />
                     <div
@@ -478,11 +532,10 @@ export default function ProductCatalogScreen({ navigate, goBack, products = [], 
                         height: 10,
                         borderRadius: 5,
                         background: tokens.color.bg.surface,
-                        width: `${30 + (i * 7) % 20}%`,
+                        width: `${30 + (i * 11) % 20}%`,
                       }}
                     />
                   </div>
-                  {/* Skeleton chevron */}
                   <div
                     style={{
                       width: 20, height: 20, borderRadius: tokens.shape.full,
