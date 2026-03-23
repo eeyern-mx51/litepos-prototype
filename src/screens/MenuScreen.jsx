@@ -12,15 +12,15 @@ export default function MenuScreen({ navigate, goBack }) {
         background: tokens.color.bg.brand,
       }}
     >
-      <TopAppBar title="Menu" variant="small" theme="dark" onBack={goBack} />
+      <TopAppBar title="Menu" variant="large" theme="dark" onBack={goBack} />
       <div
         style={{
           flex: 1,
           overflow: "auto",
-          padding: 16,
+          padding: "8px 20px 20px",
           display: "flex",
           flexDirection: "column",
-          gap: 12,
+          gap: 14,
           alignContent: "start",
         }}
       >

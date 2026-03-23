@@ -28,7 +28,7 @@ export default function TopAppBar({ title, subtitle, onBack, actions = [], varia
               onClick={onBack}
               style={{
                 background: "none",
-                border: "none",
+                border: isDark ? `2px solid rgba(255,255,255,0.5)` : "none",
                 cursor: "pointer",
                 width: 48,
                 height: 48,

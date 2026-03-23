@@ -7,18 +7,18 @@ export default function NavCard({ icon, label, onClick }) {
       onClick={onClick}
       style={{
         width: "100%",
-        minHeight: 96,
-        borderRadius: tokens.shape.large,
+        minHeight: 88,
+        borderRadius: tokens.shape.expressiveLarge,
         background: tokens.color.fg.white,
         border: "none",
         cursor: "pointer",
         display: "flex",
-        flexDirection: "column",
+        flexDirection: "row",
         alignItems: "center",
-        justifyContent: "center",
-        gap: 12,
-        padding: 16,
-        boxShadow: tokens.elevation.level1,
+        gap: 16,
+        padding: "0 24px",
+        boxShadow: "none",
+        fontFamily: "inherit",
         transition: `all ${tokens.motion.duration.short4} ${tokens.motion.easing.standard}`,
       }}
     >
@@ -31,16 +31,17 @@ export default function NavCard({ icon, label, onClick }) {
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
+          flexShrink: 0,
         }}
       >
-        <Icon name={icon} size={24} color={tokens.color.fg.brand} />
+        <Icon name={icon} size={22} color={tokens.color.fg.brand} />
       </div>
       <span
         style={{
-          fontSize: tokens.type.labelLarge.size,
-          fontWeight: 600,
-          color: tokens.color.fg.emphasis,
-          textAlign: "center",
+          fontSize: tokens.type.titleSmall.size,
+          fontWeight: 500,
+          color: tokens.color.fg.brand,
+          textAlign: "left",
         }}
       >
         {label}
