@@ -162,21 +162,18 @@ export default function LitePOSSettingsScreen({ navigate, goBack, litePosEnabled
         <SectionLabel label="Product catalogue" />
         <SettingsCard>
           <ListItem
-            leading={<Icon name="store" color={tokens.color.fg.brand} />}
             headline="Manage Products"
             supporting="Add, edit and organise your catalogue"
             trailing={<Icon name="chevron" color={tokens.color.fg.subtle} />}
             onClick={() => navigate("product-catalog")}
           />
           <ListItem
-            leading={<Icon name="qr" color={tokens.color.fg.brand} />}
             headline="Import Products"
             supporting="Bulk import via QR from Connect Express"
             trailing={<Icon name="chevron" color={tokens.color.fg.subtle} />}
             onClick={() => navigate("import-products")}
           />
           <ListItem
-            leading={<Icon name="scan" color={tokens.color.fg.brand} />}
             headline="Barcode Settings"
             supporting="UPC-A, UPC-E, EAN-13, EAN-8"
             trailing={<Icon name="chevron" color={tokens.color.fg.subtle} />}
@@ -188,13 +185,11 @@ export default function LitePOSSettingsScreen({ navigate, goBack, litePosEnabled
         <SectionLabel label="Receipts" />
         <SettingsCard>
           <ListItem
-            leading={<Icon name="print" color={tokens.color.fg.brand} />}
             headline="Merchant copy — print items"
             supporting="Include basket items on merchant receipt"
             trailing={<Switch checked={merchantReceipt} onChange={setMerchantReceipt} />}
           />
           <ListItem
-            leading={<Icon name="receipt" color={tokens.color.fg.brand} />}
             headline="Customer copy — print items"
             supporting="Include basket items on customer receipt"
             trailing={<Switch checked={customerReceipt} onChange={setCustomerReceipt} />}
