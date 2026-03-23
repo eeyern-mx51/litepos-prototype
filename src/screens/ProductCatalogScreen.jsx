@@ -389,9 +389,14 @@ export default function ProductCatalogScreen({ navigate, goBack, products = [], 
                       width: 44, height: 44, borderRadius: tokens.shape.medium,
                       background: tokens.color.bg.surface,
                       display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0,
+                      overflow: "hidden",
                     }}
                   >
-                    <Icon name="image" size={20} color={tokens.color.border.onsurface} />
+                    {p.image ? (
+                      <img src={p.image} alt={p.name} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                    ) : (
+                      <Icon name="image" size={20} color={tokens.color.border.onsurface} />
+                    )}
                   </div>
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <div style={{

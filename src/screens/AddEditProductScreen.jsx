@@ -153,7 +153,7 @@ export default function AddEditProductScreen({ navigate, goBack, editProduct, pr
   const [upc, setUpc] = useState(editProduct?.upc || "");
   const [category, setCategory] = useState(editProduct?.cat || "");
   const [favourite, setFavourite] = useState(editProduct?.fav || false);
-  const [imagePreview, setImagePreview] = useState(null);
+  const [imagePreview, setImagePreview] = useState(editProduct?.image || null);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const fileInputRef = useRef(null);
 
@@ -192,6 +192,7 @@ export default function AddEditProductScreen({ navigate, goBack, editProduct, pr
     sku: sku.trim(),
     upc: upc.trim(),
     fav: favourite,
+    image: imagePreview || undefined,
   });
 
   const handleSave = (then) => {

@@ -21,30 +21,37 @@ import SplitByItemScreen from "./screens/SplitByItemScreen";
 import SplitEquallyScreen from "./screens/SplitEquallyScreen";
 import PaymentProcessingScreen from "./screens/PaymentProcessingScreen";
 
+// ── Default product image generator ─────────────────────────────────
+// Creates lightweight inline SVG data URIs with an emoji + soft gradient bg
+function makeProductImage(emoji, bgFrom, bgTo) {
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="${bgFrom}"/><stop offset="100%" stop-color="${bgTo}"/></linearGradient></defs><rect width="200" height="200" fill="url(#g)"/><text x="100" y="115" text-anchor="middle" font-size="72">${emoji}</text></svg>`;
+  return `data:image/svg+xml,${encodeURIComponent(svg)}`;
+}
+
 // Sample product catalogue — empty array simulates a new merchant
 const sampleProducts = [
   // Drinks
-  { name: "Flat White", price: "4.50", fav: true, cat: "Drinks" },
-  { name: "Cappuccino", price: "4.80", fav: true, cat: "Drinks" },
-  { name: "Long Black", price: "4.00", fav: false, cat: "Drinks" },
-  { name: "Chai Latte", price: "5.20", fav: false, cat: "Drinks" },
-  { name: "Lemon Squash", price: "3.50", fav: false, cat: "Drinks" },
-  { name: "Matcha Latte", price: "5.80", fav: false, cat: "Drinks" },
-  { name: "Iced Coffee", price: "5.50", fav: true, cat: "Drinks" },
-  { name: "Hot Chocolate", price: "4.50", fav: false, cat: "Drinks" },
-  { name: "Fresh OJ", price: "6.00", fav: false, cat: "Drinks" },
-  { name: "Espresso", price: "3.50", fav: false, cat: "Drinks" },
+  { name: "Flat White", price: "4.50", fav: true, cat: "Drinks", image: makeProductImage("☕", "#F3E5D4", "#E8D5C0") },
+  { name: "Cappuccino", price: "4.80", fav: true, cat: "Drinks", image: makeProductImage("☕", "#EFEBE0", "#E0D6C8") },
+  { name: "Long Black", price: "4.00", fav: false, cat: "Drinks", image: makeProductImage("☕", "#D7CCC8", "#C5B9B1") },
+  { name: "Chai Latte", price: "5.20", fav: false, cat: "Drinks", image: makeProductImage("🍵", "#FFF3E0", "#FFE0B2") },
+  { name: "Lemon Squash", price: "3.50", fav: false, cat: "Drinks", image: makeProductImage("🍋", "#FFF9C4", "#FFF176") },
+  { name: "Matcha Latte", price: "5.80", fav: false, cat: "Drinks", image: makeProductImage("🍵", "#E8F5E9", "#C8E6C9") },
+  { name: "Iced Coffee", price: "5.50", fav: true, cat: "Drinks", image: makeProductImage("🧊", "#E3F2FD", "#BBDEFB") },
+  { name: "Hot Chocolate", price: "4.50", fav: false, cat: "Drinks", image: makeProductImage("🍫", "#D7CCC8", "#BCAAA4") },
+  { name: "Fresh OJ", price: "6.00", fav: false, cat: "Drinks", image: makeProductImage("🍊", "#FFF3E0", "#FFCC80") },
+  { name: "Espresso", price: "3.50", fav: false, cat: "Drinks", image: makeProductImage("☕", "#4E342E", "#6D4C41") },
   // Food
-  { name: "Blueberry Muffin", price: "5.50", fav: true, cat: "Food" },
-  { name: "Banana Bread", price: "6.00", fav: false, cat: "Food" },
-  { name: "Croissant", price: "4.50", fav: false, cat: "Food" },
-  { name: "Avo Toast", price: "14.00", fav: false, cat: "Food" },
-  { name: "Eggs Benny", price: "16.50", fav: true, cat: "Food" },
-  { name: "Acai Bowl", price: "15.00", fav: false, cat: "Food" },
-  { name: "Granola Bowl", price: "12.00", fav: false, cat: "Food" },
-  { name: "BLT Sandwich", price: "11.50", fav: false, cat: "Food" },
-  { name: "Caesar Salad", price: "13.00", fav: false, cat: "Food" },
-  { name: "Chicken Wrap", price: "12.50", fav: true, cat: "Food" },
+  { name: "Blueberry Muffin", price: "5.50", fav: true, cat: "Food", image: makeProductImage("🫐", "#E8EAF6", "#C5CAE9") },
+  { name: "Banana Bread", price: "6.00", fav: false, cat: "Food", image: makeProductImage("🍌", "#FFF8E1", "#FFECB3") },
+  { name: "Croissant", price: "4.50", fav: false, cat: "Food", image: makeProductImage("🥐", "#FFF3E0", "#FFE0B2") },
+  { name: "Avo Toast", price: "14.00", fav: false, cat: "Food", image: makeProductImage("🥑", "#E8F5E9", "#C8E6C9") },
+  { name: "Eggs Benny", price: "16.50", fav: true, cat: "Food", image: makeProductImage("🍳", "#FFFDE7", "#FFF9C4") },
+  { name: "Acai Bowl", price: "15.00", fav: false, cat: "Food", image: makeProductImage("🫐", "#EDE7F6", "#D1C4E9") },
+  { name: "Granola Bowl", price: "12.00", fav: false, cat: "Food", image: makeProductImage("🥣", "#FFF8E1", "#FFE082") },
+  { name: "BLT Sandwich", price: "11.50", fav: false, cat: "Food", image: makeProductImage("🥪", "#FBE9E7", "#FFCCBC") },
+  { name: "Caesar Salad", price: "13.00", fav: false, cat: "Food", image: makeProductImage("🥗", "#E8F5E9", "#A5D6A7") },
+  { name: "Chicken Wrap", price: "12.50", fav: true, cat: "Food", image: makeProductImage("🌯", "#FFF3E0", "#FFE0B2") },
 ];
 
 export default function Prototype() {

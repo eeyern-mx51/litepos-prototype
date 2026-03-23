@@ -1,7 +1,7 @@
 import tokens from "../theme/tokens";
 import Icon from "./Icon";
 
-export default function ProductCard({ name, price, isFav, onClick }) {
+export default function ProductCard({ name, price, isFav, image, onClick }) {
   return (
     <div
       onClick={onClick}
@@ -22,9 +22,14 @@ export default function ProductCard({ name, price, isFav, onClick }) {
           alignItems: "center",
           justifyContent: "center",
           position: "relative",
+          overflow: "hidden",
         }}
       >
-        <Icon name="image" size={32} color={tokens.color.border.onsurface} />
+        {image ? (
+          <img src={image} alt={name} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+        ) : (
+          <Icon name="image" size={32} color={tokens.color.border.onsurface} />
+        )}
         {isFav && (
           <div style={{ position: "absolute", top: 8, right: 8 }}>
             <Icon name="favorite" size={16} color={tokens.color.fg.error.icon} />
