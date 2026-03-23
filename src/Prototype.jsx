@@ -69,10 +69,9 @@ export default function Prototype() {
     amount: null,
   });
 
-  // ── Mobile detection & triple-tap to reveal demo controls ──
+  // ── Mobile detection & 3-finger tap to reveal demo controls ──
   const [isMobile, setIsMobile] = useState(() => window.innerWidth <= 500);
   const [showMobileControls, setShowMobileControls] = useState(false);
-  const tapTimestamps = useRef([]);
 
   useEffect(() => {
     const mq = window.matchMedia("(max-width: 500px)");
@@ -81,18 +80,11 @@ export default function Prototype() {
     return () => mq.removeEventListener("change", handler);
   }, []);
 
-  const handleTripleTap = useCallback(() => {
-    const now = Date.now();
-    tapTimestamps.current.push(now);
-    // Keep only the last 3 taps
-    if (tapTimestamps.current.length > 3) tapTimestamps.current.shift();
-    // Check if 3 taps happened within 600ms
-    if (tapTimestamps.current.length === 3) {
-      const span = tapTimestamps.current[2] - tapTimestamps.current[0];
-      if (span < 600) {
-        setShowMobileControls((v) => !v);
-        tapTimestamps.current = [];
-      }
+  // Three-finger simultaneous touch toggles controls
+  const handleTouchStart = useCallback((e) => {
+    if (e.touches.length >= 3) {
+      e.preventDefault();
+      setShowMobileControls((v) => !v);
     }
   }, []);
 
@@ -227,13 +219,15 @@ export default function Prototype() {
         gap: 16,
         padding: isMobile ? 0 : "20px 0",
         minHeight: isMobile ? "100dvh" : undefined,
+        width: isMobile ? "100%" : undefined,
       }}
     >
       {/* ── Device frame ──────────────────────────────── */}
       <div
-        onClick={isMobile ? handleTripleTap : undefined}
+        onTouchStart={isMobile ? handleTouchStart : undefined}
         style={{
           width: isMobile ? "100%" : 393,
+          flex: isMobile ? 1 : undefined,
           height: isMobile ? "100dvh" : 852,
           borderRadius: isMobile ? 0 : 4,
           overflow: "hidden",
@@ -323,7 +317,7 @@ export default function Prototype() {
               </button>
               {demoControlsContent}
               <div style={{ fontSize: 10, color: "#9CA0AF", textAlign: "center", marginTop: 2 }}>
-                Triple-tap to toggle · Tap outside to close
+                3-finger tap to toggle · Tap outside to close
               </div>
             </div>
             <style>

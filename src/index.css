@@ -41,9 +41,12 @@ html, body {
   html, body {
     background: #fff;
     align-items: stretch;
+    width: 100%;
   }
   #root {
     align-items: stretch;
+    flex-direction: column;
+    width: 100%;
   }
 }
 
