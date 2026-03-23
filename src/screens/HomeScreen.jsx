@@ -138,7 +138,7 @@ export default function HomeScreen({ navigate, basket, setBasket, products = [] 
               color: tokens.color.fg.brand,
             }}
           >
-            Settings
+            LitePOS
           </span>
         </button>
       </div>

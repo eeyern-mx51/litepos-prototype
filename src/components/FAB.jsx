@@ -15,7 +15,7 @@ export default function FAB({ icon, label, onClick, variant = "primary" }) {
       onClick={onClick}
       style={{
         position: "absolute",
-        bottom: 96,
+        bottom: 24,
         right: 16,
         height: 56,
         minWidth: 56,

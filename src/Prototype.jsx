@@ -69,8 +69,11 @@ export default function Prototype() {
     amount: null,
   });
 
-  // ── Mobile detection & 3-finger tap to reveal demo controls ──
+  // ── Mobile & standalone PWA detection ──
   const [isMobile, setIsMobile] = useState(() => window.innerWidth <= 500);
+  const [isStandalone] = useState(() =>
+    window.matchMedia("(display-mode: standalone)").matches || window.navigator.standalone === true
+  );
   const [showMobileControls, setShowMobileControls] = useState(false);
 
   useEffect(() => {
@@ -218,7 +221,8 @@ export default function Prototype() {
         alignItems: isMobile ? "stretch" : "flex-start",
         gap: 16,
         padding: isMobile ? 0 : "20px 0",
-        minHeight: isMobile ? "100dvh" : undefined,
+        minHeight: isMobile ? (isStandalone ? "100%" : "100dvh") : undefined,
+        height: isStandalone ? "100%" : undefined,
         width: isMobile ? "100%" : undefined,
       }}
     >
@@ -228,7 +232,7 @@ export default function Prototype() {
         style={{
           width: isMobile ? "100%" : 393,
           flex: isMobile ? 1 : undefined,
-          height: isMobile ? "100dvh" : 852,
+          height: isMobile ? (isStandalone ? "100%" : "100dvh") : 852,
           borderRadius: isMobile ? 0 : 4,
           overflow: "hidden",
           background: tokens.color.bg.page,
