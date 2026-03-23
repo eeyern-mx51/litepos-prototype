@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Flow 4 — Split Equally</title>
+<style>
+  body { margin: 0; padding: 32px; background: #fff; display: flex; justify-content: center; align-items: flex-start; }
+  svg { display: block; }
+</style>
+</head>
+<body>
+<svg width="700" height="140" viewBox="0 0 700 140" xmlns="http://www.w3.org/2000/svg">
+  <!-- Loop label -->
+  <text x="430" y="18" font-size="9" fill="#6B7084" font-family="Figtree, Inter, sans-serif" font-weight="600">Repeat for each patron</text>
+  <!-- Loop dashed path -->
+  <path d="M 640 50 Q 640 10 410 10 Q 220 10 220 50" fill="none" stroke="#E0E0E4" stroke-width="1" stroke-dasharray="4,3"/>
+  <polygon points="220,50 216,42 224,42" fill="#E0E0E4"/>
+
+  <!-- Payment Options (start) -->
+  <rect x="0" y="50" width="130" height="40" rx="20" fill="#1A7B6F" stroke="#1A7B6F" stroke-width="1.5"/>
+  <text x="65" y="74" text-anchor="middle" font-size="11" font-weight="700" fill="#fff" font-family="Figtree, Inter, sans-serif">Payment Options</text>
+  <!-- Arrow -->
+  <line x1="130" y1="70" x2="161" y2="70" stroke="#E0E0E4" stroke-width="1.5"/>
+  <polygon points="165,70 159,66 159,74" fill="#E0E0E4"/>
+  <!-- Split Equally -->
+  <rect x="165" y="50" width="110" height="40" rx="8" fill="#fff" stroke="#E0E0E4" stroke-width="1.5"/>
+  <text x="220" y="74" text-anchor="middle" font-size="11" font-weight="500" fill="#212638" font-family="Figtree, Inter, sans-serif">Split Equally</text>
+  <!-- Arrow -->
+  <line x1="275" y1="70" x2="306" y2="70" stroke="#E0E0E4" stroke-width="1.5"/>
+  <polygon points="310,70 304,66 304,74" fill="#E0E0E4"/>
+  <!-- Set # Patrons (action) -->
+  <rect x="310" y="50" width="110" height="40" rx="8" fill="#1A7B6F15" stroke="#1A7B6F" stroke-width="1.5"/>
+  <text x="365" y="74" text-anchor="middle" font-size="11" font-weight="500" fill="#212638" font-family="Figtree, Inter, sans-serif">Set # Patrons</text>
+  <!-- Arrow -->
+  <line x1="420" y1="70" x2="451" y2="70" stroke="#E0E0E4" stroke-width="1.5"/>
+  <polygon points="455,70 449,66 449,74" fill="#E0E0E4"/>
+  <!-- Tap to Pay -->
+  <rect x="455" y="50" width="100" height="40" rx="8" fill="#fff" stroke="#E0E0E4" stroke-width="1.5"/>
+  <text x="505" y="74" text-anchor="middle" font-size="11" font-weight="500" fill="#212638" font-family="Figtree, Inter, sans-serif">Tap to Pay</text>
+  <!-- Arrow -->
+  <line x1="555" y1="70" x2="586" y2="70" stroke="#E0E0E4" stroke-width="1.5"/>
+  <polygon points="590,70 584,66 584,74" fill="#E0E0E4"/>
+  <!-- Approved (end) -->
+  <rect x="590" y="50" width="100" height="40" rx="20" fill="#1A7B6F" stroke="#1A7B6F" stroke-width="1.5"/>
+  <text x="640" y="74" text-anchor="middle" font-size="11" font-weight="700" fill="#fff" font-family="Figtree, Inter, sans-serif">Approved</text>
+</svg>
+</body>
+</html>

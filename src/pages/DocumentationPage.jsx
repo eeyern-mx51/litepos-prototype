@@ -199,7 +199,7 @@ function FlowArrow({ x1, y1, x2, y2, label, bend }) {
   );
 }
 
-function FlowchartContainer({ children, width = 700, height = 300, title }) {
+function FlowchartContainer({ children, width = 700, height = 300, title, exportFile }) {
   return (
     <div style={{
       background: tokens.color.bg.surface,
@@ -208,6 +208,7 @@ function FlowchartContainer({ children, width = 700, height = 300, title }) {
       padding: "20px 16px",
       marginBottom: 24,
       overflowX: "auto",
+      position: "relative",
     }}>
       {title && (
         <div style={{
@@ -220,6 +221,35 @@ function FlowchartContainer({ children, width = 700, height = 300, title }) {
         }}>
           {title}
         </div>
+      )}
+      {exportFile && (
+        <a
+          href={`/flowcharts/${exportFile}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          style={{
+            position: "absolute",
+            top: 14,
+            right: 16,
+            display: "flex",
+            alignItems: "center",
+            gap: 5,
+            fontSize: tokens.type.labelSmall.size,
+            fontWeight: 600,
+            color: tokens.color.fg.brand,
+            textDecoration: "none",
+            padding: "4px 10px",
+            borderRadius: tokens.shape.full,
+            background: `${tokens.color.fg.brand}0A`,
+            border: `1px solid ${tokens.color.fg.brand}22`,
+            transition: "background 0.15s",
+          }}
+          onMouseEnter={(e) => e.currentTarget.style.background = `${tokens.color.fg.brand}18`}
+          onMouseLeave={(e) => e.currentTarget.style.background = `${tokens.color.fg.brand}0A`}
+        >
+          <svg width={12} height={12} viewBox="0 0 24 24" fill="currentColor"><path d="M19 19H5V5h7V3H5a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7h-2v7zM14 3v2h3.59l-9.83 9.83 1.41 1.41L19 6.41V10h2V3h-7z"/></svg>
+          Open SVG for Figma
+        </a>
       )}
       <svg width={width} height={height} viewBox={`0 0 ${width} ${height}`} style={{ display: "block", margin: "0 auto" }}>
         {children}
@@ -367,7 +397,7 @@ export default function DocumentationPage() {
             Merchant navigates to the LitePOS settings page and toggles the feature on. The home screen immediately switches from the default MXA terminal home to the product-first LitePOS experience.
           </p>
 
-          <FlowchartContainer width={680} height={80} title="Flowchart">
+          <FlowchartContainer width={680} height={80} title="Flowchart" exportFile="flow1-enable-litepos.html">
             <FlowNode x={0} y={20} label="Home" type="start" width={100} />
             <FlowArrow x1={100} y1={40} x2={140} y2={40} />
             <FlowNode x={140} y={20} label="Menu" width={100} />
@@ -392,7 +422,7 @@ export default function DocumentationPage() {
             Before processing transactions via product selection, the merchant sets up their catalogue with products, categories, and photos.
           </p>
 
-          <FlowchartContainer width={750} height={200} title="Flowchart — Add Product">
+          <FlowchartContainer width={750} height={200} title="Flowchart — Add Product" exportFile="flow2-add-product.html">
             <FlowNode x={0} y={20} label="LitePOS Settings" type="start" width={130} />
             <FlowArrow x1={130} y1={40} x2={170} y2={40} />
             <FlowNode x={170} y={20} label="Manage Products" width={130} />
@@ -409,7 +439,7 @@ export default function DocumentationPage() {
             <FlowNode x={540} y={152} label="Save Product" type="end" width={110} />
           </FlowchartContainer>
 
-          <FlowchartContainer width={680} height={100} title="Flowchart — Import Product">
+          <FlowchartContainer width={680} height={100} title="Flowchart — Import Product" exportFile="flow2-import-product.html">
             <FlowNode x={0} y={30} label="LitePOS Settings" type="start" width={130} />
             <FlowArrow x1={130} y1={50} x2={160} y2={50} />
             <FlowNode x={160} y={30} label="Import Products" width={120} />
@@ -439,7 +469,7 @@ export default function DocumentationPage() {
             Three entry modes for creating a transaction: product selection from the grid, barcode scanning, or manual amount entry via keypad.
           </p>
 
-          <FlowchartContainer width={750} height={260} title="Flowchart — Transaction Flow">
+          <FlowchartContainer width={750} height={260} title="Flowchart — Transaction Flow" exportFile="flow3-transaction.html">
             {/* Start */}
             <FlowNode x={310} y={0} label="Home" type="start" width={100} />
             {/* Three branches */}
@@ -465,7 +495,7 @@ export default function DocumentationPage() {
             <FlowNode x={280} y={210} label="Payment Options" type="decision" width={160} height={46} />
           </FlowchartContainer>
 
-          <FlowchartContainer width={700} height={120} title="Flowchart — Payment Methods">
+          <FlowchartContainer width={700} height={120} title="Flowchart — Payment Methods" exportFile="flow3-payment-methods.html">
             <FlowNode x={250} y={0} label="Payment Options" type="decision" width={160} height={46} />
             {/* Three payment paths */}
             <FlowArrow x1={250} y1={23} x2={60} y2={80} />
@@ -504,7 +534,7 @@ export default function DocumentationPage() {
             Two split payment modes allow merchants to divide a transaction across multiple patrons.
           </p>
 
-          <FlowchartContainer width={700} height={140} title="Flowchart — Split by Item">
+          <FlowchartContainer width={700} height={140} title="Flowchart — Split by Item" exportFile="flow4-split-by-item.html">
             <FlowNode x={0} y={50} label="Payment Options" type="start" width={130} />
             <FlowArrow x1={130} y1={70} x2={165} y2={70} />
             <FlowNode x={165} y={50} label="Split by Item" width={110} />
@@ -520,7 +550,7 @@ export default function DocumentationPage() {
             <polygon points="220,50 216,42 224,42" fill={FC.border} />
           </FlowchartContainer>
 
-          <FlowchartContainer width={700} height={140} title="Flowchart — Split Equally">
+          <FlowchartContainer width={700} height={140} title="Flowchart — Split Equally" exportFile="flow4-split-equally.html">
             <FlowNode x={0} y={50} label="Payment Options" type="start" width={130} />
             <FlowArrow x1={130} y1={70} x2={165} y2={70} />
             <FlowNode x={165} y={50} label="Split Equally" width={110} />
@@ -564,7 +594,7 @@ export default function DocumentationPage() {
             Transaction history and reporting are accessed from the Menu screen.
           </p>
 
-          <FlowchartContainer width={560} height={80} title="Flowchart">
+          <FlowchartContainer width={560} height={80} title="Flowchart" exportFile="flow6-history-reporting.html">
             <FlowNode x={0} y={20} label="Home" type="start" width={80} />
             <FlowArrow x1={80} y1={40} x2={110} y2={40} />
             <FlowNode x={110} y={20} label="Menu" width={80} />
