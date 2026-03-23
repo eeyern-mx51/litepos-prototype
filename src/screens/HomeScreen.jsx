@@ -70,33 +70,25 @@ export default function HomeScreen({ navigate, basket, setBasket, products = [] 
           gap: 8,
         }}
       >
-        {/* Menu pill */}
+        {/* Menu button */}
         <button
           onClick={() => navigate("menu")}
           style={{
+            width: 44,
             height: 44,
-            borderRadius: tokens.shape.full,
+            borderRadius: "50%",
             border: "none",
             background: tokens.color.fg.white,
             cursor: "pointer",
             display: "flex",
             alignItems: "center",
-            gap: 8,
-            padding: "0 18px 0 12px",
-            fontFamily: "inherit",
+            justifyContent: "center",
+            padding: 0,
+            flexShrink: 0,
             boxShadow: "none",
           }}
         >
           <Icon name="menu" size={20} color={tokens.color.fg.brand} />
-          <span
-            style={{
-              fontSize: tokens.type.labelLarge.size,
-              fontWeight: 600,
-              color: tokens.color.fg.brand,
-            }}
-          >
-            Menu
-          </span>
         </button>
 
         {/* Center: mx51 wordmark logo */}
@@ -124,33 +116,25 @@ export default function HomeScreen({ navigate, basket, setBasket, products = [] 
           </svg>
         </div>
 
-        {/* Settings pill */}
+        {/* LitePOS settings button */}
         <button
           onClick={() => navigate("litepos-settings")}
           style={{
+            width: 44,
             height: 44,
-            borderRadius: tokens.shape.full,
+            borderRadius: "50%",
             border: "none",
             background: tokens.color.fg.white,
             cursor: "pointer",
             display: "flex",
             alignItems: "center",
-            gap: 8,
-            padding: "0 18px 0 12px",
-            fontFamily: "inherit",
+            justifyContent: "center",
+            padding: 0,
+            flexShrink: 0,
             boxShadow: "none",
           }}
         >
           <Icon name="tune" size={20} color={tokens.color.fg.brand} />
-          <span
-            style={{
-              fontSize: tokens.type.labelLarge.size,
-              fontWeight: 600,
-              color: tokens.color.fg.brand,
-            }}
-          >
-            LitePOS
-          </span>
         </button>
       </div>
 
@@ -375,7 +359,7 @@ export default function HomeScreen({ navigate, basket, setBasket, products = [] 
               </div>
             )}
             {filtered.map((p, i) => (
-              <ProductCard key={i} name={p.name} price={p.price} isFav={p.fav} image={p.image} onClick={() => handleAdd(p)} />
+              <ProductCard key={i} name={p.name} price={p.price} isFav={p.fav} image={p.image} emoji={p.emoji} emojiBg={p.emojiBg} onClick={() => handleAdd(p)} />
             ))}
           </div>
         ) : (

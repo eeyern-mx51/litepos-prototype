@@ -1,7 +1,7 @@
 import tokens from "../theme/tokens";
 import Icon from "./Icon";
 
-export default function ProductCard({ name, price, isFav, image, onClick }) {
+export default function ProductCard({ name, price, isFav, image, emoji, emojiBg, onClick }) {
   return (
     <div
       onClick={onClick}
@@ -17,7 +17,7 @@ export default function ProductCard({ name, price, isFav, image, onClick }) {
       <div
         style={{
           height: 96,
-          background: tokens.color.bg.surface,
+          background: image ? tokens.color.bg.surface : emojiBg || tokens.color.bg.surface,
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
@@ -27,6 +27,8 @@ export default function ProductCard({ name, price, isFav, image, onClick }) {
       >
         {image ? (
           <img src={image} alt={name} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+        ) : emoji ? (
+          <span style={{ fontSize: 40, lineHeight: 1 }}>{emoji}</span>
         ) : (
           <Icon name="image" size={32} color={tokens.color.border.onsurface} />
         )}

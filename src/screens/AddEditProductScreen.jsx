@@ -193,6 +193,9 @@ export default function AddEditProductScreen({ navigate, goBack, editProduct, pr
     upc: upc.trim(),
     fav: favourite,
     image: imagePreview || undefined,
+    // Preserve default emoji visual from sample products
+    emoji: editProduct?.emoji,
+    emojiBg: editProduct?.emojiBg,
   });
 
   const handleSave = (then) => {
@@ -293,8 +296,8 @@ export default function AddEditProductScreen({ navigate, goBack, editProduct, pr
           style={{ display: "none" }}
         />
         <div style={{ padding: "12px 16px" }}>
-          {imagePreview ? (
-            /* ── Image preview ──────────────────────────── */
+          {(imagePreview || editProduct?.emoji) ? (
+            /* ── Image / emoji preview ──────────────────── */
             <div style={{ position: "relative" }}>
               <div
                 style={{
@@ -303,18 +306,25 @@ export default function AddEditProductScreen({ navigate, goBack, editProduct, pr
                   maxHeight: 200,
                   borderRadius: tokens.shape.expressiveLarge,
                   overflow: "hidden",
-                  background: tokens.color.bg.page,
+                  background: imagePreview ? tokens.color.bg.page : editProduct?.emojiBg || tokens.color.bg.surface,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
                 }}
               >
-                <img
-                  src={imagePreview}
-                  alt="Product"
-                  style={{
-                    width: "100%",
-                    height: "100%",
-                    objectFit: "cover",
-                  }}
-                />
+                {imagePreview ? (
+                  <img
+                    src={imagePreview}
+                    alt="Product"
+                    style={{
+                      width: "100%",
+                      height: "100%",
+                      objectFit: "cover",
+                    }}
+                  />
+                ) : (
+                  <span style={{ fontSize: 72, lineHeight: 1 }}>{editProduct.emoji}</span>
+                )}
               </div>
               {/* Action buttons overlay */}
               <div
