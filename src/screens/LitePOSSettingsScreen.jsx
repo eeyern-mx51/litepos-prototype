@@ -105,57 +105,14 @@ export default function LitePOSSettingsScreen({ navigate, goBack, litePosEnabled
       <TopAppBar title="LitePOS" onBack={goBack} theme="light" />
       <div style={{ flex: 1, overflow: "auto", paddingBottom: 32 }}>
 
-        {/* ── Hero: Feature Toggle Card ─────────────────────────── */}
-        <div style={{ padding: "12px 16px 4px" }}>
-          <div
-            style={{
-              background: tokens.color.bg.page,
-              borderRadius: tokens.shape.expressiveLarge,
-              border: `1px solid ${enabled ? tokens.color.border.action.default : tokens.color.border.onpage}`,
-              padding: "20px",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "space-between",
-              gap: 16,
-              transition: `all ${tokens.motion.duration.medium2} ${tokens.motion.easing.standard}`,
-            }}
-          >
-            <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
-              <div
-                style={{
-                  width: 44,
-                  height: 44,
-                  borderRadius: tokens.shape.large,
-                  background: enabled
-                    ? `${tokens.color.fg.brand}15`
-                    : tokens.color.bg.surface,
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  transition: `all ${tokens.motion.duration.short4} ${tokens.motion.easing.standard}`,
-                }}
-              >
-                <Icon
-                  name="store"
-                  size={24}
-                  color={enabled ? tokens.color.fg.brand : tokens.color.fg.disable}
-                />
-              </div>
-              <div>
-                <div
-                  style={{
-                    fontSize: tokens.type.titleMedium.size,
-                    fontWeight: 600,
-                    color: tokens.color.fg.emphasis,
-                  }}
-                >
-                  LitePOS
-                </div>
-                <StatusPill active={enabled} />
-              </div>
-            </div>
-            <Switch checked={enabled} onChange={setEnabled} />
-          </div>
+        {/* ── LitePOS toggle ────────────────────────────────────── */}
+        <div style={{ padding: "8px 0 0" }}>
+          <ListItem
+            headline="LitePOS"
+            supporting={enabled ? "Enabled" : "Disabled"}
+            trailing={<Switch checked={enabled} onChange={setEnabled} />}
+            divider={false}
+          />
         </div>
 
         {/* ── Product Catalogue ──────────────────────────────────── */}
