@@ -98,27 +98,6 @@ export default function OrderBar({ itemCount = 0, total = 0, onCharge }) {
     );
   }
 
-  // ── Idle state: terminal info strip ─────────────────────────────
-  return (
-    <div
-      style={{
-        height: 40,
-        background: tokens.color.bg.statusbar,
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "space-between",
-        padding: "0 16px",
-        fontSize: tokens.type.labelSmall.size,
-        color: tokens.color.fg.white,
-        fontWeight: 500,
-        transition: `all ${tokens.motion.duration.medium2} ${tokens.motion.easing.standard}`,
-      }}
-    >
-      <div style={{ display: "flex", gap: 16 }}>
-        <span>STANDALONE</span>
-        <span>Front counter</span>
-      </div>
-      <span style={{ fontSize: tokens.type.labelSmall.size }}>Powered by mx51</span>
-    </div>
-  );
+  // ── Idle state: nothing (footer SVG handles terminal identity) ──
+  return null;
 }
