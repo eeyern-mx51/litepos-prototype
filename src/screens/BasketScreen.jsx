@@ -35,7 +35,7 @@ export default function BasketScreen({ navigate, goBack, basket, setBasket }) {
   };
 
   return (
-    <div style={{ flex: 1, display: "flex", flexDirection: "column", background: tokens.color.bg.page }}>
+    <div style={{ flex: 1, display: "flex", flexDirection: "column", background: tokens.color.bg.page, position: "relative" }}>
       <TopAppBar
         title="Basket"
         onBack={goBack}
@@ -74,51 +74,26 @@ export default function BasketScreen({ navigate, goBack, basket, setBasket }) {
             >
               {/* Item info */}
               <div style={{ flex: 1, minWidth: 0 }}>
-                {editingIndex === i ? (
-                  <input
-                    autoFocus
-                    value={editName}
-                    onChange={(e) => setEditName(e.target.value)}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter") finishEditing();
-                      if (e.key === "Escape") { setEditingIndex(null); setEditName(""); }
-                    }}
-                    onBlur={finishEditing}
-                    style={{
-                      fontSize: tokens.type.bodyLarge.size,
-                      fontWeight: 500,
-                      color: tokens.color.fg.emphasis,
-                      border: "none",
-                      borderBottom: `2px solid ${tokens.color.fg.brand}`,
-                      outline: "none",
-                      background: "transparent",
-                      fontFamily: "inherit",
-                      padding: "2px 0",
-                      width: "100%",
-                    }}
-                  />
-                ) : (
-                  <div
-                    onClick={item.manual ? (e) => { e.stopPropagation(); startEditing(i); } : undefined}
-                    style={{
-                      fontSize: tokens.type.bodyLarge.size,
-                      fontWeight: 500,
-                      color: tokens.color.fg.emphasis,
-                      whiteSpace: "nowrap",
-                      overflow: "hidden",
-                      textOverflow: "ellipsis",
-                      display: "flex",
-                      alignItems: "center",
-                      gap: 6,
-                      cursor: item.manual ? "pointer" : "default",
-                    }}
-                  >
-                    {item.name}
-                    {item.manual && (
-                      <Icon name="edit" size={14} color={tokens.color.fg.subtle} />
-                    )}
-                  </div>
-                )}
+                <div
+                  onClick={item.manual ? (e) => { e.stopPropagation(); startEditing(i); } : undefined}
+                  style={{
+                    fontSize: tokens.type.bodyLarge.size,
+                    fontWeight: 500,
+                    color: tokens.color.fg.emphasis,
+                    whiteSpace: "nowrap",
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 6,
+                    cursor: item.manual ? "pointer" : "default",
+                  }}
+                >
+                  {item.name}
+                  {item.manual && (
+                    <Icon name="edit" size={14} color={tokens.color.fg.subtle} />
+                  )}
+                </div>
                 <div style={{
                   fontSize: tokens.type.bodySmall.size,
                   color: tokens.color.fg.subtle,
@@ -235,6 +210,119 @@ export default function BasketScreen({ navigate, goBack, basket, setBasket }) {
             Proceed to Payment
           </button>
         </div>
+      )}
+
+      {/* ── Rename dialog for manual entries ──────────── */}
+      {editingIndex !== null && (
+        <>
+          <div
+            onClick={() => { setEditingIndex(null); setEditName(""); }}
+            style={{
+              position: "absolute",
+              inset: 0,
+              background: "rgba(0,0,0,0.45)",
+              zIndex: 50,
+            }}
+          />
+          <div
+            style={{
+              position: "absolute",
+              top: "50%",
+              left: "50%",
+              transform: "translate(-50%, -50%)",
+              width: "calc(100% - 48px)",
+              background: tokens.color.bg.page,
+              borderRadius: tokens.shape.expressiveLarge,
+              padding: "24px",
+              zIndex: 51,
+              boxShadow: tokens.elevation.level3,
+            }}
+          >
+            <div
+              style={{
+                fontSize: tokens.type.titleLarge.size,
+                fontWeight: tokens.type.titleLarge.weight,
+                color: tokens.color.fg.emphasis,
+              }}
+            >
+              Rename item
+            </div>
+            <div
+              style={{
+                fontSize: tokens.type.bodySmall.size,
+                color: tokens.color.fg.subtle,
+                marginTop: 4,
+                marginBottom: 16,
+              }}
+            >
+              ${basket[editingIndex]?.price.toFixed(2)} each
+            </div>
+            <input
+              autoFocus
+              value={editName}
+              onChange={(e) => setEditName(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") finishEditing();
+                if (e.key === "Escape") { setEditingIndex(null); setEditName(""); }
+              }}
+              placeholder="Item name"
+              style={{
+                width: "100%",
+                fontSize: tokens.type.bodyLarge.size,
+                color: tokens.color.fg.emphasis,
+                border: "none",
+                borderBottom: `2px solid ${tokens.color.fg.brand}`,
+                outline: "none",
+                background: "transparent",
+                fontFamily: "inherit",
+                padding: "8px 0",
+                boxSizing: "border-box",
+              }}
+            />
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "flex-end",
+                gap: 8,
+                marginTop: 24,
+              }}
+            >
+              <button
+                onClick={() => { setEditingIndex(null); setEditName(""); }}
+                style={{
+                  padding: "10px 20px",
+                  borderRadius: tokens.shape.full,
+                  border: "none",
+                  background: "transparent",
+                  cursor: "pointer",
+                  fontSize: tokens.type.labelLarge.size,
+                  fontWeight: 600,
+                  color: tokens.color.fg.brand,
+                  fontFamily: "inherit",
+                }}
+              >
+                Cancel
+              </button>
+              <button
+                onClick={finishEditing}
+                disabled={!editName.trim()}
+                style={{
+                  padding: "10px 20px",
+                  borderRadius: tokens.shape.full,
+                  border: "none",
+                  background: editName.trim() ? tokens.color.bg.action.primary.default : tokens.color.bg.action.primary.disable,
+                  cursor: editName.trim() ? "pointer" : "not-allowed",
+                  fontSize: tokens.type.labelLarge.size,
+                  fontWeight: 600,
+                  color: tokens.color.fg.onAction,
+                  fontFamily: "inherit",
+                }}
+              >
+                Save
+              </button>
+            </div>
+          </div>
+        </>
       )}
     </div>
   );
