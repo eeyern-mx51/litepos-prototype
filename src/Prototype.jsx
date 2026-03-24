@@ -124,7 +124,7 @@ export default function Prototype() {
 
   const screens = {
     home: litePosEnabled
-      ? <HomeScreen navigate={navigate} basket={basket} setBasket={setBasket} products={catalogueEnabled ? products : []} />
+      ? <HomeScreen navigate={navigate} basket={basket} setBasket={setBasket} products={catalogueEnabled ? products : []} setProducts={setProducts} />
       : <DefaultHomeScreen navigate={navigate} />,
     keypad: <KeypadScreen navigate={navigate} goBack={goBack} basket={basket} setBasket={setBasket} />,
     basket: <BasketScreen navigate={navigate} goBack={goBack} basket={basket} setBasket={setBasket} />,

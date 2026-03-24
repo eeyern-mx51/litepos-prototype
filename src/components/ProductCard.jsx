@@ -1,7 +1,7 @@
 import tokens from "../theme/tokens";
 import Icon from "./Icon";
 
-export default function ProductCard({ name, price, isFav, image, emoji, emojiBg, onClick }) {
+export default function ProductCard({ name, price, isFav, image, emoji, emojiBg, onClick, onToggleFav }) {
   return (
     <div
       onClick={onClick}
@@ -32,11 +32,30 @@ export default function ProductCard({ name, price, isFav, image, emoji, emojiBg,
         ) : (
           <Icon name="image" size={32} color={tokens.color.border.onsurface} />
         )}
-        {isFav && (
-          <div style={{ position: "absolute", top: 8, right: 8 }}>
-            <Icon name="favorite" size={16} color={tokens.color.fg.error.icon} />
-          </div>
-        )}
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            onToggleFav?.();
+          }}
+          style={{
+            position: "absolute",
+            top: 6,
+            right: 6,
+            width: 28,
+            height: 28,
+            borderRadius: "50%",
+            border: "none",
+            background: isFav ? "rgba(255,255,255,0.95)" : "rgba(0,0,0,0.25)",
+            cursor: "pointer",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            padding: 0,
+            transition: "background 0.15s ease",
+          }}
+        >
+          <Icon name={isFav ? "favorite" : "favorite_border"} size={16} color={isFav ? tokens.color.fg.error.icon : "#fff"} />
+        </button>
       </div>
       <div style={{ padding: "8px 12px 12px" }}>
         <div

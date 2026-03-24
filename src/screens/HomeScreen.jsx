@@ -5,7 +5,7 @@ import ProductCard from "../components/ProductCard";
 import Icon from "../components/Icon";
 
 
-export default function HomeScreen({ navigate, basket, setBasket, products = [] }) {
+export default function HomeScreen({ navigate, basket, setBasket, products = [], setProducts }) {
   const [activeFilter, setActiveFilter] = useState("Favourites");
   const [searchQuery, setSearchQuery] = useState("");
   const [searchActive, setSearchActive] = useState(false);
@@ -14,6 +14,14 @@ export default function HomeScreen({ navigate, basket, setBasket, products = [] 
 
   const hasProducts = products.length > 0;
   const categoryList = ["Favourites", ...new Set(products.map((p) => p.cat)), "All Items"];
+
+  const toggleFav = (productName) => {
+    if (setProducts) {
+      setProducts(products.map((p) =>
+        p.name === productName ? { ...p, fav: !p.fav } : p
+      ));
+    }
+  };
 
   const handleAdd = (p) => {
     const existing = basket.find((b) => b.name === p.name);
@@ -359,7 +367,7 @@ export default function HomeScreen({ navigate, basket, setBasket, products = [] 
               </div>
             )}
             {filtered.map((p, i) => (
-              <ProductCard key={i} name={p.name} price={p.price} isFav={p.fav} image={p.image} emoji={p.emoji} emojiBg={p.emojiBg} onClick={() => handleAdd(p)} />
+              <ProductCard key={i} name={p.name} price={p.price} isFav={p.fav} image={p.image} emoji={p.emoji} emojiBg={p.emojiBg} onClick={() => handleAdd(p)} onToggleFav={() => toggleFav(p.name)} />
             ))}
           </div>
         ) : (
