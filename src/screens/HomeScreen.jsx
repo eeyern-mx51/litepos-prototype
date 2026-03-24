@@ -6,14 +6,15 @@ import Icon from "../components/Icon";
 
 
 export default function HomeScreen({ navigate, basket, setBasket, products = [], setProducts }) {
-  const [activeFilter, setActiveFilter] = useState("Favourites");
+  const [activeFilter, setActiveFilter] = useState("All Items");
   const [searchQuery, setSearchQuery] = useState("");
   const [searchActive, setSearchActive] = useState(false);
   const [sheetOpen, setSheetOpen] = useState(false);
   const searchRef = useRef(null);
 
   const hasProducts = products.length > 0;
-  const categoryList = ["Favourites", ...new Set(products.map((p) => p.cat)), "All Items"];
+  const categories = [...new Set(products.map((p) => p.cat))].sort((a, b) => a.localeCompare(b));
+  const categoryList = ["All Items", "Favourites", ...categories];
 
   const toggleFav = (productName) => {
     if (setProducts) {
