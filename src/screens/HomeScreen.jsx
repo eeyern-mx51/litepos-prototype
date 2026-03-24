@@ -15,6 +15,11 @@ export default function HomeScreen({ navigate, basket, setBasket, products = [],
   const hasProducts = products.length > 0;
   const categories = [...new Set(products.map((p) => p.cat))].sort((a, b) => a.localeCompare(b));
   const categoryList = ["All Items", "Favourites", ...categories];
+  const MAX_VISIBLE_CHIPS = 5;
+  const visibleChips = categoryList.slice(0, MAX_VISIBLE_CHIPS);
+  const overflowChips = categoryList.slice(MAX_VISIBLE_CHIPS);
+  const hasOverflow = overflowChips.length > 0;
+  const activeIsOverflow = overflowChips.includes(activeFilter);
 
   const toggleFav = (productName) => {
     if (setProducts) {
@@ -221,32 +226,77 @@ export default function HomeScreen({ navigate, basket, setBasket, products = [],
               </button>
             </div>
           ) : (
-            /* ── Default: Category chip + search icon ── */
+            /* ── Default: Horizontal category chips + search icon ── */
             <>
-              <button
-                onClick={() => setSheetOpen(true)}
+              <div
                 style={{
-                  display: "flex", alignItems: "center", gap: 4,
-                  background: "transparent", border: "none", cursor: "pointer",
-                  padding: "8px 0",
+                  flex: 1,
+                  display: "flex",
+                  gap: 8,
+                  overflow: "auto",
+                  scrollbarWidth: "none",
+                  msOverflowStyle: "none",
+                  minWidth: 0,
                 }}
               >
-                <span style={{
-                  fontSize: tokens.type.titleSmall.size,
-                  fontWeight: 600,
-                  color: tokens.color.fg.brand,
-                }}>
-                  {activeFilter}
-                </span>
-                <Icon name="expand-more" size={20} color={tokens.color.fg.brand} />
-              </button>
-              <div style={{ flex: 1 }} />
+                {visibleChips.map((cat) => {
+                  const isActive = cat === activeFilter;
+                  return (
+                    <button
+                      key={cat}
+                      onClick={() => setActiveFilter(cat)}
+                      style={{
+                        flexShrink: 0,
+                        padding: "8px 16px",
+                        borderRadius: tokens.shape.full,
+                        border: `1.5px solid ${isActive ? tokens.color.fg.brand : tokens.color.border.onpage}`,
+                        background: isActive ? tokens.color.bg.action.primary.default : tokens.color.bg.page,
+                        color: isActive ? tokens.color.fg.onAction : tokens.color.fg.emphasis,
+                        fontSize: tokens.type.labelLarge.size,
+                        fontWeight: 600,
+                        fontFamily: "inherit",
+                        cursor: "pointer",
+                        transition: `all ${tokens.motion.duration.short2} ${tokens.motion.easing.standard}`,
+                        whiteSpace: "nowrap",
+                      }}
+                    >
+                      {cat}
+                    </button>
+                  );
+                })}
+                {hasOverflow && (
+                  <button
+                    onClick={() => setSheetOpen(true)}
+                    style={{
+                      flexShrink: 0,
+                      padding: "8px 14px",
+                      borderRadius: tokens.shape.full,
+                      border: `1.5px solid ${activeIsOverflow ? tokens.color.fg.brand : tokens.color.border.onpage}`,
+                      background: activeIsOverflow ? tokens.color.bg.action.primary.default : tokens.color.bg.page,
+                      color: activeIsOverflow ? tokens.color.fg.onAction : tokens.color.fg.subtle,
+                      fontSize: tokens.type.labelLarge.size,
+                      fontWeight: 600,
+                      fontFamily: "inherit",
+                      cursor: "pointer",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 4,
+                      whiteSpace: "nowrap",
+                      transition: `all ${tokens.motion.duration.short2} ${tokens.motion.easing.standard}`,
+                    }}
+                  >
+                    {activeIsOverflow ? activeFilter : "More"}
+                    <Icon name="expand-more" size={16} color={activeIsOverflow ? tokens.color.fg.onAction : tokens.color.fg.subtle} />
+                  </button>
+                )}
+              </div>
               <button
                 onClick={openSearch}
                 style={{
-                  width: 44, height: 44, borderRadius: tokens.shape.full, border: "none",
+                  width: 40, height: 40, borderRadius: tokens.shape.full, border: "none",
                   background: "transparent", cursor: "pointer",
                   display: "flex", alignItems: "center", justifyContent: "center",
+                  flexShrink: 0,
                 }}
               >
                 <Icon name="search" size={22} color={tokens.color.fg.subtle} />
@@ -479,12 +529,12 @@ export default function HomeScreen({ navigate, basket, setBasket, products = [],
                 color: tokens.color.fg.emphasis,
               }}
             >
-              Filter by category
+              More categories
             </div>
 
-            {/* Scrollable category list */}
+            {/* Overflow category list */}
             <div style={{ flex: 1, overflow: "auto", minHeight: 0 }}>
-              {categoryList.map((cat) => {
+              {overflowChips.map((cat) => {
                 const isActive = cat === activeFilter;
                 const count =
                   cat === "Favourites"
