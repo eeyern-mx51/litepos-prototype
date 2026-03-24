@@ -1,3 +1,4 @@
+import { useState } from "react";
 import tokens from "../theme/tokens";
 import TopAppBar from "../components/TopAppBar";
 import ListItem from "../components/ListItem";
@@ -5,6 +6,33 @@ import Icon from "../components/Icon";
 
 export default function BasketScreen({ navigate, goBack, basket, setBasket }) {
   const total = basket.reduce((s, b) => s + b.price * b.qty, 0);
+  const [editingIndex, setEditingIndex] = useState(null);
+  const [editName, setEditName] = useState("");
+
+  const startEditing = (index) => {
+    setEditingIndex(index);
+    setEditName(basket[index].name);
+  };
+
+  const finishEditing = () => {
+    if (editingIndex !== null && editName.trim()) {
+      setBasket(basket.map((b, i) => i === editingIndex ? { ...b, name: editName.trim() } : b));
+    }
+    setEditingIndex(null);
+    setEditName("");
+  };
+
+  const increment = (name) => {
+    setBasket(basket.map((b) => b.name === name ? { ...b, qty: b.qty + 1 } : b));
+  };
+
+  const decrement = (name) => {
+    setBasket(
+      basket
+        .map((b) => b.name === name ? { ...b, qty: b.qty - 1 } : b)
+        .filter((b) => b.qty > 0)
+    );
+  };
 
   return (
     <div style={{ flex: 1, display: "flex", flexDirection: "column", background: tokens.color.bg.page }}>
@@ -34,22 +62,144 @@ export default function BasketScreen({ navigate, goBack, basket, setBasket }) {
           </div>
         ) : (
           basket.map((item, i) => (
-            <ListItem
+            <div
               key={i}
-              headline={item.name}
-              supporting={`Qty: ${item.qty}`}
-              trailing={
-                <span
+              style={{
+                display: "flex",
+                alignItems: "center",
+                padding: "12px 16px",
+                gap: 12,
+                borderBottom: i < basket.length - 1 ? `1px solid ${tokens.color.border.onpage}` : "none",
+              }}
+            >
+              {/* Item info */}
+              <div style={{ flex: 1, minWidth: 0 }}>
+                {editingIndex === i ? (
+                  <input
+                    autoFocus
+                    value={editName}
+                    onChange={(e) => setEditName(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") finishEditing();
+                      if (e.key === "Escape") { setEditingIndex(null); setEditName(""); }
+                    }}
+                    onBlur={finishEditing}
+                    style={{
+                      fontSize: tokens.type.bodyLarge.size,
+                      fontWeight: 500,
+                      color: tokens.color.fg.emphasis,
+                      border: "none",
+                      borderBottom: `2px solid ${tokens.color.fg.brand}`,
+                      outline: "none",
+                      background: "transparent",
+                      fontFamily: "inherit",
+                      padding: "2px 0",
+                      width: "100%",
+                    }}
+                  />
+                ) : (
+                  <div
+                    onClick={item.manual ? (e) => { e.stopPropagation(); startEditing(i); } : undefined}
+                    style={{
+                      fontSize: tokens.type.bodyLarge.size,
+                      fontWeight: 500,
+                      color: tokens.color.fg.emphasis,
+                      whiteSpace: "nowrap",
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 6,
+                      cursor: item.manual ? "pointer" : "default",
+                    }}
+                  >
+                    {item.name}
+                    {item.manual && (
+                      <Icon name="edit" size={14} color={tokens.color.fg.subtle} />
+                    )}
+                  </div>
+                )}
+                <div style={{
+                  fontSize: tokens.type.bodySmall.size,
+                  color: tokens.color.fg.subtle,
+                  marginTop: 2,
+                }}>
+                  ${item.price.toFixed(2)} each
+                </div>
+              </div>
+
+              {/* Quantity stepper */}
+              <div style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 0,
+                flexShrink: 0,
+              }}>
+                <button
+                  onClick={() => decrement(item.name)}
                   style={{
-                    fontSize: tokens.type.titleMedium.size,
-                    fontWeight: 600,
-                    color: tokens.color.fg.brand,
+                    width: 36,
+                    height: 36,
+                    borderRadius: "50%",
+                    border: `1.5px solid ${tokens.color.border.onpage}`,
+                    background: tokens.color.bg.page,
+                    cursor: "pointer",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    padding: 0,
+                    transition: "background 0.1s ease",
                   }}
                 >
-                  ${(item.price * item.qty).toFixed(2)}
+                  {item.qty === 1 ? (
+                    <Icon name="delete" size={16} color={tokens.color.fg.error.icon} />
+                  ) : (
+                    <svg width={16} height={16} viewBox="0 0 24 24" fill={tokens.color.fg.emphasis}>
+                      <path d="M19 13H5v-2h14v2z" />
+                    </svg>
+                  )}
+                </button>
+                <span style={{
+                  width: 36,
+                  textAlign: "center",
+                  fontSize: tokens.type.titleMedium.size,
+                  fontWeight: 600,
+                  color: tokens.color.fg.emphasis,
+                }}>
+                  {item.qty}
                 </span>
-              }
-            />
+                <button
+                  onClick={() => increment(item.name)}
+                  style={{
+                    width: 36,
+                    height: 36,
+                    borderRadius: "50%",
+                    border: `1.5px solid ${tokens.color.border.onpage}`,
+                    background: tokens.color.bg.page,
+                    cursor: "pointer",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    padding: 0,
+                    transition: "background 0.1s ease",
+                  }}
+                >
+                  <Icon name="add" size={16} color={tokens.color.fg.emphasis} />
+                </button>
+              </div>
+
+              {/* Line total */}
+              <span style={{
+                fontSize: tokens.type.titleMedium.size,
+                fontWeight: 600,
+                color: tokens.color.fg.brand,
+                minWidth: 60,
+                textAlign: "right",
+                flexShrink: 0,
+              }}>
+                ${(item.price * item.qty).toFixed(2)}
+              </span>
+            </div>
           ))
         )}
       </div>

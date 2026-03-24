@@ -117,11 +117,6 @@ export default function LitePOSSettingsScreen({ navigate, goBack }) {
             supporting="Bulk import via QR from Connect Express"
             trailing={<Icon name="chevron" color={tokens.color.fg.subtle} />}
             onClick={() => navigate("import-products")}
-          />
-          <ListItem
-            headline="Barcode Settings"
-            supporting="UPC-A, UPC-E, EAN-13, EAN-8"
-            trailing={<Icon name="chevron" color={tokens.color.fg.subtle} />}
             divider={false}
           />
         </SettingsCard>
