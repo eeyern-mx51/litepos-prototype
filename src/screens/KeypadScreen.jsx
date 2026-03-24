@@ -3,6 +3,7 @@ import tokens from "../theme/tokens";
 import TopAppBar from "../components/TopAppBar";
 import Card from "../components/Card";
 import Icon from "../components/Icon";
+import InputBadge from "../components/InputBadge";
 
 /**
  * Keypad Manual Entry Screen
@@ -21,7 +22,7 @@ function formatAmount(cents) {
   return (cents / 100).toFixed(2);
 }
 
-export default function KeypadScreen({ navigate, goBack, basket, setBasket }) {
+export default function KeypadScreen({ navigate, goBack, basket, setBasket, keyboardType = "onscreen" }) {
   const [cents, setCents] = useState(0);
   const [description, setDescription] = useState("");
 
@@ -77,6 +78,10 @@ export default function KeypadScreen({ navigate, goBack, basket, setBasket }) {
             flexShrink: 0,
           }}
         >
+          {/* Input method badges */}
+          <div style={{ display: "flex", gap: 6, flexWrap: "wrap", justifyContent: "center" }}>
+            <InputBadge keyboardType={keyboardType} inputType="numeric" />
+          </div>
           <div
             style={{
               display: "flex",
@@ -106,6 +111,9 @@ export default function KeypadScreen({ navigate, goBack, basket, setBasket }) {
             </span>
           </div>
 
+          <div style={{ display: "flex", justifyContent: "center" }}>
+            <InputBadge keyboardType={keyboardType} inputType="alpha" />
+          </div>
           <input
             value={description}
             onChange={(e) => setDescription(e.target.value)}
@@ -128,6 +136,11 @@ export default function KeypadScreen({ navigate, goBack, basket, setBasket }) {
         </div>
 
         {/* ── Keypad grid ───────────────────────────────────────── */}
+        {keyboardType === "physical" && (
+          <div style={{ textAlign: "center", padding: "4px 32px 0", fontSize: 10, fontWeight: 600, color: "#1B8A4E", letterSpacing: "0.2px" }}>
+            Mapped to hardware numeric keypad
+          </div>
+        )}
         <div style={{ flex: 1, display: "flex", flexDirection: "column", justifyContent: "center", padding: "8px 32px" }}>
           <div
             style={{

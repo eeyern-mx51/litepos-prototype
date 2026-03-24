@@ -3,8 +3,9 @@ import tokens from "../theme/tokens";
 import TopAppBar from "../components/TopAppBar";
 import ListItem from "../components/ListItem";
 import Icon from "../components/Icon";
+import InputBadge from "../components/InputBadge";
 
-export default function BasketScreen({ navigate, goBack, basket, setBasket }) {
+export default function BasketScreen({ navigate, goBack, basket, setBasket, keyboardType = "onscreen" }) {
   const total = basket.reduce((s, b) => s + b.price * b.qty, 0);
   const [editingIndex, setEditingIndex] = useState(null);
   const [editName, setEditName] = useState("");
@@ -279,12 +280,15 @@ export default function BasketScreen({ navigate, goBack, basket, setBasket }) {
                 boxSizing: "border-box",
               }}
             />
+            <div style={{ marginTop: 8 }}>
+              <InputBadge keyboardType={keyboardType} inputType="alpha" />
+            </div>
             <div
               style={{
                 display: "flex",
                 justifyContent: "flex-end",
                 gap: 8,
-                marginTop: 24,
+                marginTop: 16,
               }}
             >
               <button

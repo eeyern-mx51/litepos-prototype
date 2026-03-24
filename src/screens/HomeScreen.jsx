@@ -3,9 +3,10 @@ import tokens from "../theme/tokens";
 import OrderBar from "../components/OrderBar";
 import ProductCard from "../components/ProductCard";
 import Icon from "../components/Icon";
+import InputBadge from "../components/InputBadge";
 
 
-export default function HomeScreen({ navigate, basket, setBasket, products = [], setProducts }) {
+export default function HomeScreen({ navigate, basket, setBasket, products = [], setProducts, keyboardType = "onscreen" }) {
   const [activeFilter, setActiveFilter] = useState("All Items");
   const [searchQuery, setSearchQuery] = useState("");
   const [searchActive, setSearchActive] = useState(false);
@@ -206,17 +207,20 @@ export default function HomeScreen({ navigate, basket, setBasket, products = [],
               >
                 <Icon name="back" size={20} color={tokens.color.fg.subtle} />
               </button>
-              <input
-                ref={searchRef}
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search all products..."
-                style={{
-                  flex: 1, border: "none", outline: "none", background: "transparent",
-                  fontSize: tokens.type.bodyLarge.size, color: tokens.color.fg.emphasis,
-                  fontFamily: "inherit", padding: 0, height: "100%",
-                }}
-              />
+              <div style={{ flex: 1, display: "flex", flexDirection: "column", justifyContent: "center", gap: 2 }}>
+                <input
+                  ref={searchRef}
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Search all products..."
+                  style={{
+                    width: "100%", border: "none", outline: "none", background: "transparent",
+                    fontSize: tokens.type.bodyLarge.size, color: tokens.color.fg.emphasis,
+                    fontFamily: "inherit", padding: 0,
+                  }}
+                />
+                {!searchQuery && <InputBadge keyboardType={keyboardType} inputType="alpha" />}
+              </div>
               {searchQuery ? (
                 <button
                   onClick={() => { setSearchQuery(""); searchRef.current?.focus(); }}

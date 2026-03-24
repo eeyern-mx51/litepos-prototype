@@ -3,6 +3,7 @@ import tokens from "../theme/tokens";
 import TopAppBar from "../components/TopAppBar";
 import Icon from "../components/Icon";
 import Switch from "../components/Switch";
+import InputBadge from "../components/InputBadge";
 
 /**
  * Add / Edit Product Screen
@@ -55,7 +56,7 @@ function SectionLabel({ label }) {
   );
 }
 
-function TextField({ label, value, onChange, placeholder, multiline, trailing, required }) {
+function TextField({ label, value, onChange, placeholder, multiline, trailing, required, badge }) {
   const Tag = multiline ? "textarea" : "input";
   return (
     <div style={{ padding: "12px 16px", borderBottom: `1px solid ${tokens.color.border.onpage}` }}>
@@ -65,10 +66,14 @@ function TextField({ label, value, onChange, placeholder, multiline, trailing, r
             fontSize: tokens.type.labelMedium.size,
             fontWeight: 600,
             color: tokens.color.fg.subtle,
+            display: "flex",
+            alignItems: "center",
+            gap: 8,
           }}
         >
           {label}
           {required && <span style={{ color: tokens.color.fg.error.text, marginLeft: 2 }}>*</span>}
+          {badge}
         </label>
         {trailing}
       </div>
@@ -94,7 +99,7 @@ function TextField({ label, value, onChange, placeholder, multiline, trailing, r
   );
 }
 
-function PriceField({ value, onChange }) {
+function PriceField({ value, onChange, badge }) {
   return (
     <div style={{ padding: "12px 16px", borderBottom: `1px solid ${tokens.color.border.onpage}` }}>
       <label
@@ -102,11 +107,14 @@ function PriceField({ value, onChange }) {
           fontSize: tokens.type.labelMedium.size,
           fontWeight: 600,
           color: tokens.color.fg.subtle,
-          display: "block",
+          display: "flex",
+          alignItems: "center",
+          gap: 8,
           marginBottom: 6,
         }}
       >
         Price <span style={{ color: tokens.color.fg.error.text }}>*</span>
+        {badge}
       </label>
       <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
         <span
@@ -143,7 +151,7 @@ function PriceField({ value, onChange }) {
 
 // ── Main screen ───────────────────────────────────────────────────────
 
-export default function AddEditProductScreen({ navigate, goBack, editProduct, products = [], setProducts }) {
+export default function AddEditProductScreen({ navigate, goBack, editProduct, products = [], setProducts, keyboardType = "onscreen" }) {
   const isEdit = !!editProduct && !editProduct?.imported;
   const isImport = !!editProduct?.imported;
   const [name, setName] = useState(editProduct?.name || "");
@@ -476,8 +484,9 @@ export default function AddEditProductScreen({ navigate, goBack, editProduct, pr
             onChange={setName}
             placeholder="e.g. Flat White"
             required
+            badge={<InputBadge keyboardType={keyboardType} inputType="alpha" />}
           />
-          <PriceField value={price} onChange={setPrice} />
+          <PriceField value={price} onChange={setPrice} badge={<InputBadge keyboardType={keyboardType} inputType="numeric" />} />
 
           {/* ── Category field (bottom sheet trigger) ──── */}
           <button
@@ -528,6 +537,7 @@ export default function AddEditProductScreen({ navigate, goBack, editProduct, pr
             onChange={setDescription}
             placeholder="Optional — 500 chars max, 30 shown on receipt"
             multiline
+            badge={<InputBadge keyboardType={keyboardType} inputType="alpha" />}
             trailing={
               <span
                 style={{
@@ -549,6 +559,7 @@ export default function AddEditProductScreen({ navigate, goBack, editProduct, pr
             value={sku}
             onChange={setSku}
             placeholder="Optional stock keeping unit"
+            badge={<InputBadge keyboardType={keyboardType} inputType="alpha" />}
           />
           <div style={{ borderBottom: `1px solid ${tokens.color.border.onpage}` }}>
             <div style={{ padding: "12px 16px" }}>
@@ -558,9 +569,13 @@ export default function AddEditProductScreen({ navigate, goBack, editProduct, pr
                     fontSize: tokens.type.labelMedium.size,
                     fontWeight: 600,
                     color: tokens.color.fg.subtle,
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 8,
                   }}
                 >
                   UPC / Barcode
+                  <InputBadge keyboardType={keyboardType} inputType="numeric" />
                 </label>
                 <button
                   style={{

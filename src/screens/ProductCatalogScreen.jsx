@@ -3,6 +3,7 @@ import tokens from "../theme/tokens";
 import TopAppBar from "../components/TopAppBar";
 import FAB from "../components/FAB";
 import Icon from "../components/Icon";
+import InputBadge from "../components/InputBadge";
 
 /**
  * ProductCatalogScreen
@@ -17,7 +18,7 @@ import Icon from "../components/Icon";
  * Top bar: back arrow (left) · "Products" title · close ✕ (right, goes home).
  */
 
-export default function ProductCatalogScreen({ navigate, goBack, products = [], setProducts }) {
+export default function ProductCatalogScreen({ navigate, goBack, products = [], setProducts, keyboardType = "onscreen" }) {
   const hasProducts = products.length > 0;
 
   // Categories are always derived from products — no separate state needed.
@@ -151,27 +152,30 @@ export default function ProductCatalogScreen({ navigate, goBack, products = [], 
                         }}
                       >
                         {isRenaming ? (
-                          <input
-                            autoFocus
-                            value={renamingCat.name}
-                            onChange={(e) => setRenamingCat({ index: i, name: e.target.value })}
-                            onKeyDown={(e) => {
-                              if (e.key === "Enter") handleRenameCategory(i, renamingCat.name);
-                              if (e.key === "Escape") setRenamingCat(null);
-                            }}
-                            onBlur={() => handleRenameCategory(i, renamingCat.name)}
-                            style={{
-                              flex: 1,
-                              fontSize: tokens.type.bodyMedium.size,
-                              color: tokens.color.fg.emphasis,
-                              border: "none",
-                              outline: "none",
-                              background: "transparent",
-                              fontFamily: "inherit",
-                              fontWeight: 500,
-                              padding: 0,
-                            }}
-                          />
+                          <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: 4 }}>
+                            <input
+                              autoFocus
+                              value={renamingCat.name}
+                              onChange={(e) => setRenamingCat({ index: i, name: e.target.value })}
+                              onKeyDown={(e) => {
+                                if (e.key === "Enter") handleRenameCategory(i, renamingCat.name);
+                                if (e.key === "Escape") setRenamingCat(null);
+                              }}
+                              onBlur={() => handleRenameCategory(i, renamingCat.name)}
+                              style={{
+                                width: "100%",
+                                fontSize: tokens.type.bodyMedium.size,
+                                color: tokens.color.fg.emphasis,
+                                border: "none",
+                                outline: "none",
+                                background: "transparent",
+                                fontFamily: "inherit",
+                                fontWeight: 500,
+                                padding: 0,
+                              }}
+                            />
+                            <InputBadge keyboardType={keyboardType} inputType="alpha" />
+                          </div>
                         ) : (
                           <div style={{ flex: 1, minWidth: 0 }}>
                             <span style={{

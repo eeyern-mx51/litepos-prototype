@@ -57,6 +57,8 @@ export default function Prototype() {
   const [catalogueEnabled, setCatalogueEnabled] = useState(true);
   // Home screen mode — "litepos" | "simple" | "tiles" | "keypad"
   const [homeScreenMode, setHomeScreenMode] = useState("litepos");
+  // Terminal keyboard type — "onscreen" (full touch QWERTY) | "physical" (numeric-only hardware buttons)
+  const [keyboardType, setKeyboardType] = useState("onscreen");
 
   // ── Split payment state (persists across navigation to payment-processing) ──
   // splitByItem: { paidIds: string[] }  — tracks which individual unit IDs are paid
@@ -124,15 +126,15 @@ export default function Prototype() {
 
   const screens = {
     home: homeScreenMode === "litepos"
-      ? <HomeScreen navigate={navigate} basket={basket} setBasket={setBasket} products={catalogueEnabled ? products : []} setProducts={setProducts} />
+      ? <HomeScreen navigate={navigate} basket={basket} setBasket={setBasket} products={catalogueEnabled ? products : []} setProducts={setProducts} keyboardType={keyboardType} />
       : <DefaultHomeScreen navigate={navigate} mode={homeScreenMode} />,
-    keypad: <KeypadScreen navigate={navigate} goBack={goBack} basket={basket} setBasket={setBasket} />,
-    basket: <BasketScreen navigate={navigate} goBack={goBack} basket={basket} setBasket={setBasket} />,
+    keypad: <KeypadScreen navigate={navigate} goBack={goBack} basket={basket} setBasket={setBasket} keyboardType={keyboardType} />,
+    basket: <BasketScreen navigate={navigate} goBack={goBack} basket={basket} setBasket={setBasket} keyboardType={keyboardType} />,
     menu: <MenuScreen navigate={navigate} goBack={goBack} />,
     settings: <SettingsScreen navigate={navigate} goBack={goBack} homeScreenMode={homeScreenMode} setHomeScreenMode={setHomeScreenMode} />,
     "litepos-settings": <LitePOSSettingsScreen navigate={navigate} goBack={goBack} />,
-    "product-catalog": <ProductCatalogScreen navigate={navigate} goBack={goBack} products={catalogueEnabled ? products : []} setProducts={setProducts} />,
-    "add-product": <AddEditProductScreen navigate={navigate} goBack={goBack} editProduct={editProduct} products={products} setProducts={setProducts} />,
+    "product-catalog": <ProductCatalogScreen navigate={navigate} goBack={goBack} products={catalogueEnabled ? products : []} setProducts={setProducts} keyboardType={keyboardType} />,
+    "add-product": <AddEditProductScreen navigate={navigate} goBack={goBack} editProduct={editProduct} products={products} setProducts={setProducts} keyboardType={keyboardType} />,
     history: <HistoryScreen navigate={navigate} goBack={goBack} />,
     reporting: <ReportingScreen navigate={navigate} goBack={goBack} />,
     scan: <ScanScreen navigate={navigate} basket={basket} setBasket={setBasket} products={catalogueEnabled ? products : []} goBack={goBack} />,
@@ -180,6 +182,26 @@ export default function Prototype() {
         />
         Product catalogue
       </label>
+      <div style={{ borderTop: "1px solid #E0E0E4", paddingTop: 10, marginTop: 2 }} />
+      <div style={{ fontSize: 11, color: "#6B7084", fontWeight: 600, marginBottom: -4 }}>Terminal keyboard</div>
+      {[
+        { value: "onscreen", label: "On-screen (touch)", desc: "Full QWERTY soft keyboard" },
+        { value: "physical", label: "Physical (numeric)", desc: "Hardware 0–9 keypad only" },
+      ].map(({ value, label, desc }) => (
+        <label key={value} style={{ display: "flex", alignItems: "flex-start", gap: 8, cursor: "pointer", color: "#212638" }}>
+          <input
+            type="radio"
+            name="kbType"
+            checked={keyboardType === value}
+            onChange={() => setKeyboardType(value)}
+            style={{ accentColor: tokens.color.fg.brand, marginTop: 2 }}
+          />
+          <div>
+            <div>{label}</div>
+            <div style={{ fontSize: 10, color: "#9CA0AF", lineHeight: 1.3 }}>{desc}</div>
+          </div>
+        </label>
+      ))}
       <div style={{ fontSize: 11, color: "#6B7084", lineHeight: 1.4 }}>
         {homeScreenMode === "litepos"
           ? catalogueEnabled
@@ -197,6 +219,7 @@ export default function Prototype() {
             historyRef.current = ["home"];
             setCatalogueEnabled(true);
             setHomeScreenMode("litepos");
+            setKeyboardType("onscreen");
             setSplitState({ byItem: { paidIds: [] }, equally: { patronCount: 2, paidCount: 0 }, returnTo: null, amount: null });
           }}
           style={{
