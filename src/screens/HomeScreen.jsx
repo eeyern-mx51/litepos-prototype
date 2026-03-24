@@ -49,6 +49,20 @@ export default function HomeScreen({ navigate, basket, setBasket, products = [],
     setSearchQuery("");
   };
 
+  // Sort helper: favourites first, then grouped by category alphabetically, then by name within each group
+  const sortProducts = (list) => {
+    return [...list].sort((a, b) => {
+      // Favourites always first
+      if (a.fav && !b.fav) return -1;
+      if (!a.fav && b.fav) return 1;
+      // Then by category alphabetically
+      const catCmp = (a.cat || "").localeCompare(b.cat || "");
+      if (catCmp !== 0) return catCmp;
+      // Then by name within category
+      return a.name.localeCompare(b.name);
+    });
+  };
+
   // Filter logic — search always spans ALL items; category filter only when search is closed
   let filtered = products;
   if (searchActive) {
@@ -65,6 +79,7 @@ export default function HomeScreen({ navigate, basket, setBasket, products = [],
   } else if (activeFilter !== "All Items") {
     filtered = filtered.filter((p) => p.cat === activeFilter);
   }
+  filtered = sortProducts(filtered);
 
   const total = basket.reduce((s, b) => s + b.price * b.qty, 0);
   const itemCount = basket.reduce((s, b) => s + b.qty, 0);

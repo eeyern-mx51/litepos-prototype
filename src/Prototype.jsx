@@ -55,8 +55,8 @@ export default function Prototype() {
   const [products, setProducts] = useState(sampleProducts);
   // Toggle to simulate new merchant (empty catalogue) vs configured merchant
   const [catalogueEnabled, setCatalogueEnabled] = useState(true);
-  // LitePOS feature toggle — when off, show default terminal home
-  const [litePosEnabled, setLitePosEnabled] = useState(true);
+  // Home screen mode — "litepos" | "simple" | "tiles" | "keypad"
+  const [homeScreenMode, setHomeScreenMode] = useState("litepos");
 
   // ── Split payment state (persists across navigation to payment-processing) ──
   // splitByItem: { paidIds: string[] }  — tracks which individual unit IDs are paid
@@ -123,14 +123,14 @@ export default function Prototype() {
   }, []);
 
   const screens = {
-    home: litePosEnabled
+    home: homeScreenMode === "litepos"
       ? <HomeScreen navigate={navigate} basket={basket} setBasket={setBasket} products={catalogueEnabled ? products : []} setProducts={setProducts} />
-      : <DefaultHomeScreen navigate={navigate} />,
+      : <DefaultHomeScreen navigate={navigate} mode={homeScreenMode} />,
     keypad: <KeypadScreen navigate={navigate} goBack={goBack} basket={basket} setBasket={setBasket} />,
     basket: <BasketScreen navigate={navigate} goBack={goBack} basket={basket} setBasket={setBasket} />,
     menu: <MenuScreen navigate={navigate} goBack={goBack} />,
-    settings: <SettingsScreen navigate={navigate} goBack={goBack} />,
-    "litepos-settings": <LitePOSSettingsScreen navigate={navigate} goBack={goBack} litePosEnabled={litePosEnabled} setLitePosEnabled={setLitePosEnabled} />,
+    settings: <SettingsScreen navigate={navigate} goBack={goBack} homeScreenMode={homeScreenMode} setHomeScreenMode={setHomeScreenMode} />,
+    "litepos-settings": <LitePOSSettingsScreen navigate={navigate} goBack={goBack} />,
     "product-catalog": <ProductCatalogScreen navigate={navigate} goBack={goBack} products={catalogueEnabled ? products : []} setProducts={setProducts} />,
     "add-product": <AddEditProductScreen navigate={navigate} goBack={goBack} editProduct={editProduct} products={products} setProducts={setProducts} />,
     history: <HistoryScreen navigate={navigate} goBack={goBack} />,
@@ -158,16 +158,20 @@ export default function Prototype() {
       <div style={{ fontWeight: 600, color: "#6B7084", fontSize: 11, textTransform: "uppercase", letterSpacing: 1 }}>
         Demo controls
       </div>
-      <label style={{ display: "flex", alignItems: "center", gap: 8, cursor: "pointer", color: "#212638" }}>
-        <input
-          type="checkbox"
-          checked={litePosEnabled}
-          onChange={(e) => setLitePosEnabled(e.target.checked)}
-          style={{ accentColor: tokens.color.fg.brand }}
-        />
-        LitePOS enabled
-      </label>
-      <label style={{ display: "flex", alignItems: "center", gap: 8, cursor: "pointer", color: "#212638", opacity: litePosEnabled ? 1 : 0.4, pointerEvents: litePosEnabled ? "auto" : "none" }}>
+      <div style={{ fontSize: 11, color: "#6B7084", fontWeight: 600, marginBottom: -4 }}>Home screen</div>
+      {["litepos", "simple", "tiles", "keypad"].map((mode) => (
+        <label key={mode} style={{ display: "flex", alignItems: "center", gap: 8, cursor: "pointer", color: "#212638" }}>
+          <input
+            type="radio"
+            name="homeMode"
+            checked={homeScreenMode === mode}
+            onChange={() => setHomeScreenMode(mode)}
+            style={{ accentColor: tokens.color.fg.brand }}
+          />
+          {mode === "litepos" ? "LitePOS" : mode.charAt(0).toUpperCase() + mode.slice(1)}
+        </label>
+      ))}
+      <label style={{ display: "flex", alignItems: "center", gap: 8, cursor: "pointer", color: "#212638", opacity: homeScreenMode === "litepos" ? 1 : 0.4, pointerEvents: homeScreenMode === "litepos" ? "auto" : "none" }}>
         <input
           type="checkbox"
           checked={catalogueEnabled}
@@ -177,11 +181,11 @@ export default function Prototype() {
         Product catalogue
       </label>
       <div style={{ fontSize: 11, color: "#6B7084", lineHeight: 1.4 }}>
-        {!litePosEnabled
-          ? "LitePOS off — showing default terminal home"
-          : catalogueEnabled
-          ? `LitePOS on — ${products.length} products`
-          : "LitePOS on — new merchant, keypad only"}
+        {homeScreenMode === "litepos"
+          ? catalogueEnabled
+            ? `LitePOS — ${products.length} products`
+            : "LitePOS — new merchant, keypad only"
+          : `Home screen: ${homeScreenMode.charAt(0).toUpperCase() + homeScreenMode.slice(1)}`}
       </div>
       <div style={{ borderTop: "1px solid #E0E0E4", paddingTop: 10, marginTop: 2 }}>
         <button
@@ -192,7 +196,7 @@ export default function Prototype() {
             setScreen("home");
             historyRef.current = ["home"];
             setCatalogueEnabled(true);
-            setLitePosEnabled(true);
+            setHomeScreenMode("litepos");
             setSplitState({ byItem: { paidIds: [] }, equally: { patronCount: 2, paidCount: 0 }, returnTo: null, amount: null });
           }}
           style={{

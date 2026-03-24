@@ -94,26 +94,14 @@ function StatusPill({ active }) {
   );
 }
 
-export default function LitePOSSettingsScreen({ navigate, goBack, litePosEnabled, setLitePosEnabled }) {
-  const enabled = litePosEnabled;
-  const setEnabled = setLitePosEnabled;
+export default function LitePOSSettingsScreen({ navigate, goBack }) {
   const [merchantReceipt, setMerchantReceipt] = useState(true);
   const [customerReceipt, setCustomerReceipt] = useState(true);
 
   return (
     <div style={{ flex: 1, display: "flex", flexDirection: "column", background: tokens.color.bg.surface }}>
-      <TopAppBar title="LitePOS" onBack={goBack} theme="light" />
+      <TopAppBar title="LitePOS Settings" onBack={goBack} theme="light" />
       <div style={{ flex: 1, overflow: "auto", paddingBottom: 32 }}>
-
-        {/* ── LitePOS toggle ────────────────────────────────────── */}
-        <div style={{ padding: "8px 0 0" }}>
-          <ListItem
-            headline="LitePOS"
-            supporting={enabled ? "Enabled" : "Disabled"}
-            trailing={<Switch checked={enabled} onChange={setEnabled} />}
-            divider={false}
-          />
-        </div>
 
         {/* ── Product Catalogue ──────────────────────────────────── */}
         <SectionLabel label="Product catalogue" />

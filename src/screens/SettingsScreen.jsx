@@ -44,98 +44,104 @@ function SectionLabel({ label }) {
   );
 }
 
-export default function SettingsScreen({ navigate, goBack }) {
+function RadioOption({ label, description, selected, onSelect }) {
+  return (
+    <button
+      onClick={onSelect}
+      style={{
+        width: "100%",
+        display: "flex",
+        alignItems: "center",
+        gap: 14,
+        padding: "14px 16px",
+        border: "none",
+        borderBottom: `1px solid ${tokens.color.border.onpage}`,
+        background: selected ? `${tokens.color.fg.brand}08` : "transparent",
+        cursor: "pointer",
+        fontFamily: "inherit",
+        textAlign: "left",
+      }}
+    >
+      <div
+        style={{
+          width: 22,
+          height: 22,
+          borderRadius: tokens.shape.full,
+          border: `2px solid ${selected ? tokens.color.fg.brand : tokens.color.border.onsurface}`,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          flexShrink: 0,
+          transition: `all ${tokens.motion.duration.short2} ${tokens.motion.easing.expressive}`,
+        }}
+      >
+        {selected && (
+          <div style={{ width: 10, height: 10, borderRadius: tokens.shape.full, background: tokens.color.fg.brand }} />
+        )}
+      </div>
+      <div style={{ flex: 1, minWidth: 0 }}>
+        <div style={{ fontSize: tokens.type.bodyLarge.size, fontWeight: selected ? 600 : 400, color: selected ? tokens.color.fg.brand : tokens.color.fg.emphasis }}>
+          {label}
+        </div>
+        {description && (
+          <div style={{ fontSize: tokens.type.bodySmall.size, color: tokens.color.fg.subtle, marginTop: 2 }}>
+            {description}
+          </div>
+        )}
+      </div>
+    </button>
+  );
+}
+
+export default function SettingsScreen({ navigate, goBack, homeScreenMode, setHomeScreenMode }) {
   return (
     <div style={{ flex: 1, display: "flex", flexDirection: "column", background: tokens.color.bg.surface }}>
       <TopAppBar title="Settings" onBack={goBack} theme="light" />
       <div style={{ flex: 1, overflow: "auto", paddingBottom: 32 }}>
 
-        {/* ── LitePOS — hero card ───────────────────────────────── */}
+        {/* ── Home Screen mode selector ─────────────────────────── */}
+        <SectionLabel label="Home Screen" />
+        <SettingsCard>
+          <RadioOption
+            label="LitePOS"
+            description="Product grid with catalogue & basket"
+            selected={homeScreenMode === "litepos"}
+            onSelect={() => setHomeScreenMode("litepos")}
+          />
+          <RadioOption
+            label="Simple"
+            description="Payment, Split Bill & Refund cards"
+            selected={homeScreenMode === "simple"}
+            onSelect={() => setHomeScreenMode("simple")}
+          />
+          <RadioOption
+            label="Tiles"
+            description="Customisable action tiles"
+            selected={homeScreenMode === "tiles"}
+            onSelect={() => setHomeScreenMode("tiles")}
+          />
+          <div style={{ borderBottom: "none" }}>
+            <RadioOption
+              label="Keypad"
+              description="Direct amount entry"
+              selected={homeScreenMode === "keypad"}
+              onSelect={() => setHomeScreenMode("keypad")}
+            />
+          </div>
+        </SettingsCard>
+
+        {/* ── LitePOS settings ────────────────────────────────── */}
         <SectionLabel label="LitePOS" />
-        <div style={{ padding: "0 16px 4px" }}>
-          <button
+        <SettingsCard>
+          <ListItem
+            leading={<Icon name="store" color={tokens.color.fg.brand} />}
+            headline="LitePOS Settings"
+            supporting="Configure products, catalogue & receipts"
+            trailing={<Icon name="chevron" color={tokens.color.fg.subtle} />}
             onClick={() => navigate("litepos-settings")}
-            style={{
-              width: "100%",
-              background: tokens.color.bg.page,
-              borderRadius: tokens.shape.expressiveLarge,
-              border: `1px solid ${tokens.color.border.action.default}44`,
-              padding: "18px 16px",
-              cursor: "pointer",
-              display: "flex",
-              alignItems: "center",
-              gap: 14,
-              textAlign: "left",
-              transition: `all ${tokens.motion.duration.short4} ${tokens.motion.easing.standard}`,
-            }}
-          >
-            <div
-              style={{
-                width: 44,
-                height: 44,
-                borderRadius: tokens.shape.large,
-                background: `${tokens.color.fg.brand}15`,
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                flexShrink: 0,
-              }}
-            >
-              <Icon name="store" size={24} color={tokens.color.fg.brand} />
-            </div>
-            <div style={{ flex: 1, minWidth: 0 }}>
-              <div
-                style={{
-                  fontSize: tokens.type.titleMedium.size,
-                  fontWeight: 600,
-                  color: tokens.color.fg.emphasis,
-                }}
-              >
-                LitePOS
-              </div>
-              <div
-                style={{
-                  fontSize: tokens.type.bodySmall.size,
-                  color: tokens.color.fg.subtle,
-                  marginTop: 2,
-                }}
-              >
-                Enable, configure & manage products
-              </div>
-            </div>
-            <div
-              style={{
-                display: "inline-flex",
-                alignItems: "center",
-                gap: 5,
-                padding: "3px 10px",
-                borderRadius: tokens.shape.full,
-                background: `${tokens.color.bg.success.default}18`,
-                marginRight: 4,
-                flexShrink: 0,
-              }}
-            >
-              <div
-                style={{
-                  width: 5,
-                  height: 5,
-                  borderRadius: tokens.shape.full,
-                  background: tokens.color.fg.success.icon,
-                }}
-              />
-              <span
-                style={{
-                  fontSize: tokens.type.labelSmall.size,
-                  fontWeight: 600,
-                  color: tokens.color.fg.success.text,
-                }}
-              >
-                Active
-              </span>
-            </div>
-            <Icon name="chevron" size={20} color={tokens.color.fg.subtle} />
-          </button>
-        </div>
+            divider={false}
+          />
+        </SettingsCard>
 
         {/* ── Terminal ──────────────────────────────────────────── */}
         <SectionLabel label="Terminal" />
