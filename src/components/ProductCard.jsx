@@ -41,8 +41,8 @@ export default function ProductCard({ name, price, isFav, image, emoji, emojiBg,
             position: "absolute",
             top: 6,
             right: 6,
-            width: 28,
-            height: 28,
+            width: 36,
+            height: 36,
             borderRadius: "50%",
             border: "none",
             background: isFav ? "rgba(255,255,255,0.95)" : "rgba(0,0,0,0.25)",
@@ -54,7 +54,7 @@ export default function ProductCard({ name, price, isFav, image, emoji, emojiBg,
             transition: "background 0.15s ease",
           }}
         >
-          <Icon name={isFav ? "favorite" : "favorite_border"} size={16} color={isFav ? tokens.color.fg.error.icon : "#fff"} />
+          <Icon name={isFav ? "favorite" : "favorite_border"} size={20} color={isFav ? tokens.color.fg.error.icon : "#fff"} />
         </button>
       </div>
       <div style={{ padding: "8px 12px 12px" }}>
