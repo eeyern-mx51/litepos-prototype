@@ -4,6 +4,7 @@ import TopAppBar from "../components/TopAppBar";
 import FAB from "../components/FAB";
 import Icon from "../components/Icon";
 import InputBadge from "../components/InputBadge";
+import { useSoftKeyboard } from "../components/SoftKeyboard";
 
 /**
  * ProductCatalogScreen
@@ -19,6 +20,7 @@ import InputBadge from "../components/InputBadge";
  */
 
 export default function ProductCatalogScreen({ navigate, goBack, products = [], setProducts, keyboardType = "onscreen" }) {
+  const kb = useSoftKeyboard();
   const hasProducts = products.length > 0;
 
   // Categories are always derived from products — no separate state needed.
@@ -157,6 +159,8 @@ export default function ProductCatalogScreen({ navigate, goBack, products = [], 
                               autoFocus
                               value={renamingCat.name}
                               onChange={(e) => setRenamingCat({ index: i, name: e.target.value })}
+                              onFocus={(e) => kb?.enabled && kb.show("alpha", e.target)}
+                              inputMode={kb?.enabled ? "none" : undefined}
                               onKeyDown={(e) => {
                                 if (e.key === "Enter") handleRenameCategory(i, renamingCat.name);
                                 if (e.key === "Escape") setRenamingCat(null);

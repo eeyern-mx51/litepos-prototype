@@ -4,6 +4,7 @@ import TopAppBar from "../components/TopAppBar";
 import Card from "../components/Card";
 import Icon from "../components/Icon";
 import InputBadge from "../components/InputBadge";
+import { useSoftKeyboard } from "../components/SoftKeyboard";
 
 /**
  * Keypad Manual Entry Screen
@@ -23,6 +24,7 @@ function formatAmount(cents) {
 }
 
 export default function KeypadScreen({ navigate, goBack, basket, setBasket, keyboardType = "onscreen" }) {
+  const kb = useSoftKeyboard();
   const [cents, setCents] = useState(0);
   const [description, setDescription] = useState("");
 
@@ -117,6 +119,8 @@ export default function KeypadScreen({ navigate, goBack, basket, setBasket, keyb
           <input
             value={description}
             onChange={(e) => setDescription(e.target.value)}
+            onFocus={(e) => kb?.enabled && kb.show("alpha", e.target)}
+            inputMode={kb?.enabled ? "none" : undefined}
             placeholder="Item description (optional)"
             style={{
               width: "100%",

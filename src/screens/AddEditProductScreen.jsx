@@ -4,6 +4,7 @@ import TopAppBar from "../components/TopAppBar";
 import Icon from "../components/Icon";
 import Switch from "../components/Switch";
 import InputBadge from "../components/InputBadge";
+import { useSoftKeyboard } from "../components/SoftKeyboard";
 
 /**
  * Add / Edit Product Screen
@@ -56,7 +57,8 @@ function SectionLabel({ label }) {
   );
 }
 
-function TextField({ label, value, onChange, placeholder, multiline, trailing, required, badge }) {
+function TextField({ label, value, onChange, placeholder, multiline, trailing, required, badge, kbLayout = "alpha" }) {
+  const kb = useSoftKeyboard();
   const Tag = multiline ? "textarea" : "input";
   return (
     <div style={{ padding: "12px 16px", borderBottom: `1px solid ${tokens.color.border.onpage}` }}>
@@ -80,6 +82,8 @@ function TextField({ label, value, onChange, placeholder, multiline, trailing, r
       <Tag
         value={value}
         onChange={(e) => onChange(e.target.value)}
+        onFocus={(e) => kb?.enabled && kb.show(kbLayout, e.target)}
+        inputMode={kb?.enabled ? "none" : undefined}
         placeholder={placeholder}
         rows={multiline ? 3 : undefined}
         style={{
@@ -100,6 +104,7 @@ function TextField({ label, value, onChange, placeholder, multiline, trailing, r
 }
 
 function PriceField({ value, onChange, badge }) {
+  const kb = useSoftKeyboard();
   return (
     <div style={{ padding: "12px 16px", borderBottom: `1px solid ${tokens.color.border.onpage}` }}>
       <label
@@ -128,7 +133,8 @@ function PriceField({ value, onChange, badge }) {
         </span>
         <input
           type="text"
-          inputMode="decimal"
+          inputMode={kb?.enabled ? "none" : "decimal"}
+          onFocus={(e) => kb?.enabled && kb.show("numeric", e.target)}
           value={value}
           onChange={(e) => onChange(e.target.value)}
           placeholder="0.00"
@@ -152,6 +158,7 @@ function PriceField({ value, onChange, badge }) {
 // ── Main screen ───────────────────────────────────────────────────────
 
 export default function AddEditProductScreen({ navigate, goBack, editProduct, products = [], setProducts, keyboardType = "onscreen" }) {
+  const kb = useSoftKeyboard();
   const isEdit = !!editProduct && !editProduct?.imported;
   const isImport = !!editProduct?.imported;
   const [name, setName] = useState(editProduct?.name || "");
@@ -597,6 +604,8 @@ export default function AddEditProductScreen({ navigate, goBack, editProduct, pr
                 type="text"
                 value={upc}
                 onChange={(e) => setUpc(e.target.value)}
+                onFocus={(e) => kb?.enabled && kb.show("numeric", e.target)}
+                inputMode={kb?.enabled ? "none" : undefined}
                 placeholder="Scan or type barcode"
                 style={{
                   width: "100%",

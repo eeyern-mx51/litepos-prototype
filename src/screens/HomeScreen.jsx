@@ -4,9 +4,11 @@ import OrderBar from "../components/OrderBar";
 import ProductCard from "../components/ProductCard";
 import Icon from "../components/Icon";
 import InputBadge from "../components/InputBadge";
+import { useSoftKeyboard } from "../components/SoftKeyboard";
 
 
 export default function HomeScreen({ navigate, basket, setBasket, products = [], setProducts, keyboardType = "onscreen" }) {
+  const kb = useSoftKeyboard();
   const [activeFilter, setActiveFilter] = useState("All Items");
   const [searchQuery, setSearchQuery] = useState("");
   const [searchActive, setSearchActive] = useState(false);
@@ -212,6 +214,8 @@ export default function HomeScreen({ navigate, basket, setBasket, products = [],
                   ref={searchRef}
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
+                  onFocus={(e) => kb?.enabled && kb.show("alpha", e.target)}
+                  inputMode={kb?.enabled ? "none" : undefined}
                   placeholder="Search all products..."
                   style={{
                     width: "100%", border: "none", outline: "none", background: "transparent",

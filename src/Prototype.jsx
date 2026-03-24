@@ -20,6 +20,14 @@ import PaymentScreen from "./screens/PaymentScreen";
 import SplitByItemScreen from "./screens/SplitByItemScreen";
 import SplitEquallyScreen from "./screens/SplitEquallyScreen";
 import PaymentProcessingScreen from "./screens/PaymentProcessingScreen";
+import SoftKeyboard, { SoftKeyboardProvider, useSoftKeyboard } from "./components/SoftKeyboard";
+
+// Tiny bridge that exposes the keyboard hide() to the parent via ref
+function KeyboardBridge({ hideRef }) {
+  const kb = useSoftKeyboard();
+  hideRef.current = kb?.hide || null;
+  return null;
+}
 
 // Sample product catalogue — empty array simulates a new merchant
 // `image` points to /public/products/ photos; `emoji`+`emojiBg` are fallbacks for missing photos
@@ -95,9 +103,14 @@ export default function Prototype() {
   }, []);
 
   const historyRef = useRef(["home"]);
+  // Ref to soft keyboard hide function — set by the provider via effect
+  const hideKeyboardRef = useRef(null);
 
   const navigate = useCallback(
     (target, data) => {
+      // Hide soft keyboard on any navigation
+      hideKeyboardRef.current?.();
+
       if (target === "edit-product") {
         setEditProduct(data || null);
         historyRef.current.push("add-product");
@@ -114,6 +127,7 @@ export default function Prototype() {
   );
 
   const goBack = useCallback(() => {
+    hideKeyboardRef.current?.();
     const history = historyRef.current;
     if (history.length > 1) {
       history.pop(); // remove current
@@ -274,20 +288,27 @@ export default function Prototype() {
           WebkitFontSmoothing: "antialiased",
         }}
       >
-        <StatusBar />
+        <SoftKeyboardProvider enabled={keyboardType === "onscreen"}>
+          <KeyboardBridge hideRef={hideKeyboardRef} />
+          <StatusBar />
 
-        {/* Screen content */}
-        <div
-          style={{
-            flex: 1,
-            display: "flex",
-            flexDirection: "column",
-            overflow: "hidden",
-            position: "relative",
-          }}
-        >
-          {screens[screen] || screens.home}
-        </div>
+          {/* Screen content */}
+          <div
+            style={{
+              flex: 1,
+              display: "flex",
+              flexDirection: "column",
+              overflow: "hidden",
+              position: "relative",
+              minHeight: 0,
+            }}
+          >
+            {screens[screen] || screens.home}
+          </div>
+
+          {/* Android soft keyboard */}
+          <SoftKeyboard />
+        </SoftKeyboardProvider>
 
         {/* ── Mobile: floating demo controls overlay ──── */}
         {isMobile && showMobileControls && (

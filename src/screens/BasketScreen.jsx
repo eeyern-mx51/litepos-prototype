@@ -4,8 +4,10 @@ import TopAppBar from "../components/TopAppBar";
 import ListItem from "../components/ListItem";
 import Icon from "../components/Icon";
 import InputBadge from "../components/InputBadge";
+import { useSoftKeyboard } from "../components/SoftKeyboard";
 
 export default function BasketScreen({ navigate, goBack, basket, setBasket, keyboardType = "onscreen" }) {
+  const kb = useSoftKeyboard();
   const total = basket.reduce((s, b) => s + b.price * b.qty, 0);
   const [editingIndex, setEditingIndex] = useState(null);
   const [editName, setEditName] = useState("");
@@ -262,6 +264,8 @@ export default function BasketScreen({ navigate, goBack, basket, setBasket, keyb
               autoFocus
               value={editName}
               onChange={(e) => setEditName(e.target.value)}
+              onFocus={(e) => kb?.enabled && kb.show("alpha", e.target)}
+              inputMode={kb?.enabled ? "none" : undefined}
               onKeyDown={(e) => {
                 if (e.key === "Enter") finishEditing();
                 if (e.key === "Escape") { setEditingIndex(null); setEditName(""); }
