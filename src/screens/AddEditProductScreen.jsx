@@ -326,7 +326,30 @@ export default function AddEditProductScreen({ navigate, goBack, editProduct, pr
                   <span style={{ fontSize: 72, lineHeight: 1 }}>{editProduct.emoji}</span>
                 )}
               </div>
-              {/* Action buttons overlay */}
+              {/* Favourite heart — top right */}
+              <button
+                onClick={() => setFavourite(!favourite)}
+                style={{
+                  position: "absolute",
+                  top: 10,
+                  right: 10,
+                  width: 40,
+                  height: 40,
+                  borderRadius: "50%",
+                  border: "none",
+                  background: favourite ? "rgba(255,255,255,0.95)" : "rgba(0,0,0,0.3)",
+                  cursor: "pointer",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  padding: 0,
+                  transition: "background 0.15s ease",
+                  zIndex: 2,
+                }}
+              >
+                <Icon name={favourite ? "favorite" : "favorite_border"} size={22} color={favourite ? tokens.color.fg.error.icon : "#fff"} />
+              </button>
+              {/* Action buttons overlay — bottom right */}
               <div
                 style={{
                   position: "absolute",
@@ -362,58 +385,83 @@ export default function AddEditProductScreen({ navigate, goBack, editProduct, pr
             </div>
           ) : (
             /* ── Empty image placeholder ────────────────── */
-            <div
-              onClick={handleImagePick}
-              style={{
-                width: "100%",
-                aspectRatio: "1",
-                maxHeight: 200,
-                borderRadius: tokens.shape.expressiveLarge,
-                background: tokens.color.bg.page,
-                border: `1.5px dashed ${tokens.color.border.onsurface}`,
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "center",
-                justifyContent: "center",
-                gap: 12,
-                cursor: "pointer",
-                overflow: "hidden",
-                transition: `all ${tokens.motion.duration.short4} ${tokens.motion.easing.standard}`,
-              }}
-            >
+            <div style={{ position: "relative" }}>
               <div
+                onClick={handleImagePick}
                 style={{
-                  width: 52,
-                  height: 52,
-                  borderRadius: tokens.shape.full,
-                  background: `${tokens.color.fg.brand}12`,
+                  width: "100%",
+                  aspectRatio: "1",
+                  maxHeight: 200,
+                  borderRadius: tokens.shape.expressiveLarge,
+                  background: tokens.color.bg.page,
+                  border: `1.5px dashed ${tokens.color.border.onsurface}`,
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: 12,
+                  cursor: "pointer",
+                  overflow: "hidden",
+                  transition: `all ${tokens.motion.duration.short4} ${tokens.motion.easing.standard}`,
+                }}
+              >
+                <div
+                  style={{
+                    width: 52,
+                    height: 52,
+                    borderRadius: tokens.shape.full,
+                    background: `${tokens.color.fg.brand}12`,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}
+                >
+                  <Icon name="image" size={24} color={tokens.color.fg.brand} />
+                </div>
+                <div style={{ textAlign: "center" }}>
+                  <div
+                    style={{
+                      fontSize: tokens.type.labelLarge.size,
+                      fontWeight: 600,
+                      color: tokens.color.fg.emphasis,
+                    }}
+                  >
+                    Add product image
+                  </div>
+                  <div
+                    style={{
+                      fontSize: tokens.type.bodySmall.size,
+                      color: tokens.color.fg.subtle,
+                      marginTop: 2,
+                    }}
+                  >
+                    Tap to choose from gallery or camera
+                  </div>
+                </div>
+              </div>
+              {/* Favourite heart — top right */}
+              <button
+                onClick={() => setFavourite(!favourite)}
+                style={{
+                  position: "absolute",
+                  top: 10,
+                  right: 10,
+                  width: 40,
+                  height: 40,
+                  borderRadius: "50%",
+                  border: "none",
+                  background: favourite ? "rgba(255,255,255,0.95)" : `${tokens.color.border.onsurface}44`,
+                  cursor: "pointer",
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
+                  padding: 0,
+                  transition: "background 0.15s ease",
+                  zIndex: 2,
                 }}
               >
-                <Icon name="image" size={24} color={tokens.color.fg.brand} />
-              </div>
-              <div style={{ textAlign: "center" }}>
-                <div
-                  style={{
-                    fontSize: tokens.type.labelLarge.size,
-                    fontWeight: 600,
-                    color: tokens.color.fg.emphasis,
-                  }}
-                >
-                  Add product image
-                </div>
-                <div
-                  style={{
-                    fontSize: tokens.type.bodySmall.size,
-                    color: tokens.color.fg.subtle,
-                    marginTop: 2,
-                  }}
-                >
-                  Tap to choose from gallery or camera
-                </div>
-              </div>
+                <Icon name={favourite ? "favorite" : "favorite_border"} size={22} color={favourite ? tokens.color.fg.error.icon : tokens.color.fg.subtle} />
+              </button>
             </div>
           )}
         </div>
@@ -562,47 +610,7 @@ export default function AddEditProductScreen({ navigate, goBack, editProduct, pr
           </div>
         </FieldCard>
 
-        {/* ── Preferences ───────────────────────────────────────── */}
-        <SectionLabel label="Preferences" />
-        <FieldCard>
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "space-between",
-              padding: "14px 16px",
-            }}
-          >
-            <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-              <Icon
-                name="favorite"
-                size={22}
-                color={favourite ? tokens.color.fg.error.icon : tokens.color.fg.subtle}
-              />
-              <div>
-                <div
-                  style={{
-                    fontSize: tokens.type.bodyLarge.size,
-                    fontWeight: 400,
-                    color: tokens.color.fg.emphasis,
-                  }}
-                >
-                  Favourite
-                </div>
-                <div
-                  style={{
-                    fontSize: tokens.type.bodySmall.size,
-                    color: tokens.color.fg.subtle,
-                    marginTop: 1,
-                  }}
-                >
-                  {favourite ? "Appears at top of product grid" : "Shows in default alphabetical order"}
-                </div>
-              </div>
-            </div>
-            <Switch checked={favourite} onChange={setFavourite} />
-          </div>
-        </FieldCard>
+        {/* Favourite toggle is on the image preview area */}
       </div>
 
       {/* ── Fixed bottom buttons ──────────────────────────── */}

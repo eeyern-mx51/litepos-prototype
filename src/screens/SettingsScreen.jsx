@@ -1,3 +1,4 @@
+import { useState } from "react";
 import tokens from "../theme/tokens";
 import TopAppBar from "../components/TopAppBar";
 import ListItem from "../components/ListItem";
@@ -93,41 +94,27 @@ function RadioOption({ label, description, selected, onSelect }) {
   );
 }
 
+const modeLabels = { litepos: "LitePOS", simple: "Simple", tiles: "Tiles", keypad: "Keypad" };
+
 export default function SettingsScreen({ navigate, goBack, homeScreenMode, setHomeScreenMode }) {
+  const [showModeDialog, setShowModeDialog] = useState(false);
+
   return (
-    <div style={{ flex: 1, display: "flex", flexDirection: "column", background: tokens.color.bg.surface }}>
+    <div style={{ flex: 1, display: "flex", flexDirection: "column", background: tokens.color.bg.surface, position: "relative" }}>
       <TopAppBar title="Settings" onBack={goBack} theme="light" />
       <div style={{ flex: 1, overflow: "auto", paddingBottom: 32 }}>
 
-        {/* ── Home Screen mode selector ─────────────────────────── */}
+        {/* ── Home Screen ─────────────────────────────────────── */}
         <SectionLabel label="Home Screen" />
         <SettingsCard>
-          <RadioOption
-            label="LitePOS"
-            description="Product grid with catalogue & basket"
-            selected={homeScreenMode === "litepos"}
-            onSelect={() => setHomeScreenMode("litepos")}
+          <ListItem
+            leading={<Icon name="home" color={tokens.color.fg.brand} />}
+            headline="Home Screen"
+            supporting={modeLabels[homeScreenMode] || "LitePOS"}
+            trailing={<Icon name="chevron" color={tokens.color.fg.subtle} />}
+            onClick={() => setShowModeDialog(true)}
+            divider={false}
           />
-          <RadioOption
-            label="Simple"
-            description="Payment, Split Bill & Refund cards"
-            selected={homeScreenMode === "simple"}
-            onSelect={() => setHomeScreenMode("simple")}
-          />
-          <RadioOption
-            label="Tiles"
-            description="Customisable action tiles"
-            selected={homeScreenMode === "tiles"}
-            onSelect={() => setHomeScreenMode("tiles")}
-          />
-          <div style={{ borderBottom: "none" }}>
-            <RadioOption
-              label="Keypad"
-              description="Direct amount entry"
-              selected={homeScreenMode === "keypad"}
-              onSelect={() => setHomeScreenMode("keypad")}
-            />
-          </div>
         </SettingsCard>
 
         {/* ── LitePOS settings ────────────────────────────────── */}
@@ -195,6 +182,81 @@ export default function SettingsScreen({ navigate, goBack, homeScreenMode, setHo
           />
         </SettingsCard>
       </div>
+
+      {/* ── Home Screen mode dialog ──────────────────────────── */}
+      {showModeDialog && (
+        <>
+          <div
+            onClick={() => setShowModeDialog(false)}
+            style={{
+              position: "absolute",
+              inset: 0,
+              background: "rgba(0,0,0,0.45)",
+              zIndex: 50,
+            }}
+          />
+          <div
+            style={{
+              position: "absolute",
+              top: "50%",
+              left: "50%",
+              transform: "translate(-50%, -50%)",
+              zIndex: 51,
+              background: tokens.color.bg.page,
+              borderRadius: tokens.shape.expressiveLarge,
+              boxShadow: tokens.elevation.level5,
+              width: "min(320px, calc(100% - 48px))",
+              overflow: "hidden",
+            }}
+          >
+            <div style={{ padding: "20px 24px 12px" }}>
+              <div style={{ fontSize: tokens.type.titleMedium.size, fontWeight: 600, color: tokens.color.fg.emphasis }}>
+                Home Screen
+              </div>
+              <div style={{ fontSize: tokens.type.bodySmall.size, color: tokens.color.fg.subtle, marginTop: 4 }}>
+                Choose the default home screen layout
+              </div>
+            </div>
+            <div>
+              {[
+                { key: "litepos", label: "LitePOS", desc: "Product grid with catalogue & basket" },
+                { key: "simple", label: "Simple", desc: "Payment, Split Bill & Refund cards" },
+                { key: "tiles", label: "Tiles", desc: "Customisable action tiles" },
+                { key: "keypad", label: "Keypad", desc: "Direct amount entry" },
+              ].map((mode) => (
+                <RadioOption
+                  key={mode.key}
+                  label={mode.label}
+                  description={mode.desc}
+                  selected={homeScreenMode === mode.key}
+                  onSelect={() => {
+                    setHomeScreenMode(mode.key);
+                    setShowModeDialog(false);
+                  }}
+                />
+              ))}
+            </div>
+            <div style={{ padding: "8px 16px 16px", display: "flex", justifyContent: "flex-end" }}>
+              <button
+                onClick={() => setShowModeDialog(false)}
+                style={{
+                  padding: "10px 24px",
+                  borderRadius: tokens.shape.full,
+                  border: "none",
+                  background: "transparent",
+                  color: tokens.color.fg.brand,
+                  fontSize: tokens.type.labelLarge.size,
+                  fontWeight: 600,
+                  fontFamily: "inherit",
+                  cursor: "pointer",
+                }}
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </>
+      )}
     </div>
   );
 }
