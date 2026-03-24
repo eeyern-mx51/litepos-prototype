@@ -20,28 +20,17 @@ import Icon from "../components/Icon";
 export default function ProductCatalogScreen({ navigate, goBack, products = [], setProducts }) {
   const hasProducts = products.length > 0;
 
-  // Category management state
-  const existingCats = [...new Set(products.map((p) => p.cat).filter(Boolean))];
-  const [categories, setCategories] = useState(existingCats);
+  // Categories are always derived from products — no separate state needed.
+  // Empty categories auto-remove when their last product is deleted or recategorised.
+  const categories = [...new Set(products.map((p) => p.cat).filter(Boolean))].sort();
   const [showCategories, setShowCategories] = useState(false);
-  const [newCatName, setNewCatName] = useState("");
   const [renamingCat, setRenamingCat] = useState(null); // { index, name }
   const [deletingCat, setDeletingCat] = useState(null); // index
-
-  const handleAddCategory = () => {
-    const trimmed = newCatName.trim();
-    if (trimmed && !categories.includes(trimmed)) {
-      setCategories([...categories, trimmed]);
-      setNewCatName("");
-    }
-  };
 
   const handleRenameCategory = (index, newName) => {
     const trimmed = newName.trim();
     const oldName = categories[index];
-    if (trimmed && !categories.includes(trimmed)) {
-      setCategories(categories.map((c, i) => (i === index ? trimmed : c)));
-      // Rename category on all products
+    if (trimmed && trimmed !== oldName && !categories.includes(trimmed)) {
       if (setProducts) {
         setProducts(products.map((p) =>
           p.cat === oldName ? { ...p, cat: trimmed } : p
@@ -53,8 +42,6 @@ export default function ProductCatalogScreen({ navigate, goBack, products = [], 
 
   const handleDeleteCategory = (index) => {
     const catName = categories[index];
-    setCategories(categories.filter((_, i) => i !== index));
-    // Move products in this category to "Uncategorised"
     if (setProducts) {
       setProducts(products.map((p) =>
         p.cat === catName ? { ...p, cat: "Uncategorised" } : p
@@ -229,52 +216,19 @@ export default function ProductCatalogScreen({ navigate, goBack, products = [], 
                     );
                   })}
 
-                  {/* Add new category */}
+                  {/* Hint */}
                   <div
                     style={{
+                      padding: "10px 16px",
+                      fontSize: tokens.type.bodySmall.size,
+                      color: tokens.color.fg.subtle,
                       display: "flex",
                       alignItems: "center",
-                      gap: 8,
-                      padding: "10px 16px",
+                      gap: 6,
                     }}
                   >
-                    <Icon name="add" size={18} color={tokens.color.fg.brand} />
-                    <input
-                      value={newCatName}
-                      onChange={(e) => setNewCatName(e.target.value)}
-                      onKeyDown={(e) => {
-                        if (e.key === "Enter") handleAddCategory();
-                      }}
-                      placeholder="New category..."
-                      style={{
-                        flex: 1,
-                        fontSize: tokens.type.bodyMedium.size,
-                        color: tokens.color.fg.emphasis,
-                        border: "none",
-                        outline: "none",
-                        background: "transparent",
-                        fontFamily: "inherit",
-                        padding: 0,
-                      }}
-                    />
-                    {newCatName.trim() && (
-                      <button
-                        onClick={handleAddCategory}
-                        style={{
-                          padding: "6px 14px",
-                          borderRadius: tokens.shape.full,
-                          background: tokens.color.bg.action.primary.default,
-                          border: "none",
-                          cursor: "pointer",
-                          fontSize: tokens.type.labelMedium.size,
-                          fontWeight: 600,
-                          color: "#fff",
-                          fontFamily: "inherit",
-                        }}
-                      >
-                        Add
-                      </button>
-                    )}
+                    <Icon name="info" size={14} color={tokens.color.fg.subtle} />
+                    Categories are created when assigned to products
                   </div>
                 </div>
               )}
