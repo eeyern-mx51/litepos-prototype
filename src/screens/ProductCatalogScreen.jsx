@@ -30,7 +30,8 @@ export default function ProductCatalogScreen({ navigate, goBack, products = [], 
   const handleRenameCategory = (index, newName) => {
     const trimmed = newName.trim();
     const oldName = categories[index];
-    if (trimmed && trimmed !== oldName && !categories.includes(trimmed)) {
+    if (oldName === "Uncategorised") { setRenamingCat(null); return; }
+    if (trimmed && trimmed !== oldName && trimmed !== "Uncategorised" && !categories.includes(trimmed)) {
       if (setProducts) {
         setProducts(products.map((p) =>
           p.cat === oldName ? { ...p, cat: trimmed } : p
@@ -42,6 +43,7 @@ export default function ProductCatalogScreen({ navigate, goBack, products = [], 
 
   const handleDeleteCategory = (index) => {
     const catName = categories[index];
+    if (catName === "Uncategorised") { setDeletingCat(null); return; }
     if (setProducts) {
       setProducts(products.map((p) =>
         p.cat === catName ? { ...p, cat: "Uncategorised" } : p
@@ -135,6 +137,7 @@ export default function ProductCatalogScreen({ navigate, goBack, products = [], 
                   {categories.map((cat, i) => {
                     const count = getCategoryCount(cat);
                     const isRenaming = renamingCat?.index === i;
+                    const isUncategorised = cat === "Uncategorised";
 
                     return (
                       <div
@@ -174,7 +177,8 @@ export default function ProductCatalogScreen({ navigate, goBack, products = [], 
                             <span style={{
                               fontSize: tokens.type.bodyMedium.size,
                               fontWeight: 500,
-                              color: tokens.color.fg.emphasis,
+                              color: isUncategorised ? tokens.color.fg.subtle : tokens.color.fg.emphasis,
+                              fontStyle: isUncategorised ? "italic" : "normal",
                             }}>
                               {cat}
                             </span>
@@ -188,7 +192,7 @@ export default function ProductCatalogScreen({ navigate, goBack, products = [], 
                           </div>
                         )}
 
-                        {!isRenaming && (
+                        {!isRenaming && !isUncategorised && (
                           <div style={{ display: "flex", gap: 2, flexShrink: 0 }}>
                             <button
                               onClick={() => setRenamingCat({ index: i, name: cat })}

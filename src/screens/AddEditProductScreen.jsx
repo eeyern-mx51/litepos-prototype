@@ -155,12 +155,13 @@ export default function AddEditProductScreen({ navigate, goBack, editProduct, pr
   const [favourite, setFavourite] = useState(editProduct?.fav || false);
   const [imagePreview, setImagePreview] = useState(editProduct?.image || null);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [showCategorySheet, setShowCategorySheet] = useState(false);
   const fileInputRef = useRef(null);
 
-  // Gather unique categories from existing products for suggestions
+  // Gather unique categories from existing products for the bottom sheet
   const existingCategories = [...new Set(products.map((p) => p.cat).filter(
     (c) => c && c !== "Uncategorised"
-  ))];
+  ))].sort();
 
   const handleImagePick = () => {
     fileInputRef.current?.click();
@@ -478,52 +479,48 @@ export default function AddEditProductScreen({ navigate, goBack, editProduct, pr
           />
           <PriceField value={price} onChange={setPrice} />
 
-          {/* ── Category field (text input with datalist) ──── */}
-          <div style={{ padding: "12px 16px", borderBottom: `1px solid ${tokens.color.border.onpage}` }}>
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 6 }}>
-              <label
+          {/* ── Category field (bottom sheet trigger) ──── */}
+          <button
+            onClick={() => setShowCategorySheet(true)}
+            style={{
+              width: "100%",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              padding: "12px 16px",
+              borderBottom: `1px solid ${tokens.color.border.onpage}`,
+              background: "transparent",
+              border: "none",
+              borderBottom: `1px solid ${tokens.color.border.onpage}`,
+              cursor: "pointer",
+              fontFamily: "inherit",
+              textAlign: "left",
+            }}
+          >
+            <div>
+              <div
                 style={{
                   fontSize: tokens.type.labelMedium.size,
                   fontWeight: 600,
                   color: tokens.color.fg.subtle,
+                  marginBottom: 4,
                 }}
               >
                 Category
-              </label>
-              <span
+              </div>
+              <div
                 style={{
-                  fontSize: tokens.type.labelSmall.size,
-                  color: tokens.color.fg.subtle,
+                  fontSize: tokens.type.bodyLarge.size,
+                  color: category && category !== "Uncategorised"
+                    ? tokens.color.fg.emphasis
+                    : tokens.color.fg.subtle,
                 }}
               >
-                {category ? "" : "Defaults to Uncategorised"}
-              </span>
+                {category && category !== "Uncategorised" ? category : "Uncategorised"}
+              </div>
             </div>
-            <input
-              list="category-suggestions"
-              value={category}
-              onChange={(e) => setCategory(e.target.value)}
-              placeholder="e.g. Drinks, Food, Snacks"
-              style={{
-                width: "100%",
-                fontSize: tokens.type.bodyLarge.size,
-                color: tokens.color.fg.emphasis,
-                border: "none",
-                outline: "none",
-                background: "transparent",
-                fontFamily: "inherit",
-                padding: 0,
-                lineHeight: tokens.type.bodyLarge.lineHeight,
-              }}
-            />
-            <datalist id="category-suggestions">
-              {["Drinks", "Food", "Snacks", "Merchandise", "Services", ...existingCategories]
-                .filter((v, i, a) => a.indexOf(v) === i)
-                .map((cat) => (
-                  <option key={cat} value={cat} />
-                ))}
-            </datalist>
-          </div>
+            <Icon name="expand-more" size={20} color={tokens.color.fg.subtle} />
+          </button>
 
           <TextField
             label="Description"
@@ -682,6 +679,129 @@ export default function AddEditProductScreen({ navigate, goBack, editProduct, pr
       </div>
 
       {/* ── Delete confirmation dialog ───────────────────── */}
+      {/* ── Category bottom sheet ────────────────────── */}
+      {showCategorySheet && (() => {
+        const allCategories = ["Uncategorised", ...existingCategories,
+          ...["Drinks", "Food", "Snacks", "Merchandise", "Services"]
+        ].filter((v, i, a) => a.indexOf(v) === i);
+        return (
+          <>
+            <div
+              onClick={() => setShowCategorySheet(false)}
+              style={{
+                position: "absolute",
+                inset: 0,
+                background: "rgba(0,0,0,0.45)",
+                zIndex: 50,
+              }}
+            />
+            <div
+              style={{
+                position: "absolute",
+                bottom: 0,
+                left: 0,
+                right: 0,
+                zIndex: 51,
+                background: tokens.color.bg.page,
+                borderRadius: `${tokens.shape.expressiveLarge} ${tokens.shape.expressiveLarge} 0 0`,
+                boxShadow: tokens.elevation.level5,
+                maxHeight: "60%",
+                display: "flex",
+                flexDirection: "column",
+              }}
+            >
+              {/* Drag handle */}
+              <div style={{ display: "flex", justifyContent: "center", padding: "12px 0 4px" }}>
+                <div style={{
+                  width: 36, height: 4, borderRadius: 2,
+                  background: tokens.color.border.onsurface,
+                }} />
+              </div>
+              {/* Header */}
+              <div style={{
+                padding: "8px 24px 16px",
+                fontSize: tokens.type.titleMedium.size,
+                fontWeight: 600,
+                color: tokens.color.fg.emphasis,
+              }}>
+                Select category
+              </div>
+              {/* Options list */}
+              <div style={{ flex: 1, overflow: "auto", paddingBottom: 16 }}>
+                {allCategories.map((cat) => {
+                  const isSelected = (category || "Uncategorised") === cat;
+                  const count = products.filter((p) =>
+                    cat === "Uncategorised"
+                      ? (!p.cat || p.cat === "Uncategorised")
+                      : p.cat === cat
+                  ).length;
+                  return (
+                    <button
+                      key={cat}
+                      onClick={() => {
+                        setCategory(cat === "Uncategorised" ? "" : cat);
+                        setShowCategorySheet(false);
+                      }}
+                      style={{
+                        width: "100%",
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 14,
+                        padding: "14px 24px",
+                        border: "none",
+                        background: isSelected ? `${tokens.color.fg.brand}08` : "transparent",
+                        cursor: "pointer",
+                        fontFamily: "inherit",
+                        textAlign: "left",
+                      }}
+                    >
+                      {/* Radio indicator */}
+                      <div
+                        style={{
+                          width: 22, height: 22, borderRadius: tokens.shape.full,
+                          border: `2px solid ${isSelected ? tokens.color.fg.brand : tokens.color.border.onsurface}`,
+                          display: "flex", alignItems: "center", justifyContent: "center",
+                          flexShrink: 0,
+                          transition: `all ${tokens.motion.duration.short2} ${tokens.motion.easing.expressive}`,
+                        }}
+                      >
+                        {isSelected && (
+                          <div style={{
+                            width: 10, height: 10, borderRadius: tokens.shape.full,
+                            background: tokens.color.fg.brand,
+                          }} />
+                        )}
+                      </div>
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <div style={{
+                          fontSize: tokens.type.bodyLarge.size,
+                          fontWeight: isSelected ? 600 : 400,
+                          color: isSelected ? tokens.color.fg.brand : tokens.color.fg.emphasis,
+                        }}>
+                          {cat}
+                        </div>
+                        {count > 0 && (
+                          <div style={{
+                            fontSize: tokens.type.bodySmall.size,
+                            color: tokens.color.fg.subtle,
+                            marginTop: 1,
+                          }}>
+                            {count} {count === 1 ? "product" : "products"}
+                          </div>
+                        )}
+                      </div>
+                      {isSelected && (
+                        <Icon name="check" size={20} color={tokens.color.fg.brand} />
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          </>
+        );
+      })()}
+
       {showDeleteConfirm && (
         <>
           {/* Scrim */}
