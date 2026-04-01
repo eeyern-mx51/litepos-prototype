@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import tokens from "../theme/tokens";
 import TopAppBar from "../components/TopAppBar";
 import Icon from "../components/Icon";
@@ -170,13 +170,74 @@ export default function AddEditProductScreen({ navigate, goBack, editProduct, pr
   const [favourite, setFavourite] = useState(editProduct?.fav || false);
   const [imagePreview, setImagePreview] = useState(editProduct?.image || null);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
-  const [showCategorySheet, setShowCategorySheet] = useState(false);
+  const [catDropdownOpen, setCatDropdownOpen] = useState(false);
+  const [catInputValue, setCatInputValue] = useState(editProduct?.cat && editProduct.cat !== "Uncategorised" ? editProduct.cat : "");
+  const [catInputFocused, setCatInputFocused] = useState(false);
+  const catFieldRef = useRef(null);
+  const catInputRef = useRef(null);
   const fileInputRef = useRef(null);
 
   // Gather unique categories from existing products for the bottom sheet
   const existingCategories = [...new Set(products.map((p) => p.cat).filter(
     (c) => c && c !== "Uncategorised"
   ))].sort();
+
+  // All category suggestions: existing + defaults, deduplicated
+  const defaultCategories = ["Drinks", "Food", "Snacks", "Merchandise", "Services"];
+  const allCategories = ["Uncategorised", ...existingCategories,
+    ...defaultCategories
+  ].filter((v, i, a) => a.indexOf(v) === i);
+
+  // Filter based on input text
+  const catQuery = catInputValue.trim().toLowerCase();
+  const filteredCategories = catQuery
+    ? allCategories.filter((c) => c.toLowerCase().includes(catQuery))
+    : allCategories;
+
+  // Is the typed value a new category?
+  const isNewCategory = catQuery && !allCategories.some((c) => c.toLowerCase() === catQuery);
+
+  // Sync catInputValue → category state
+  const handleCatSelect = (cat) => {
+    if (cat === "Uncategorised") {
+      setCategory("");
+      setCatInputValue("");
+    } else {
+      setCategory(cat);
+      setCatInputValue(cat);
+    }
+    setCatDropdownOpen(false);
+  };
+
+  const handleCatInputChange = (val) => {
+    setCatInputValue(val);
+    setCategory(val.trim() || "");
+    if (!catDropdownOpen) setCatDropdownOpen(true);
+  };
+
+  const handleCatBlur = () => {
+    // Delay to allow click on dropdown item
+    setTimeout(() => {
+      setCatInputFocused(false);
+      setCatDropdownOpen(false);
+      // If empty, reset to Uncategorised
+      if (!catInputValue.trim()) {
+        setCategory("");
+      }
+    }, 200);
+  };
+
+  // Close dropdown on click outside
+  useEffect(() => {
+    if (!catDropdownOpen) return;
+    const handler = (e) => {
+      if (catFieldRef.current && !catFieldRef.current.contains(e.target)) {
+        setCatDropdownOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, [catDropdownOpen]);
 
   const handleImagePick = () => {
     fileInputRef.current?.click();
@@ -495,48 +556,269 @@ export default function AddEditProductScreen({ navigate, goBack, editProduct, pr
           />
           <PriceField value={price} onChange={setPrice} badge={<InputBadge keyboardType={keyboardType} inputType="numeric" />} />
 
-          {/* ── Category field (bottom sheet trigger) ──── */}
-          <button
-            onClick={() => setShowCategorySheet(true)}
+          {/* ── Category — M3 Exposed Dropdown Menu (Editable) ──── */}
+          <div
+            ref={catFieldRef}
             style={{
-              width: "100%",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "space-between",
               padding: "12px 16px",
               borderBottom: `1px solid ${tokens.color.border.onpage}`,
-              background: "transparent",
-              border: "none",
-              borderBottom: `1px solid ${tokens.color.border.onpage}`,
-              cursor: "pointer",
-              fontFamily: "inherit",
-              textAlign: "left",
+              position: "relative",
             }}
           >
-            <div>
-              <div
-                style={{
-                  fontSize: tokens.type.labelMedium.size,
-                  fontWeight: 600,
-                  color: tokens.color.fg.subtle,
-                  marginBottom: 4,
-                }}
-              >
+            {/* M3 label + badge row */}
+            <div style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 8,
+              marginBottom: 6,
+            }}>
+              <label style={{
+                fontSize: tokens.type.labelMedium.size,
+                fontWeight: 600,
+                color: catInputFocused ? tokens.color.fg.brand : tokens.color.fg.subtle,
+                transition: `color ${tokens.motion.duration.short4} ${tokens.motion.easing.standard}`,
+              }}>
                 Category
-              </div>
-              <div
+              </label>
+              <InputBadge keyboardType={keyboardType} inputType="alpha" />
+            </div>
+
+            {/* M3 Outlined text field container */}
+            <div
+              style={{
+                position: "relative",
+                display: "flex",
+                alignItems: "center",
+                height: 48,
+                borderRadius: tokens.shape.extraSmall,
+                border: catInputFocused
+                  ? `2px solid ${tokens.color.fg.brand}`
+                  : `1px solid ${tokens.color.border.onsurface}`,
+                padding: catInputFocused ? "0 11px 0 15px" : "0 12px 0 16px",
+                background: tokens.color.bg.page,
+                transition: `border-color ${tokens.motion.duration.short4} ${tokens.motion.easing.standard}`,
+                cursor: "text",
+              }}
+              onClick={() => catInputRef.current?.focus()}
+            >
+              <input
+                ref={catInputRef}
+                type="text"
+                value={catInputValue}
+                onChange={(e) => handleCatInputChange(e.target.value)}
+                onFocus={(e) => {
+                  setCatInputFocused(true);
+                  setCatDropdownOpen(true);
+                  kb?.enabled && kb.show("alpha", e.target);
+                }}
+                onBlur={handleCatBlur}
+                inputMode={kb?.enabled ? "none" : undefined}
+                placeholder={catInputFocused ? "Type or select…" : "Uncategorised"}
                 style={{
+                  flex: 1,
                   fontSize: tokens.type.bodyLarge.size,
-                  color: category && category !== "Uncategorised"
-                    ? tokens.color.fg.emphasis
-                    : tokens.color.fg.subtle,
+                  color: tokens.color.fg.emphasis,
+                  border: "none",
+                  outline: "none",
+                  background: "transparent",
+                  fontFamily: "inherit",
+                  padding: 0,
+                  height: "100%",
+                }}
+              />
+              {/* Clear button (when has value) */}
+              {catInputValue && catInputFocused && (
+                <button
+                  onMouseDown={(e) => {
+                    e.preventDefault();
+                    setCatInputValue("");
+                    setCategory("");
+                    catInputRef.current?.focus();
+                  }}
+                  style={{
+                    width: 28,
+                    height: 28,
+                    borderRadius: tokens.shape.full,
+                    border: "none",
+                    background: "transparent",
+                    cursor: "pointer",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    padding: 0,
+                    flexShrink: 0,
+                    marginRight: 2,
+                  }}
+                >
+                  <Icon name="close" size={16} color={tokens.color.fg.subtle} />
+                </button>
+              )}
+              {/* Trailing dropdown arrow */}
+              <button
+                onMouseDown={(e) => {
+                  e.preventDefault();
+                  if (catDropdownOpen) {
+                    setCatDropdownOpen(false);
+                  } else {
+                    setCatDropdownOpen(true);
+                    catInputRef.current?.focus();
+                  }
+                }}
+                style={{
+                  width: 28,
+                  height: 28,
+                  borderRadius: tokens.shape.full,
+                  border: "none",
+                  background: "transparent",
+                  cursor: "pointer",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  padding: 0,
+                  flexShrink: 0,
+                  transition: `transform ${tokens.motion.duration.short4} ${tokens.motion.easing.standard}`,
+                  transform: catDropdownOpen ? "rotate(180deg)" : "rotate(0deg)",
                 }}
               >
-                {category && category !== "Uncategorised" ? category : "Uncategorised"}
-              </div>
+                <Icon name="expand-more" size={20} color={catInputFocused ? tokens.color.fg.brand : tokens.color.fg.subtle} />
+              </button>
             </div>
-            <Icon name="expand-more" size={20} color={tokens.color.fg.subtle} />
-          </button>
+
+            {/* ── M3 Dropdown menu surface ──── */}
+            {catDropdownOpen && (
+              <div
+                style={{
+                  position: "absolute",
+                  top: "calc(100% + 4px)",
+                  left: 16,
+                  right: 16,
+                  zIndex: 30,
+                  background: tokens.color.bg.page,
+                  borderRadius: tokens.shape.extraSmall,
+                  boxShadow: tokens.elevation.level2,
+                  maxHeight: 200,
+                  overflow: "auto",
+                  paddingTop: 4,
+                  paddingBottom: 4,
+                }}
+              >
+                {/* "Create new" option when typing a novel category */}
+                {isNewCategory && (
+                  <button
+                    onMouseDown={(e) => {
+                      e.preventDefault();
+                      handleCatSelect(catInputValue.trim());
+                    }}
+                    style={{
+                      width: "100%",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 12,
+                      padding: "10px 16px",
+                      minHeight: 48,
+                      border: "none",
+                      background: "transparent",
+                      cursor: "pointer",
+                      fontFamily: "inherit",
+                      textAlign: "left",
+                    }}
+                  >
+                    <div style={{
+                      width: 24,
+                      height: 24,
+                      borderRadius: tokens.shape.full,
+                      background: `${tokens.color.fg.brand}12`,
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      flexShrink: 0,
+                    }}>
+                      <Icon name="add" size={16} color={tokens.color.fg.brand} />
+                    </div>
+                    <span style={{
+                      fontSize: tokens.type.bodyLarge.size,
+                      color: tokens.color.fg.brand,
+                      fontWeight: 500,
+                    }}>
+                      Create "{catInputValue.trim()}"
+                    </span>
+                  </button>
+                )}
+
+                {/* Existing / suggested categories */}
+                {filteredCategories.map((cat) => {
+                  const isSelected = (category || "Uncategorised") === cat || (!category && cat === "Uncategorised");
+                  const count = products.filter((p) =>
+                    cat === "Uncategorised"
+                      ? (!p.cat || p.cat === "Uncategorised")
+                      : p.cat === cat
+                  ).length;
+                  return (
+                    <button
+                      key={cat}
+                      onMouseDown={(e) => {
+                        e.preventDefault();
+                        handleCatSelect(cat);
+                      }}
+                      style={{
+                        width: "100%",
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 12,
+                        padding: "10px 16px",
+                        minHeight: 48,
+                        border: "none",
+                        background: isSelected ? `${tokens.color.fg.brand}0A` : "transparent",
+                        cursor: "pointer",
+                        fontFamily: "inherit",
+                        textAlign: "left",
+                        borderRadius: 0,
+                      }}
+                    >
+                      {/* Leading icon: check for selected, folder for others */}
+                      {isSelected ? (
+                        <Icon name="check" size={18} color={tokens.color.fg.brand} />
+                      ) : (
+                        <div style={{ width: 18, height: 18, flexShrink: 0 }} />
+                      )}
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <div style={{
+                          fontSize: tokens.type.bodyLarge.size,
+                          fontWeight: isSelected ? 500 : 400,
+                          color: isSelected ? tokens.color.fg.brand : tokens.color.fg.emphasis,
+                          fontStyle: cat === "Uncategorised" ? "italic" : "normal",
+                          lineHeight: tokens.type.bodyLarge.lineHeight,
+                        }}>
+                          {cat}
+                        </div>
+                      </div>
+                      {count > 0 && (
+                        <span style={{
+                          fontSize: tokens.type.labelSmall.size,
+                          color: tokens.color.fg.subtle,
+                          fontWeight: 500,
+                          flexShrink: 0,
+                        }}>
+                          {count}
+                        </span>
+                      )}
+                    </button>
+                  );
+                })}
+
+                {filteredCategories.length === 0 && !isNewCategory && (
+                  <div style={{
+                    padding: "12px 16px",
+                    textAlign: "center",
+                    fontSize: tokens.type.bodyMedium.size,
+                    color: tokens.color.fg.subtle,
+                  }}>
+                    No matching categories
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
 
           <TextField
             label="Description"
@@ -703,129 +985,6 @@ export default function AddEditProductScreen({ navigate, goBack, editProduct, pr
       </div>
 
       {/* ── Delete confirmation dialog ───────────────────── */}
-      {/* ── Category bottom sheet ────────────────────── */}
-      {showCategorySheet && (() => {
-        const allCategories = ["Uncategorised", ...existingCategories,
-          ...["Drinks", "Food", "Snacks", "Merchandise", "Services"]
-        ].filter((v, i, a) => a.indexOf(v) === i);
-        return (
-          <>
-            <div
-              onClick={() => setShowCategorySheet(false)}
-              style={{
-                position: "absolute",
-                inset: 0,
-                background: "rgba(0,0,0,0.45)",
-                zIndex: 50,
-              }}
-            />
-            <div
-              style={{
-                position: "absolute",
-                bottom: 0,
-                left: 0,
-                right: 0,
-                zIndex: 51,
-                background: tokens.color.bg.page,
-                borderRadius: `${tokens.shape.expressiveLarge} ${tokens.shape.expressiveLarge} 0 0`,
-                boxShadow: tokens.elevation.level5,
-                maxHeight: "60%",
-                display: "flex",
-                flexDirection: "column",
-              }}
-            >
-              {/* Drag handle */}
-              <div style={{ display: "flex", justifyContent: "center", padding: "12px 0 4px" }}>
-                <div style={{
-                  width: 36, height: 4, borderRadius: 2,
-                  background: tokens.color.border.onsurface,
-                }} />
-              </div>
-              {/* Header */}
-              <div style={{
-                padding: "8px 24px 16px",
-                fontSize: tokens.type.titleMedium.size,
-                fontWeight: 600,
-                color: tokens.color.fg.emphasis,
-              }}>
-                Select category
-              </div>
-              {/* Options list */}
-              <div style={{ flex: 1, overflow: "auto", paddingBottom: 16 }}>
-                {allCategories.map((cat) => {
-                  const isSelected = (category || "Uncategorised") === cat;
-                  const count = products.filter((p) =>
-                    cat === "Uncategorised"
-                      ? (!p.cat || p.cat === "Uncategorised")
-                      : p.cat === cat
-                  ).length;
-                  return (
-                    <button
-                      key={cat}
-                      onClick={() => {
-                        setCategory(cat === "Uncategorised" ? "" : cat);
-                        setShowCategorySheet(false);
-                      }}
-                      style={{
-                        width: "100%",
-                        display: "flex",
-                        alignItems: "center",
-                        gap: 14,
-                        padding: "14px 24px",
-                        border: "none",
-                        background: isSelected ? `${tokens.color.fg.brand}08` : "transparent",
-                        cursor: "pointer",
-                        fontFamily: "inherit",
-                        textAlign: "left",
-                      }}
-                    >
-                      {/* Radio indicator */}
-                      <div
-                        style={{
-                          width: 22, height: 22, borderRadius: tokens.shape.full,
-                          border: `2px solid ${isSelected ? tokens.color.fg.brand : tokens.color.border.onsurface}`,
-                          display: "flex", alignItems: "center", justifyContent: "center",
-                          flexShrink: 0,
-                          transition: `all ${tokens.motion.duration.short2} ${tokens.motion.easing.expressive}`,
-                        }}
-                      >
-                        {isSelected && (
-                          <div style={{
-                            width: 10, height: 10, borderRadius: tokens.shape.full,
-                            background: tokens.color.fg.brand,
-                          }} />
-                        )}
-                      </div>
-                      <div style={{ flex: 1, minWidth: 0 }}>
-                        <div style={{
-                          fontSize: tokens.type.bodyLarge.size,
-                          fontWeight: isSelected ? 600 : 400,
-                          color: isSelected ? tokens.color.fg.brand : tokens.color.fg.emphasis,
-                        }}>
-                          {cat}
-                        </div>
-                        {count > 0 && (
-                          <div style={{
-                            fontSize: tokens.type.bodySmall.size,
-                            color: tokens.color.fg.subtle,
-                            marginTop: 1,
-                          }}>
-                            {count} {count === 1 ? "product" : "products"}
-                          </div>
-                        )}
-                      </div>
-                      {isSelected && (
-                        <Icon name="check" size={20} color={tokens.color.fg.brand} />
-                      )}
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-          </>
-        );
-      })()}
-
       {showDeleteConfirm && (
         <>
           {/* Scrim */}
