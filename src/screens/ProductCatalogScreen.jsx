@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import tokens from "../theme/tokens";
 import TopAppBar from "../components/TopAppBar";
 import FAB from "../components/FAB";
@@ -27,14 +27,30 @@ export default function ProductCatalogScreen({ navigate, goBack, products = [], 
   // Empty categories auto-remove when their last product is deleted or recategorised.
   const categories = [...new Set(products.map((p) => p.cat).filter(Boolean))].sort();
   const [showCategories, setShowCategories] = useState(false);
-  const [renamingCat, setRenamingCat] = useState(null); // { index, name }
-  const [deletingCat, setDeletingCat] = useState(null); // index
+  const [overflowMenuCat, setOverflowMenuCat] = useState(null); // category name or null
+  const [renamingCat, setRenamingCat] = useState(null);         // { name, newName } — dialog
+  const [deletingCat, setDeletingCat] = useState(null);         // category name — dialog
+  const overflowRef = useRef(null);
+  const renameInputRef = useRef(null);
 
-  const handleRenameCategory = (index, newName) => {
-    const trimmed = newName.trim();
-    const oldName = categories[index];
+  // Close overflow menu on outside click
+  useEffect(() => {
+    if (!overflowMenuCat) return;
+    const handler = (e) => {
+      if (overflowRef.current && !overflowRef.current.contains(e.target)) {
+        setOverflowMenuCat(null);
+      }
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, [overflowMenuCat]);
+
+  const handleRenameCategory = () => {
+    if (!renamingCat) return;
+    const trimmed = renamingCat.newName.trim();
+    const oldName = renamingCat.name;
     if (oldName === "Uncategorised") { setRenamingCat(null); return; }
-    if (trimmed && trimmed !== oldName && trimmed !== "Uncategorised" && !categories.includes(trimmed)) {
+    if (trimmed && trimmed !== oldName && trimmed.toLowerCase() !== "uncategorised" && !categories.some(c => c.toLowerCase() === trimmed.toLowerCase())) {
       if (setProducts) {
         setProducts(products.map((p) =>
           p.cat === oldName ? { ...p, cat: trimmed } : p
@@ -44,12 +60,12 @@ export default function ProductCatalogScreen({ navigate, goBack, products = [], 
     setRenamingCat(null);
   };
 
-  const handleDeleteCategory = (index) => {
-    const catName = categories[index];
-    if (catName === "Uncategorised") { setDeletingCat(null); return; }
+  const handleDeleteCategory = () => {
+    if (!deletingCat) return;
+    if (deletingCat === "Uncategorised") { setDeletingCat(null); return; }
     if (setProducts) {
       setProducts(products.map((p) =>
-        p.cat === catName ? { ...p, cat: "Uncategorised" } : p
+        p.cat === deletingCat ? { ...p, cat: "Uncategorised" } : p
       ));
     }
     setDeletingCat(null);
@@ -80,8 +96,9 @@ export default function ProductCatalogScreen({ navigate, goBack, products = [], 
               {products.length} products · {categories.length} categories
             </div>
 
-            {/* ── Categories section ────────────────────── */}
+            {/* ── Categories section — M3 List ──────────── */}
             <div style={{ margin: "0 16px 10px" }}>
+              {/* Section header with expand/collapse */}
               <button
                 onClick={() => setShowCategories(!showCategories)}
                 style={{
@@ -89,165 +106,385 @@ export default function ProductCatalogScreen({ navigate, goBack, products = [], 
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "space-between",
-                  padding: "12px 16px",
+                  padding: "14px 16px",
                   background: tokens.color.bg.page,
                   border: `1px solid ${tokens.color.border.onpage}`,
                   borderRadius: showCategories
-                    ? `${tokens.shape.expressiveLarge} ${tokens.shape.expressiveLarge} 0 0`
-                    : tokens.shape.expressiveLarge,
+                    ? `${tokens.shape.large} ${tokens.shape.large} 0 0`
+                    : tokens.shape.large,
                   cursor: "pointer",
                   fontFamily: "inherit",
                   transition: `border-radius ${tokens.motion.duration.short4} ${tokens.motion.easing.standard}`,
                 }}
               >
-                <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                  <Icon name="store" size={20} color={tokens.color.fg.brand} />
-                  <span style={{
-                    fontSize: tokens.type.titleSmall.size,
-                    fontWeight: 600,
-                    color: tokens.color.fg.emphasis,
+                <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                  <div style={{
+                    width: 40, height: 40, borderRadius: tokens.shape.full,
+                    background: `${tokens.color.fg.brand}12`,
+                    display: "flex", alignItems: "center", justifyContent: "center",
+                    flexShrink: 0,
                   }}>
-                    Categories
-                  </span>
-                  <span style={{
-                    fontSize: tokens.type.labelSmall.size,
-                    fontWeight: 600,
-                    color: tokens.color.fg.subtle,
-                    background: tokens.color.bg.surface,
-                    padding: "2px 8px",
-                    borderRadius: tokens.shape.full,
-                  }}>
-                    {categories.length}
-                  </span>
+                    <Icon name="label" size={20} color={tokens.color.fg.brand} />
+                  </div>
+                  <div style={{ textAlign: "left" }}>
+                    <div style={{
+                      fontSize: tokens.type.bodyLarge.size,
+                      fontWeight: 500,
+                      color: tokens.color.fg.emphasis,
+                      lineHeight: tokens.type.bodyLarge.lineHeight,
+                    }}>
+                      Categories
+                    </div>
+                    <div style={{
+                      fontSize: tokens.type.bodySmall.size,
+                      color: tokens.color.fg.subtle,
+                      lineHeight: tokens.type.bodySmall.lineHeight,
+                    }}>
+                      {categories.length} {categories.length === 1 ? "category" : "categories"}
+                    </div>
+                  </div>
                 </div>
-                <Icon
-                  name="expand-more"
-                  size={20}
-                  color={tokens.color.fg.subtle}
-                />
+                <div style={{
+                  transition: `transform ${tokens.motion.duration.short4} ${tokens.motion.easing.standard}`,
+                  transform: showCategories ? "rotate(180deg)" : "rotate(0deg)",
+                }}>
+                  <Icon name="expand-more" size={24} color={tokens.color.fg.subtle} />
+                </div>
               </button>
 
+              {/* M3 List — category rows */}
               {showCategories && (
                 <div
                   style={{
                     background: tokens.color.bg.page,
                     border: `1px solid ${tokens.color.border.onpage}`,
                     borderTop: "none",
-                    borderRadius: `0 0 ${tokens.shape.expressiveLarge} ${tokens.shape.expressiveLarge}`,
-                    overflow: "hidden",
+                    borderRadius: `0 0 ${tokens.shape.large} ${tokens.shape.large}`,
+                    overflow: "visible",
+                    position: "relative",
                   }}
                 >
                   {categories.map((cat, i) => {
                     const count = getCategoryCount(cat);
-                    const isRenaming = renamingCat?.index === i;
                     const isUncategorised = cat === "Uncategorised";
+                    const isOverflowOpen = overflowMenuCat === cat;
 
                     return (
                       <div
-                        key={cat + i}
+                        key={cat}
                         style={{
                           display: "flex",
                           alignItems: "center",
-                          gap: 10,
-                          padding: "10px 16px",
-                          borderBottom: `1px solid ${tokens.color.border.onpage}`,
+                          gap: 12,
+                          padding: "8px 4px 8px 16px",
+                          minHeight: 56,
+                          borderBottom: i < categories.length - 1 ? `1px solid ${tokens.color.border.onpage}` : "none",
+                          position: "relative",
                         }}
                       >
-                        {isRenaming ? (
-                          <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: 4 }}>
-                            <input
-                              autoFocus
-                              value={renamingCat.name}
-                              onChange={(e) => setRenamingCat({ index: i, name: e.target.value })}
-                              onFocus={(e) => kb?.enabled && kb.show("alpha", e.target)}
-                              inputMode={kb?.enabled ? "none" : undefined}
-                              onKeyDown={(e) => {
-                                if (e.key === "Enter") handleRenameCategory(i, renamingCat.name);
-                                if (e.key === "Escape") setRenamingCat(null);
-                              }}
-                              onBlur={() => handleRenameCategory(i, renamingCat.name)}
-                              style={{
-                                width: "100%",
-                                fontSize: tokens.type.bodyMedium.size,
-                                color: tokens.color.fg.emphasis,
-                                border: "none",
-                                outline: "none",
-                                background: "transparent",
-                                fontFamily: "inherit",
-                                fontWeight: 500,
-                                padding: 0,
-                              }}
-                            />
-                            <InputBadge keyboardType={keyboardType} inputType="alpha" />
-                          </div>
-                        ) : (
-                          <div style={{ flex: 1, minWidth: 0 }}>
-                            <span style={{
-                              fontSize: tokens.type.bodyMedium.size,
-                              fontWeight: 500,
-                              color: isUncategorised ? tokens.color.fg.subtle : tokens.color.fg.emphasis,
-                              fontStyle: isUncategorised ? "italic" : "normal",
-                            }}>
-                              {cat}
-                            </span>
-                            <span style={{
-                              fontSize: tokens.type.bodySmall.size,
-                              color: tokens.color.fg.subtle,
-                              marginLeft: 8,
-                            }}>
-                              {count} {count === 1 ? "item" : "items"}
-                            </span>
-                          </div>
-                        )}
+                        {/* Leading — category icon */}
+                        <div style={{
+                          width: 40, height: 40, borderRadius: tokens.shape.full,
+                          background: isUncategorised ? `${tokens.color.fg.subtle}10` : `${tokens.color.fg.brand}08`,
+                          display: "flex", alignItems: "center", justifyContent: "center",
+                          flexShrink: 0,
+                        }}>
+                          <Icon
+                            name="label"
+                            size={20}
+                            color={isUncategorised ? tokens.color.fg.subtle : tokens.color.fg.brand}
+                          />
+                        </div>
 
-                        {!isRenaming && !isUncategorised && (
-                          <div style={{ display: "flex", gap: 2, flexShrink: 0 }}>
+                        {/* Content — headline + supporting text */}
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                          <div style={{
+                            fontSize: tokens.type.bodyLarge.size,
+                            fontWeight: 400,
+                            color: isUncategorised ? tokens.color.fg.subtle : tokens.color.fg.emphasis,
+                            fontStyle: isUncategorised ? "italic" : "normal",
+                            lineHeight: tokens.type.bodyLarge.lineHeight,
+                          }}>
+                            {cat}
+                          </div>
+                          <div style={{
+                            fontSize: tokens.type.bodySmall.size,
+                            color: tokens.color.fg.subtle,
+                            lineHeight: tokens.type.bodySmall.lineHeight,
+                          }}>
+                            {count} {count === 1 ? "product" : "products"}
+                          </div>
+                        </div>
+
+                        {/* Trailing — M3 IconButton (MoreVert overflow) */}
+                        {!isUncategorised && (
+                          <div ref={isOverflowOpen ? overflowRef : undefined} style={{ position: "relative", flexShrink: 0 }}>
                             <button
-                              onClick={() => setRenamingCat({ index: i, name: cat })}
+                              onClick={() => setOverflowMenuCat(isOverflowOpen ? null : cat)}
                               style={{
-                                width: 34, height: 34, borderRadius: tokens.shape.full,
-                                border: "none", background: "transparent", cursor: "pointer",
+                                width: 48, height: 48, borderRadius: tokens.shape.full,
+                                border: "none",
+                                background: isOverflowOpen ? `${tokens.color.fg.emphasis}0A` : "transparent",
+                                cursor: "pointer",
                                 display: "flex", alignItems: "center", justifyContent: "center",
+                                padding: 0,
+                                transition: `background ${tokens.motion.duration.short2} ${tokens.motion.easing.standard}`,
                               }}
                             >
-                              <Icon name="edit" size={16} color={tokens.color.fg.subtle} />
+                              <Icon name="more-vert" size={20} color={tokens.color.fg.subtle} />
                             </button>
-                            <button
-                              onClick={() => setDeletingCat(i)}
-                              style={{
-                                width: 34, height: 34, borderRadius: tokens.shape.full,
-                                border: "none", background: "transparent", cursor: "pointer",
-                                display: "flex", alignItems: "center", justifyContent: "center",
-                              }}
-                            >
-                              <Icon name="delete" size={16} color={tokens.color.fg.subtle} />
-                            </button>
+
+                            {/* M3 Dropdown Menu */}
+                            {isOverflowOpen && (
+                              <div style={{
+                                position: "absolute",
+                                top: "100%",
+                                right: 0,
+                                zIndex: 40,
+                                minWidth: 160,
+                                background: tokens.color.bg.page,
+                                borderRadius: tokens.shape.extraSmall,
+                                boxShadow: tokens.elevation.level2,
+                                paddingTop: 8,
+                                paddingBottom: 8,
+                                overflow: "hidden",
+                              }}>
+                                <button
+                                  onClick={() => {
+                                    setOverflowMenuCat(null);
+                                    setRenamingCat({ name: cat, newName: cat });
+                                  }}
+                                  style={{
+                                    width: "100%",
+                                    display: "flex",
+                                    alignItems: "center",
+                                    gap: 12,
+                                    padding: "10px 16px",
+                                    minHeight: 48,
+                                    border: "none",
+                                    background: "transparent",
+                                    cursor: "pointer",
+                                    fontFamily: "inherit",
+                                    textAlign: "left",
+                                  }}
+                                >
+                                  <Icon name="edit" size={20} color={tokens.color.fg.emphasis} />
+                                  <span style={{
+                                    fontSize: tokens.type.bodyLarge.size,
+                                    color: tokens.color.fg.emphasis,
+                                  }}>
+                                    Rename
+                                  </span>
+                                </button>
+                                <button
+                                  onClick={() => {
+                                    setOverflowMenuCat(null);
+                                    setDeletingCat(cat);
+                                  }}
+                                  style={{
+                                    width: "100%",
+                                    display: "flex",
+                                    alignItems: "center",
+                                    gap: 12,
+                                    padding: "10px 16px",
+                                    minHeight: 48,
+                                    border: "none",
+                                    background: "transparent",
+                                    cursor: "pointer",
+                                    fontFamily: "inherit",
+                                    textAlign: "left",
+                                  }}
+                                >
+                                  <Icon name="delete" size={20} color={tokens.color.fg.error.text} />
+                                  <span style={{
+                                    fontSize: tokens.type.bodyLarge.size,
+                                    color: tokens.color.fg.error.text,
+                                  }}>
+                                    Delete
+                                  </span>
+                                </button>
+                              </div>
+                            )}
                           </div>
                         )}
                       </div>
                     );
                   })}
 
-                  {/* Hint */}
+                  {/* Supporting text — M3 list footer */}
                   <div
                     style={{
-                      padding: "10px 16px",
+                      padding: "12px 16px 14px",
+                      paddingLeft: 68,
                       fontSize: tokens.type.bodySmall.size,
                       color: tokens.color.fg.subtle,
-                      display: "flex",
-                      alignItems: "center",
-                      gap: 6,
+                      lineHeight: tokens.type.bodySmall.lineHeight,
                     }}
                   >
-                    <Icon name="info" size={14} color={tokens.color.fg.subtle} />
-                    Categories are created when assigned to products
+                    Categories are created when you assign them to products
                   </div>
                 </div>
               )}
             </div>
 
-            {/* ── Delete category confirmation ──────────── */}
-            {deletingCat !== null && (
+            {/* ── Rename category dialog (M3 AlertDialog) ── */}
+            {renamingCat && (
+              <>
+                <div
+                  onClick={() => setRenamingCat(null)}
+                  style={{
+                    position: "absolute", inset: 0,
+                    background: "rgba(0,0,0,0.45)", zIndex: 50,
+                  }}
+                />
+                <div
+                  style={{
+                    position: "absolute",
+                    top: "50%", left: "50%",
+                    transform: "translate(-50%, -50%)",
+                    width: "calc(100% - 48px)",
+                    background: tokens.color.bg.page,
+                    borderRadius: tokens.shape.extraLarge,
+                    padding: "24px",
+                    zIndex: 51,
+                    boxShadow: tokens.elevation.level3,
+                  }}
+                >
+                  <div style={{
+                    fontSize: tokens.type.headlineSmall.size,
+                    fontWeight: tokens.type.headlineSmall.weight,
+                    color: tokens.color.fg.emphasis,
+                  }}>
+                    Rename category
+                  </div>
+                  <div style={{
+                    fontSize: tokens.type.bodyMedium.size,
+                    color: tokens.color.fg.subtle,
+                    marginTop: 8,
+                    lineHeight: 1.5,
+                  }}>
+                    Products in "{renamingCat.name}" will be updated to the new name.
+                  </div>
+
+                  {/* M3 OutlinedTextField */}
+                  <div style={{ marginTop: 20, position: "relative" }}>
+                    <InputBadge keyboardType={keyboardType} inputType="alpha" />
+                    <div style={{
+                      marginTop: 6,
+                      borderRadius: tokens.shape.extraSmall,
+                      border: `2px solid ${tokens.color.fg.brand}`,
+                      padding: "0 16px",
+                      height: 56,
+                      display: "flex",
+                      alignItems: "center",
+                      background: tokens.color.bg.page,
+                    }}>
+                      <input
+                        ref={renameInputRef}
+                        autoFocus
+                        value={renamingCat.newName}
+                        onChange={(e) => setRenamingCat({ ...renamingCat, newName: e.target.value })}
+                        onFocus={(e) => kb?.enabled && kb.show("alpha", e.target)}
+                        inputMode={kb?.enabled ? "none" : undefined}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter") handleRenameCategory();
+                          if (e.key === "Escape") setRenamingCat(null);
+                        }}
+                        placeholder="Category name"
+                        style={{
+                          width: "100%",
+                          fontSize: tokens.type.bodyLarge.size,
+                          color: tokens.color.fg.emphasis,
+                          border: "none",
+                          outline: "none",
+                          background: "transparent",
+                          fontFamily: "inherit",
+                          padding: 0,
+                        }}
+                      />
+                    </div>
+                    {/* Validation hint */}
+                    {renamingCat.newName.trim() && renamingCat.newName.trim() !== renamingCat.name && categories.some(c => c.toLowerCase() === renamingCat.newName.trim().toLowerCase()) && (
+                      <div style={{
+                        fontSize: tokens.type.bodySmall.size,
+                        color: tokens.color.fg.error.text,
+                        marginTop: 6,
+                        paddingLeft: 16,
+                      }}>
+                        A category with this name already exists
+                      </div>
+                    )}
+                    {renamingCat.newName.trim().toLowerCase() === "uncategorised" && (
+                      <div style={{
+                        fontSize: tokens.type.bodySmall.size,
+                        color: tokens.color.fg.error.text,
+                        marginTop: 6,
+                        paddingLeft: 16,
+                      }}>
+                        "Uncategorised" is reserved
+                      </div>
+                    )}
+                  </div>
+
+                  {/* M3 Dialog actions */}
+                  <div style={{
+                    display: "flex",
+                    justifyContent: "flex-end",
+                    gap: 8,
+                    marginTop: 24,
+                  }}>
+                    <button
+                      onClick={() => setRenamingCat(null)}
+                      style={{
+                        padding: "10px 24px",
+                        borderRadius: tokens.shape.full,
+                        border: "none",
+                        background: "transparent",
+                        cursor: "pointer",
+                        fontSize: tokens.type.labelLarge.size,
+                        fontWeight: 600,
+                        color: tokens.color.fg.brand,
+                        fontFamily: "inherit",
+                      }}
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      onClick={handleRenameCategory}
+                      disabled={
+                        !renamingCat.newName.trim() ||
+                        renamingCat.newName.trim() === renamingCat.name ||
+                        renamingCat.newName.trim().toLowerCase() === "uncategorised" ||
+                        categories.some(c => c.toLowerCase() === renamingCat.newName.trim().toLowerCase() && c !== renamingCat.name)
+                      }
+                      style={{
+                        padding: "10px 24px",
+                        borderRadius: tokens.shape.full,
+                        border: "none",
+                        background: tokens.color.bg.action.primary.default,
+                        cursor: "pointer",
+                        fontSize: tokens.type.labelLarge.size,
+                        fontWeight: 600,
+                        color: tokens.color.fg.onAction,
+                        fontFamily: "inherit",
+                        opacity:
+                          !renamingCat.newName.trim() ||
+                          renamingCat.newName.trim() === renamingCat.name ||
+                          renamingCat.newName.trim().toLowerCase() === "uncategorised" ||
+                          categories.some(c => c.toLowerCase() === renamingCat.newName.trim().toLowerCase() && c !== renamingCat.name)
+                            ? 0.38 : 1,
+                        transition: `opacity ${tokens.motion.duration.short4} ${tokens.motion.easing.standard}`,
+                      }}
+                    >
+                      Rename
+                    </button>
+                  </div>
+                </div>
+              </>
+            )}
+
+            {/* ── Delete category dialog (M3 AlertDialog) ── */}
+            {deletingCat && (
               <>
                 <div
                   onClick={() => setDeletingCat(null)}
@@ -263,15 +500,15 @@ export default function ProductCatalogScreen({ navigate, goBack, products = [], 
                     transform: "translate(-50%, -50%)",
                     width: "calc(100% - 48px)",
                     background: tokens.color.bg.page,
-                    borderRadius: tokens.shape.expressiveLarge,
+                    borderRadius: tokens.shape.extraLarge,
                     padding: "24px",
                     zIndex: 51,
                     boxShadow: tokens.elevation.level3,
                   }}
                 >
                   <div style={{
-                    fontSize: tokens.type.titleLarge.size,
-                    fontWeight: tokens.type.titleLarge.weight,
+                    fontSize: tokens.type.headlineSmall.size,
+                    fontWeight: tokens.type.headlineSmall.weight,
                     color: tokens.color.fg.emphasis,
                   }}>
                     Delete category?
@@ -279,15 +516,24 @@ export default function ProductCatalogScreen({ navigate, goBack, products = [], 
                   <div style={{
                     fontSize: tokens.type.bodyMedium.size,
                     color: tokens.color.fg.subtle,
-                    marginTop: 8,
+                    marginTop: 16,
                     lineHeight: 1.5,
                   }}>
-                    <span style={{ fontWeight: 600, color: tokens.color.fg.emphasis }}>
-                      {categories[deletingCat]}
-                    </span>
-                    {getCategoryCount(categories[deletingCat]) > 0
-                      ? ` has ${getCategoryCount(categories[deletingCat])} products. They'll be moved to Uncategorised.`
-                      : " will be permanently removed."}
+                    {getCategoryCount(deletingCat) > 0 ? (
+                      <>
+                        <span style={{ fontWeight: 600, color: tokens.color.fg.emphasis }}>
+                          {deletingCat}
+                        </span>
+                        {` has ${getCategoryCount(deletingCat)} ${getCategoryCount(deletingCat) === 1 ? "product" : "products"}. They'll be moved to Uncategorised.`}
+                      </>
+                    ) : (
+                      <>
+                        <span style={{ fontWeight: 600, color: tokens.color.fg.emphasis }}>
+                          {deletingCat}
+                        </span>
+                        {" will be permanently removed."}
+                      </>
+                    )}
                   </div>
                   <div style={{
                     display: "flex",
@@ -298,7 +544,7 @@ export default function ProductCatalogScreen({ navigate, goBack, products = [], 
                     <button
                       onClick={() => setDeletingCat(null)}
                       style={{
-                        padding: "10px 20px",
+                        padding: "10px 24px",
                         borderRadius: tokens.shape.full,
                         border: "none",
                         background: "transparent",
@@ -312,12 +558,12 @@ export default function ProductCatalogScreen({ navigate, goBack, products = [], 
                       Cancel
                     </button>
                     <button
-                      onClick={() => handleDeleteCategory(deletingCat)}
+                      onClick={handleDeleteCategory}
                       style={{
-                        padding: "10px 20px",
+                        padding: "10px 24px",
                         borderRadius: tokens.shape.full,
                         border: "none",
-                        background: "#E53935",
+                        background: tokens.color.bg.error.default,
                         cursor: "pointer",
                         fontSize: tokens.type.labelLarge.size,
                         fontWeight: 600,
