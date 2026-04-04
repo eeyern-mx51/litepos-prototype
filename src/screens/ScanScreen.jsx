@@ -88,9 +88,9 @@ export default function ScanScreen({ navigate, basket, setBasket, products = [],
       // Add to basket
       const existing = basket.find((b) => b.name === found.name);
       if (existing) {
-        setBasket(basket.map((b) => (b.name === found.name ? { ...b, qty: b.qty + 1 } : b)));
+        setBasket([{ ...existing, qty: existing.qty + 1 }, ...basket.filter((b) => b.name !== found.name)]);
       } else {
-        setBasket([...basket, { name: found.name, price: parseFloat(found.price), qty: 1 }]);
+        setBasket([{ name: found.name, price: parseFloat(found.price), qty: 1 }, ...basket]);
       }
 
       // Return to home after showing success

@@ -35,9 +35,9 @@ export default function HomeScreen({ navigate, basket, setBasket, products = [],
   const handleAdd = (p) => {
     const existing = basket.find((b) => b.name === p.name);
     if (existing) {
-      setBasket(basket.map((b) => (b.name === p.name ? { ...b, qty: b.qty + 1 } : b)));
+      setBasket([{ ...existing, qty: existing.qty + 1 }, ...basket.filter((b) => b.name !== p.name)]);
     } else {
-      setBasket([...basket, { name: p.name, price: parseFloat(p.price), qty: 1 }]);
+      setBasket([{ name: p.name, price: parseFloat(p.price), qty: 1 }, ...basket]);
     }
   };
 
